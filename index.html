@@ -52,7 +52,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .src-val{font-size:17px;font-weight:700}
 /* KANBAN */
 .kanban{display:flex;gap:12px;overflow-x:auto;padding-bottom:12px;min-height:400px}
-.kcol{min-width:200px;flex:1;background:#e8e8e3;border-radius:12px;padding:10px}.kcol[data-st="Лиды"]{background:#efefef}.kcol[data-st="Ждём фото"]{background:#fef9e0}.kcol[data-st="В работе у дизайнера"]{background:#ddeeff}.kcol[data-st="В печати"]{background:#fde0ee}.kcol[data-st="Отправлено"]{background:#dff5e8}
+.kcol{min-width:220px;width:220px;flex:0 0 220px;background:#e8e8e3;border-radius:12px;padding:10px}.kcol[data-st="Лиды"]{background:#efefef}.kcol[data-st="Ждём фото"]{background:#fef9e0}.kcol[data-st="В работе у дизайнера"]{background:#ddeeff}.kcol[data-st="В печати"]{background:#fde0ee}.kcol[data-st="Отправлено"]{background:#dff5e8}
 .kcol-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
 .kcol-title{font-size:11px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:0.3px}
 .kcol-cnt{font-size:11px;background:#fff;padding:1px 7px;border-radius:20px;color:#666}
@@ -354,8 +354,16 @@ async function deleteExpense(id){
 // Загрузка данных из Firebase при старте
 async function loadFromFirebase(){
   document.getElementById('tinfo').textContent = 'Загрузка...';
-  const oSnap = await getDocs(collection(db,'orders'));
-  const eSnap = await getDocs(collection(db,'expenses'));
+  let oSnap, eSnap;
+  try {
+    oSnap = await getDocs(collection(db,'orders'));
+    eSnap = await getDocs(collection(db,'expenses'));
+  } catch(err) {
+    document.getElementById('tinfo').textContent = '❌ Ошибка: ' + err.message;
+    console.error('Firebase load error:', err);
+    setTimeout(loadFromFirebase, 3000);
+    return;
+  }
   
   if(oSnap.empty && eSnap.empty){
     orders = INIT_ORDERS;
