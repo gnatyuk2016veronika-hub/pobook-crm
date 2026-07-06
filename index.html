@@ -57,9 +57,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .kcol-title{font-size:11px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:0.3px}
 .kcol-cnt{font-size:11px;background:#fff;padding:1px 7px;border-radius:20px;color:#666}
 .kcol.dov .kcol-body{background:rgba(41,128,185,0.1);border:2px dashed #2980b9;border-radius:8px;min-height:40px}
-.kcard{background:#fff;border:1px solid #e8e8e8;border-radius:8px;padding:9px 11px;margin-bottom:8px}
+.kcard{background:#fff;border:1px solid #e8e8e8;border-radius:8px;padding:9px 11px;margin-bottom:8px;cursor:grab}
 .kcard:hover{border-color:#ccc;box-shadow:0 1px 4px rgba(0,0,0,0.08)}
-.kcard.dragging{opacity:.55;transform:rotate(1deg)}
+.kcard.dragging{opacity:.55;transform:rotate(1deg);cursor:grabbing}
 .kcol.drop-target .kcol-body{background:rgba(41,128,185,0.10);border:2px dashed #2980b9;border-radius:8px;min-height:80px;padding:6px}
 .kcard-name{font-size:13px;font-weight:600;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .kcard-tg{font-size:10px;color:#2980b9;margin-bottom:5px}
@@ -520,9 +520,69 @@ function renderKanban(){
 }
 
 function setupKanbanDragAndDrop(){
-  // Drag-and-drop намеренно отключён: draggable на карточках блокировал
-  // клики по кнопкам и открытие select внутри карточек (баг Chrome/Firefox).
-  // Перенос между статусами выполняется кнопкой «→ Далее» и селектом статуса.
+  const kanban = document.getElementById('kanban');
+
+  // Клики по кнопкам внутри карточек. Так надежнее, чем inline onclick,
+  // особенно внутри type=module и после перерисовки канбана.
+  kanban.onclick = (e) => {
+    const btn = e.target.closest('button[data-action]');
+    if(!btn) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const id = Number(btn.dataset.id);
+    if(btn.dataset.action === 'edit') openEditOrder(id);
+    if(btn.dataset.action === 'next') moveNext(id);
+  };
+
+  kanban.onchange = (e) => {
+    const sel = e.target.closest('select[data-action="status"]');
+    if(!sel) return;
+    const id = Number(sel.dataset.id);
+    moveToStatus(id, sel.value);
+  };
+
+  kanban.querySelectorAll('.kcard').forEach(card => {
+    card.draggable = true;
+
+    card.addEventListener('dragstart', (e) => {
+      // Если пользователь нажал кнопку/селект/ссылку — не начинаем перетаскивание.
+      if(e.target.closest('button, select, a, input, textarea')){
+        e.preventDefault();
+        return;
+      }
+      dragId = Number(card.dataset.id);
+      card.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/plain', String(dragId));
+    });
+
+    card.addEventListener('dragend', () => {
+      dragId = null;
+      card.classList.remove('dragging');
+      kanban.querySelectorAll('.kcol').forEach(col => col.classList.remove('drop-target'));
+    });
+  });
+
+  kanban.querySelectorAll('.kcol').forEach(col => {
+    col.addEventListener('dragover', (e) => {
+      if(!dragId) return;
+      e.preventDefault();
+      col.classList.add('drop-target');
+      e.dataTransfer.dropEffect = 'move';
+    });
+
+    col.addEventListener('dragleave', (e) => {
+      if(!col.contains(e.relatedTarget)) col.classList.remove('drop-target');
+    });
+
+    col.addEventListener('drop', async (e) => {
+      e.preventDefault();
+      col.classList.remove('drop-target');
+      const id = Number(e.dataTransfer.getData('text/plain') || dragId);
+      const status = col.dataset.st;
+      if(id && status) await moveToStatus(id, status);
+    });
+  });
 }
 function kcard(o){
   const dl=dLeft(o.deadline);
@@ -538,9 +598,9 @@ function kcard(o){
     ${o.deadline?`<div class="kcard-dl ${urg?'urg':''}">${urg?'🔥 ':''}${o.deadline}</div>`:''}
     ${o.notes?`<div style="font-size:10px;color:#aaa;margin-top:4px;font-style:italic">${o.notes}</div>`:''}
     <div class="kcard-btns">
-      <button class="kbtn ke" onclick="openEditOrder(${o.id})">✏️ Редактировать</button>
-      ${STATUSES.indexOf(o.status)<STATUSES.length-1?`<button class="kbtn km" onclick="moveNext(${o.id})">→ Далее</button>`:''}
-      <select class="isel" style="font-size:10px;padding:3px 4px;" onchange="moveToStatus(${o.id},this.value)">
+      <button class="kbtn ke" type="button" data-action="edit" data-id="${o.id}">✏️ Редактировать</button>
+      ${STATUSES.indexOf(o.status)<STATUSES.length-1?`<button class="kbtn km" type="button" data-action="next" data-id="${o.id}">→ Далее</button>`:''}
+      <select class="isel" style="font-size:10px;padding:3px 4px;" data-action="status" data-id="${o.id}">
         ${STATUSES.map(s=>`<option value="${s}" ${s===o.status?'selected':''}>${s}</option>`).join('')}
       </select>
     </div>
