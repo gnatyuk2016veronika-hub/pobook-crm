@@ -585,8 +585,8 @@ function kcard(o){
     </div>
   </div>`;
 }
-async function moveNext(id){const o=orders.find(x=>x.id===id);const i=STATUSES.indexOf(o.status);if(i<STATUSES.length-1){o.status=STATUSES[i+1];await saveOneOrder(o);renderKanban();}}
-async function moveToStatus(id,st){const o=orders.find(x=>x.id===id);if(o&&o.status!==st){o.status=st;await saveOneOrder(o);renderKanban();}}
+async function moveNext(id){   const o=orders.find(x=>String(x.id)===String(id));   if(!o)return;   const i=STATUSES.indexOf(o.status);   if(i<STATUSES.length-1){     o.status=STATUSES[i+1];     await saveOneOrder(o);     renderKanban();     renderDashboard();   } }const o=orders.find(x=>String(x.id)===String(id)); if(!o){alert('Заказ не найден');return;}const i=STATUSES.indexOf(o.status);if(i<STATUSES.length-1){o.status=STATUSES[i+1];await saveOneOrder(o);renderKanban();}}
+async function moveToStatus(id,st){   const o=orders.find(x=>String(x.id)===String(id));   if(o&&o.status!==st){     o.status=st;     await saveOneOrder(o);     renderKanban();     renderDashboard();   } }const o=orders.find(x=>String(x.id)===String(id)); if(!o){alert('Заказ не найден');return;}if(o&&o.status!==st){o.status=st;await saveOneOrder(o);renderKanban();}}
 
 
 // ── ВСЕ ЗАКАЗЫ ───────────────────────────────────────────────
@@ -633,7 +633,7 @@ function renderOrders(){
     </tr>`;
   }).join('');
 }
-async function quickEdit(id,field,val){const o=orders.find(x=>x.id===id);if(o){o[field]=val;await saveOneOrder(o);}}
+async function quickEdit(id,field,val){const o=orders.find(x=>String(x.id)===String(id)); if(!o){alert('Заказ не найден');return;}if(o){o[field]=val;await saveOneOrder(o);}}
 
 // ── ТРАТЫ ────────────────────────────────────────────────────
 function renderExpenses(){
@@ -714,7 +714,7 @@ function openNewOrder(){
 }
 function openEditOrder(id){
   editOid=id;
-  const o=orders.find(x=>x.id===id);
+  const o=orders.find(x=>String(x.id)===String(id)); if(!o){alert('Заказ не найден');return;}
   document.getElementById('mo-title').textContent='Редактировать заказ #'+id;
   document.getElementById('mo-del').style.display='inline-flex';
   fillOrderForm(o);
