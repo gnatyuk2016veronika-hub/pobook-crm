@@ -520,54 +520,15 @@ function renderKanban(){
 }
 
 function setupKanbanDragAndDrop(){
-  document.querySelectorAll('.kcard').forEach(card=>{
-    card.setAttribute('draggable','true');
-    card.addEventListener('dragstart',e=>{
-      dragId = Number(card.dataset.id);
-      card.classList.add('dragging');
-      e.dataTransfer.effectAllowed = 'move';
-      e.dataTransfer.setData('text/plain', String(dragId));
-    });
-    card.addEventListener('dragend',()=>{
-      dragId = null;
-      card.classList.remove('dragging');
-      document.querySelectorAll('.kcol').forEach(c=>c.classList.remove('drop-target'));
-    });
-  });
-
-  document.querySelectorAll('.kcol').forEach(col=>{
-    col.addEventListener('dragover',e=>{
-      e.preventDefault();
-      col.classList.add('drop-target');
-      e.dataTransfer.dropEffect = 'move';
-    });
-    col.addEventListener('dragleave',e=>{
-      if(!col.contains(e.relatedTarget)) col.classList.remove('drop-target');
-    });
-    col.addEventListener('drop',async e=>{
-      e.preventDefault();
-      col.classList.remove('drop-target');
-      const id = Number(e.dataTransfer.getData('text/plain') || dragId);
-      const newStatus = col.dataset.st;
-      const order = orders.find(o=>Number(o.id)===id);
-      if(!order || !newStatus || order.status===newStatus) return;
-      order.status = newStatus;
-      try{
-        await saveOneOrder(order);
-      }catch(err){
-        console.error('Ошибка сохранения статуса:', err);
-        alert('Не получилось сохранить изменение статуса. Проверь интернет/Firebase.');
-      }
-      renderKanban();
-      renderDashboard();
-    });
-  });
+  // Drag-and-drop намеренно отключён: draggable на карточках блокировал
+  // клики по кнопкам и открытие select внутри карточек (баг Chrome/Firefox).
+  // Перенос между статусами выполняется кнопкой «→ Далее» и селектом статуса.
 }
 function kcard(o){
   const dl=dLeft(o.deadline);
   const urg=dl!==null&&dl<=3&&dl>=0;
   const debt=Math.max(0,(o.price||0)-(o.paid||0));
-  return `<div class="kcard" data-id="${o.id}" draggable="true">
+  return `<div class="kcard" data-id="${o.id}">
     <div class="kcard-name">${o.name}</div>
     <div class="kcard-tg">${o.tg}</div>
     <div class="kcard-fmt">${o.format||'—'}</div>
@@ -585,8 +546,8 @@ function kcard(o){
     </div>
   </div>`;
 }
-async function moveNext(id){   const o=orders.find(x=>String(x.id)===String(id));   if(!o)return;   const i=STATUSES.indexOf(o.status);   if(i<STATUSES.length-1){     o.status=STATUSES[i+1];     await saveOneOrder(o);     renderKanban();     renderDashboard();   } }const o=orders.find(x=>String(x.id)===String(id)); if(!o){alert('Заказ не найден');return;}const i=STATUSES.indexOf(o.status);if(i<STATUSES.length-1){o.status=STATUSES[i+1];await saveOneOrder(o);renderKanban();}}
-async function moveToStatus(id,st){   const o=orders.find(x=>String(x.id)===String(id));   if(o&&o.status!==st){     o.status=st;     await saveOneOrder(o);     renderKanban();     renderDashboard();   } }const o=orders.find(x=>String(x.id)===String(id)); if(!o){alert('Заказ не найден');return;}if(o&&o.status!==st){o.status=st;await saveOneOrder(o);renderKanban();}}
+async function moveNext(id){const o=orders.find(x=>x.id===id);const i=STATUSES.indexOf(o.status);if(i<STATUSES.length-1){o.status=STATUSES[i+1];await saveOneOrder(o);renderKanban();}}
+async function moveToStatus(id,st){const o=orders.find(x=>x.id===id);if(o&&o.status!==st){o.status=st;await saveOneOrder(o);renderKanban();}}
 
 
 // ── ВСЕ ЗАКАЗЫ ───────────────────────────────────────────────
@@ -633,7 +594,7 @@ function renderOrders(){
     </tr>`;
   }).join('');
 }
-async function quickEdit(id,field,val){const o=orders.find(x=>String(x.id)===String(id)); if(!o){alert('Заказ не найден');return;}if(o){o[field]=val;await saveOneOrder(o);}}
+async function quickEdit(id,field,val){const o=orders.find(x=>x.id===id);if(o){o[field]=val;await saveOneOrder(o);}}
 
 // ── ТРАТЫ ────────────────────────────────────────────────────
 function renderExpenses(){
@@ -714,7 +675,7 @@ function openNewOrder(){
 }
 function openEditOrder(id){
   editOid=id;
-  const o=orders.find(x=>String(x.id)===String(id)); if(!o){alert('Заказ не найден');return;}
+  const o=orders.find(x=>x.id===id);
   document.getElementById('mo-title').textContent='Редактировать заказ #'+id;
   document.getElementById('mo-del').style.display='inline-flex';
   fillOrderForm(o);
