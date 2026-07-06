@@ -59,6 +59,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .kcol.dov .kcol-body{background:rgba(41,128,185,0.1);border:2px dashed #2980b9;border-radius:8px;min-height:40px}
 .kcard{background:#fff;border:1px solid #e8e8e8;border-radius:8px;padding:9px 11px;margin-bottom:8px}
 .kcard:hover{border-color:#ccc;box-shadow:0 1px 4px rgba(0,0,0,0.08)}
+.kcard.dragging{opacity:.55;transform:rotate(1deg)}
+.kcol.drop-target .kcol-body{background:rgba(41,128,185,0.10);border:2px dashed #2980b9;border-radius:8px;min-height:80px;padding:6px}
 .kcard-name{font-size:13px;font-weight:600;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .kcard-tg{font-size:10px;color:#2980b9;margin-bottom:5px}
 .kcard-fmt{font-size:11px;color:#888;margin-bottom:5px}
@@ -176,7 +178,7 @@ tbody tr:hover td{background:#fafafa}
     </div>
     <div class="tbl-wrap">
       <table>
-        <thead><tr><th>#</th><th>Имя</th><th>TG</th><th>Источник</th><th>Формат</th><th>Стоимость</th><th>Оплачено</th><th>Прибыль</th><th>Остаток</th><th>Статус</th><th>Дедлайн</th><th></th></tr></thead>
+        <thead><tr><th>#</th><th>Имя</th><th>TG</th><th>Источник</th><th>Формат</th><th>Дата заказа</th><th>Стоимость</th><th>Оплачено</th><th>Прибыль</th><th>Остаток</th><th>Статус</th><th>Дедлайн</th><th></th></tr></thead>
         <tbody id="orders-body"></tbody>
       </table>
     </div>
@@ -229,10 +231,17 @@ tbody tr:hover td{background:#fafafa}
       <select id="mo-src"><option>Инстаграм</option><option>Телеграм</option><option>Сарафан</option><option>Реклама</option></select>
     </div>
     <div class="fr">
-      <label>Дата создания</label>
+      <label>Дата создания (лид)</label>
       <input id="mo-date" type="date">
-      <span class="month-hint" id="mo-month-hint"></span>
     </div>
+  </div>
+  <div class="fr">
+    <label>Дата заказа <span style="color:#aaa;font-weight:400;text-transform:none;letter-spacing:0">(когда клиент оплатил — выручка считается по этой дате)</span></label>
+    <div style="display:flex;gap:6px">
+      <input id="mo-orderdate" type="date" style="flex:1">
+      <button type="button" class="btn" id="mo-orderdate-today" style="white-space:nowrap">📅 Сегодня</button>
+    </div>
+    <span class="month-hint" id="mo-month-hint"></span>
   </div>
   <div class="sep">Заказ</div>
   <div class="fg">
@@ -428,6 +437,7 @@ function profit(o){return (o.price||0)-(o.printCost||0);}
 function fmt(n){return Number(n||0).toLocaleString('ru-RU')+'₽';}
 function dLeft(dl){if(!dl||!dl.match(/^\d{4}/))return null;return Math.round((new Date(dl)-new Date())/86400000);}
 function getMonth(d){if(!d||!d.match(/^\d{4}/))return'';try{return MORD[new Date(d).getMonth()];}catch(e){return'';}}
+function revDate(o){return o.orderDate||o.createdAt||'';}
 function srcBadge(s){return s==='Телеграм'?'bt':s==='Сарафан'?'bs':s==='Реклама'?'br':'bi';}
 function ptBadge(p){return p==='премиальная'?'bp':p==='срочный'?'bu':'bst';}
 
@@ -456,7 +466,7 @@ function renderDashboard(){
   const inDesign=orders.filter(o=>o.status==='В работе у дизайнера').length;
   const inPrint=orders.filter(o=>o.status==='В печати').length;
   const nowMonth=MORD[new Date().getMonth()];
-  const thisMonthOrders=orders.filter(o=>getMonth(o.createdAt)===nowMonth).length;
+  const thisMonthOrders=orders.filter(o=>getMonth(revDate(o))===nowMonth).length;
   document.getElementById('tinfo').textContent=`${orders.length} заказов · ${fmt(total)}`;
   document.getElementById('metrics').innerHTML=`
     <div class="metric"><div class="metric-label">Всего заказов</div><div class="metric-value blue">${orders.length}</div></div>
@@ -477,11 +487,11 @@ function renderDashboard(){
   const maxP=top[0]?top[0][1]:1;
   document.getElementById('top-formats').innerHTML=top.map(([f,p])=>`<div class="bar"><div class="bar-top"><span>${f}</span><span style="color:#27ae60;font-weight:600">${fmt(p)}</span></div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(p/maxP*100)}%"></div></div></div>`).join('');
   // KPI
-  const months=[...new Set(orders.filter(o=>o.createdAt&&o.createdAt.match(/^\d{4}/)).map(o=>getMonth(o.createdAt)).filter(Boolean))];
+  const months=[...new Set(orders.filter(o=>revDate(o)&&revDate(o).match(/^\d{4}/)).map(o=>getMonth(revDate(o))).filter(Boolean))];
   months.sort((a,b)=>MORD.indexOf(a)-MORD.indexOf(b));
   let html='',tR=0,tP=0,tN=0,tC=0;
   months.forEach(m=>{
-    const mo=orders.filter(o=>getMonth(o.createdAt)===m);
+    const mo=orders.filter(o=>getMonth(revDate(o))===m);
     const rev=mo.reduce((s,o)=>s+(o.price||0),0);
     const pr=mo.reduce((s,o)=>s+profit(o),0);
     const mDate=new Date(2026,MORD.indexOf(m)+1,0);
@@ -506,12 +516,58 @@ function renderKanban(){
       <div class="kcol-header"><span class="kcol-title">${st}</span><span class="kcol-cnt">${orders.filter(o=>o.status===st).length}</span></div>
       <div class="kcol-body">${orders.filter(o=>o.status===st).map(kcard).join('')}</div>
     </div>`).join('');
+  setupKanbanDragAndDrop();
+}
+
+function setupKanbanDragAndDrop(){
+  document.querySelectorAll('.kcard').forEach(card=>{
+    card.setAttribute('draggable','true');
+    card.addEventListener('dragstart',e=>{
+      dragId = Number(card.dataset.id);
+      card.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/plain', String(dragId));
+    });
+    card.addEventListener('dragend',()=>{
+      dragId = null;
+      card.classList.remove('dragging');
+      document.querySelectorAll('.kcol').forEach(c=>c.classList.remove('drop-target'));
+    });
+  });
+
+  document.querySelectorAll('.kcol').forEach(col=>{
+    col.addEventListener('dragover',e=>{
+      e.preventDefault();
+      col.classList.add('drop-target');
+      e.dataTransfer.dropEffect = 'move';
+    });
+    col.addEventListener('dragleave',e=>{
+      if(!col.contains(e.relatedTarget)) col.classList.remove('drop-target');
+    });
+    col.addEventListener('drop',async e=>{
+      e.preventDefault();
+      col.classList.remove('drop-target');
+      const id = Number(e.dataTransfer.getData('text/plain') || dragId);
+      const newStatus = col.dataset.st;
+      const order = orders.find(o=>Number(o.id)===id);
+      if(!order || !newStatus || order.status===newStatus) return;
+      order.status = newStatus;
+      try{
+        await saveOneOrder(order);
+      }catch(err){
+        console.error('Ошибка сохранения статуса:', err);
+        alert('Не получилось сохранить изменение статуса. Проверь интернет/Firebase.');
+      }
+      renderKanban();
+      renderDashboard();
+    });
+  });
 }
 function kcard(o){
   const dl=dLeft(o.deadline);
   const urg=dl!==null&&dl<=3&&dl>=0;
   const debt=Math.max(0,(o.price||0)-(o.paid||0));
-  return `<div class="kcard" data-id="${o.id}">
+  return `<div class="kcard" data-id="${o.id}" draggable="true">
     <div class="kcard-name">${o.name}</div>
     <div class="kcard-tg">${o.tg}</div>
     <div class="kcard-fmt">${o.format||'—'}</div>
@@ -536,7 +592,7 @@ async function moveToStatus(id,st){const o=orders.find(x=>x.id===id);if(o&&o.sta
 // ── ВСЕ ЗАКАЗЫ ───────────────────────────────────────────────
 function populateFilters(){
   const fm=document.getElementById('f-month');while(fm.options.length>1)fm.remove(1);
-  const months=[...new Set(orders.filter(o=>o.createdAt&&o.createdAt.match(/^\d{4}/)).map(o=>getMonth(o.createdAt)).filter(Boolean))];
+  const months=[...new Set(orders.filter(o=>revDate(o)&&revDate(o).match(/^\d{4}/)).map(o=>getMonth(revDate(o))).filter(Boolean))];
   months.sort((a,b)=>MORD.indexOf(a)-MORD.indexOf(b));
   months.forEach(m=>{const op=document.createElement('option');op.value=m;op.text=m;fm.appendChild(op);});
   const fs=document.getElementById('f-status');while(fs.options.length>1)fs.remove(1);
@@ -550,7 +606,7 @@ function renderOrders(){
   const fsr=document.getElementById('f-source').value;
   const fq=(document.getElementById('f-search').value||'').toLowerCase();
   const filtered=[...orders].reverse().filter(o=>
-    (!fm||getMonth(o.createdAt)===fm)&&(!fs||o.status===fs)&&
+    (!fm||getMonth(revDate(o))===fm)&&(!fs||o.status===fs)&&
     (!fsr||o.source===fsr)&&(!fq||o.name.toLowerCase().includes(fq)||o.tg.toLowerCase().includes(fq))
   );
   document.getElementById('orders-body').innerHTML=filtered.map(o=>{
@@ -564,6 +620,7 @@ function renderOrders(){
         ${['Инстаграм','Телеграм','Сарафан','Реклама'].map(s=>`<option ${o.source===s?'selected':''}>${s}</option>`).join('')}
       </select></td>
       <td>${o.format||'—'}</td>
+      <td style="color:#888">${revDate(o)||'—'}</td>
       <td>${fmt(o.price)}</td>
       <td>${fmt(o.paid)}</td>
       <td style="color:#27ae60;font-weight:700">${fmt(profit(o))}</td>
@@ -607,8 +664,14 @@ function calcProfit(){
   document.getElementById('mo-debt').textContent=fmt(Math.max(0,p-paid));
 }
 function calcMonth(){
-  const d=document.getElementById('mo-date').value;
-  document.getElementById('mo-month-hint').textContent=d&&d.match(/^\d{4}/)?'📅 '+getMonth(d):'';
+  const d=document.getElementById('mo-orderdate').value||document.getElementById('mo-date').value;
+  document.getElementById('mo-month-hint').textContent=d&&d.match(/^\d{4}/)?'📅 Месяц учёта: '+getMonth(d):'';
+}
+function setOrderDateToday(){
+  const t=new Date();
+  const iso=t.getFullYear()+'-'+String(t.getMonth()+1).padStart(2,'0')+'-'+String(t.getDate()).padStart(2,'0');
+  document.getElementById('mo-orderdate').value=iso;
+  calcMonth();
 }
 function calcLink(){
   const v=document.getElementById('mo-link').value.trim();
@@ -622,6 +685,7 @@ function fillOrderForm(o){
   document.getElementById('mo-link').value=o.link||'';
   document.getElementById('mo-src').value=o.source||'Инстаграм';
   document.getElementById('mo-date').value=o.createdAt||'';
+  document.getElementById('mo-orderdate').value=o.orderDate||'';
   document.getElementById('mo-fmt').value=o.format||'парню на др';
   document.getElementById('mo-pt').value=o.printType||'стандартная';
   document.getElementById('mo-price').value=o.price||'';
@@ -666,7 +730,7 @@ async function saveOrderForm(){
     name,tg:document.getElementById('mo-tg').value.trim(),
     link:document.getElementById('mo-link').value.trim(),
     source:document.getElementById('mo-src').value,
-    createdAt:created,format:document.getElementById('mo-fmt').value,
+    createdAt:created,orderDate:document.getElementById('mo-orderdate').value,format:document.getElementById('mo-fmt').value,
     printType:document.getElementById('mo-pt').value,price,
     printCost:+document.getElementById('mo-pcost').value||0,
     paid,
@@ -771,6 +835,8 @@ document.getElementById('mo-price').addEventListener('input',calcProfit);
 document.getElementById('mo-pcost').addEventListener('input',calcProfit);
 document.getElementById('mo-paid').addEventListener('input',calcProfit);
 document.getElementById('mo-date').addEventListener('input',calcMonth);
+document.getElementById('mo-orderdate').addEventListener('input',calcMonth);
+document.getElementById('mo-orderdate-today').addEventListener('click',setOrderDateToday);
 document.getElementById('mo-link').addEventListener('input',calcLink);
 document.getElementById('mo-anketa').addEventListener('input',function(){
   const v=this.value.trim();const p=document.getElementById('mo-anketa-prev');
@@ -830,11 +896,14 @@ document.getElementById('task-input').addEventListener('keydown',function(e){if(
 window.openEditOrder = openEditOrder;
 window.openEditExpense = openEditExpense;
 window.moveNext = moveNext;
-window.onDS = onDS;
-window.onDO = onDO;
-window.onDL = onDL;
-window.onDP = onDP;
 window.quickEdit = quickEdit;
+window.saveOrderForm = saveOrderForm;
+window.deleteOrderForm = deleteOrderForm;
+window.saveExpenseForm = saveExpenseForm;
+window.deleteExpenseForm = deleteExpenseForm;
+window.closeOrderModal = closeOrderModal;
+window.closeExpenseModal = closeExpenseModal;
+window.moveToStatus = moveToStatus;
 
 document.addEventListener('DOMContentLoaded', () => { loadFromFirebase(); });
 </script>
