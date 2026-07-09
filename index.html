@@ -1,978 +1,773 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>POBOOK CRM</title>
-<style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f0f0eb;color:#1a1a1a}
-/* TOPBAR */
-.topbar{background:#1a252f;padding:12px 20px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:50}
-.topbar h1{color:#fff;font-size:15px;font-weight:600;flex:1}
-.topbar-info{color:#8899aa;font-size:12px}
-/* TABS */
-.tabs{background:#fff;border-bottom:1px solid #ddd;display:flex;padding:0 20px;gap:4px}
-.tab{padding:11px 16px;font-size:13px;cursor:pointer;color:#888;border-bottom:2px solid transparent;margin-bottom:-1px;font-weight:500;user-select:none}
-.tab:hover{color:#444}
-.tab.active{color:#1a252f;border-bottom-color:#1a252f}
-/* CONTENT */
-.content{padding:16px 20px}
-/* КНОПКИ */
-.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;border:1px solid #ddd;background:#fff;font-size:13px;cursor:pointer;font-family:inherit;color:#1a1a1a}
-.btn:hover{background:#f5f5f5}
-.btn.primary{background:#2980b9;color:#fff;border-color:#2980b9}
-.btn.primary:hover{background:#236fa3}
-.btn.danger{background:#e74c3c;color:#fff;border-color:#e74c3c}
-.btn.danger:hover{background:#c0392b}
-/* МЕТРИКИ */
-.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:16px}
-.metric{background:#fff;border-radius:10px;padding:14px;border:1px solid #e8e8e8}
-.metric-label{font-size:11px;color:#888;margin-bottom:5px;font-weight:500;text-transform:uppercase;letter-spacing:0.4px}
-.metric-value{font-size:21px;font-weight:700;color:#1a252f}
-.metric-value.green{color:#27ae60}
-.metric-value.blue{color:#2980b9}
-.metric-value.orange{color:#e67e22}
-.metric-value.red{color:#e74c3c}
-/* DASH */
-.dash-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
-.card-block{background:#fff;border-radius:10px;border:1px solid #e8e8e8;padding:14px}
-.card-block h3{font-size:13px;font-weight:600;margin-bottom:10px}
-.kpi-tbl{width:100%;font-size:12px;border-collapse:collapse}
-.kpi-tbl th{color:#888;font-weight:500;padding:5px 8px;border-bottom:1px solid #f0f0f0;text-align:left}
-.kpi-tbl td{padding:6px 8px;border-bottom:1px solid #f8f8f8}
-.kpi-tbl tr:last-child td{font-weight:700;background:#f8f8f8;border:none}
-.bar{margin-bottom:8px}
-.bar-top{display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px}
-.bar-track{height:6px;background:#f0f0f0;border-radius:4px}
-.bar-fill{height:6px;background:#27ae60;border-radius:4px;transition:width 0.3s}
-.src-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.src-item{background:#f8f8f8;border-radius:8px;padding:10px}
-.src-name{font-size:11px;color:#888;margin-bottom:3px}
-.src-val{font-size:17px;font-weight:700}
-/* KANBAN */
-.kanban{display:flex;gap:12px;overflow-x:auto;padding-bottom:12px;min-height:400px}
-.kcol{min-width:220px;width:220px;flex:0 0 220px;background:#e8e8e3;border-radius:12px;padding:10px}.kcol[data-st="Лиды"]{background:#efefef}.kcol[data-st="Ждём фото"]{background:#fef9e0}.kcol[data-st="В работе у дизайнера"]{background:#ddeeff}.kcol[data-st="В печати"]{background:#fde0ee}.kcol[data-st="Отправлено"]{background:#dff5e8}
-.kcol-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
-.kcol-title{font-size:11px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:0.3px}
-.kcol-cnt{font-size:11px;background:#fff;padding:1px 7px;border-radius:20px;color:#666}
-.kcol.dov .kcol-body{background:rgba(41,128,185,0.1);border:2px dashed #2980b9;border-radius:8px;min-height:40px}
-.kcard{background:#fff;border:1px solid #e8e8e8;border-radius:8px;padding:9px 11px;margin-bottom:8px;cursor:grab}
-.kcard:hover{border-color:#ccc;box-shadow:0 1px 4px rgba(0,0,0,0.08)}
-.kcard.dragging{opacity:.55;transform:rotate(1deg);cursor:grabbing}
-.kcol.drop-target .kcol-body{background:rgba(41,128,185,0.10);border:2px dashed #2980b9;border-radius:8px;min-height:80px;padding:6px}
-.kcard-name{font-size:13px;font-weight:600;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.kcard-tg{font-size:10px;color:#2980b9;margin-bottom:5px}
-.kcard-fmt{font-size:11px;color:#888;margin-bottom:5px}
-.badge{display:inline-block;font-size:10px;padding:2px 6px;border-radius:20px;font-weight:600;margin:0 2px 2px 0}
-.bi{background:#fde8e8;color:#c0392b}
-.bt{background:#e8f4fd;color:#1a6fa3}
-.bs{background:#e8f8f0;color:#1e8449}
-.br{background:#fef9e7;color:#9a6f00}
-.bp{background:#fef5e7;color:#b7770d}
-.bu{background:#fde8e8;color:#c0392b}
-.bst{background:#f0f0f0;color:#666}
-.kcard-money{display:flex;justify-content:space-between;margin-top:6px;font-size:11px}
-.kcard-profit{color:#27ae60;font-weight:700;font-size:12px}
-.kcard-debt{color:#e74c3c;font-weight:600}
-.kcard-ok{color:#27ae60}
-.kcard-dl{font-size:10px;color:#aaa;margin-top:3px}
-.kcard-dl.urg{color:#e74c3c;font-weight:600}
-.kcard-btns{display:flex;gap:5px;margin-top:7px;padding-top:7px;border-top:1px solid #f5f5f5}
-.kbtn{padding:4px 9px;font-size:11px;border-radius:6px;border:1px solid #ddd;background:#f8f8f8;cursor:pointer;font-family:inherit;color:#555}
-.kbtn:hover{background:#eee}
-.kbtn.km{background:#2980b9;color:#fff;border-color:#2980b9}
-.kbtn.ke{background:#f39c12;color:#fff;border-color:#f39c12}
-/* ТАБЛИЦА */
-.filter-bar{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center}
-.filter-bar select,.filter-bar input{padding:7px 10px;border:1px solid #ddd;border-radius:8px;background:#fff;font-size:12px;font-family:inherit}
-.tbl-wrap{background:#fff;border-radius:10px;border:1px solid #e8e8e8;overflow:auto;max-height:65vh}
-table{width:100%;border-collapse:collapse;font-size:12px}
-thead th{background:#f8f8f8;color:#666;font-weight:600;padding:9px 10px;text-align:left;border-bottom:1px solid #e8e8e8;white-space:nowrap;position:sticky;top:0;z-index:2}
-tbody td{padding:8px 10px;border-bottom:1px solid #f0f0f0;vertical-align:middle}
-tbody tr:hover td{background:#fafafa}
-.pill{display:inline-block;font-size:10px;padding:3px 8px;border-radius:20px;font-weight:600}
-.isel{border:1px solid #ddd;border-radius:5px;padding:3px 6px;font-size:11px;font-family:inherit;background:#fff;cursor:pointer;color:#1a1a1a}
-/* ТРАТЫ */
-.expenses-wrap{background:#fff;border-radius:10px;border:1px solid #e8e8e8;overflow:hidden;margin-bottom:14px}
-.expenses-wrap table{font-size:12px}
-.exp-summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:14px}
-.exp-card{background:#fff;border-radius:10px;padding:14px;border:1px solid #e8e8e8}
-.exp-label{font-size:11px;color:#888;margin-bottom:4px;font-weight:500;text-transform:uppercase}
-.exp-val{font-size:19px;font-weight:700}
-/* МОДАЛКИ */
-.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;align-items:center;justify-content:center}
-.overlay.open{display:flex}
-.modal{background:#fff;border-radius:14px;padding:22px;width:94%;max-width:500px;max-height:90vh;overflow-y:auto;position:relative}
-.modal h2{font-size:15px;font-weight:600;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center}
-.modal-close{background:none;border:none;font-size:20px;cursor:pointer;color:#aaa;padding:0 4px;line-height:1}
-.modal-close:hover{color:#666}
-.fg{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.fr{margin-bottom:10px}
-.fr label{display:block;font-size:11px;color:#888;margin-bottom:4px;font-weight:600;text-transform:uppercase;letter-spacing:0.3px}
-.fr input,.fr select,.fr textarea{width:100%;padding:8px 10px;border:1px solid #ddd;border-radius:7px;font-size:13px;font-family:inherit;background:#fff;color:#1a1a1a}
-.fr input:focus,.fr select:focus,.fr textarea:focus{outline:none;border-color:#2980b9;box-shadow:0 0 0 2px rgba(41,128,185,0.1)}
-.profit-box{background:#eafaf1;border-radius:8px;padding:12px 14px;display:flex;justify-content:space-between;margin-bottom:10px}
-.profit-box-r{text-align:right}
-.pb-label{font-size:11px;color:#888;margin-bottom:3px}
-.pb-val{font-size:19px;font-weight:700;color:#27ae60}
-.pb-val.red{color:#e74c3c}
-.sep{font-size:11px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.5px;margin:12px 0 8px;padding-bottom:5px;border-bottom:1px solid #f0f0f0}
-.mfooter{display:flex;gap:8px;justify-content:flex-end;margin-top:14px;padding-top:12px;border-top:1px solid #f0f0f0}
-.link-prev{display:none;align-items:center;gap:6px;font-size:11px;color:#2980b9;padding:5px 10px;border-radius:7px;border:1px solid #d4e8f5;background:#f0f7fc;margin-top:5px;text-decoration:none;width:100%}
-.month-hint{font-size:11px;color:#27ae60;margin-top:3px;display:block;min-height:16px}
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>POBOOK CRM</title>
+  <style>
+    :root{
+      --ink:#17202a;--muted:#6b7280;--line:#e7e2dc;--paper:#fff;--bg:#f7f3ee;
+      --blue:#4f7fcf;--green:#3a9b72;--red:#d25b5b;--orange:#d48a3a;--violet:#8d6cc8;
+      --rose:#f4dce3;--mint:#dcefe5;--sky:#dceafa;--cream:#f7ecd0;--lilac:#e8ddf4;
+      --shadow:0 16px 38px rgba(84,63,45,.10);
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;background:var(--bg);color:var(--ink)}
+    button,input,select,textarea{font:inherit}
+    button{cursor:pointer}
+    .topbar{position:sticky;top:0;z-index:20;background:#24313d;color:#fff;padding:13px 18px;display:flex;gap:10px;align-items:center;box-shadow:0 8px 24px rgba(36,49,61,.16)}
+    .brand{font-weight:850;font-size:17px;letter-spacing:.2px;flex:1}
+    .sync{font-size:12px;color:#d7e1ea}
+    .btn{border:1px solid var(--line);background:#fff;border-radius:8px;padding:8px 12px;color:var(--ink);display:inline-flex;align-items:center;gap:6px;box-shadow:0 1px 0 rgba(15,23,42,.03)}
+    .btn:hover{background:#fbfaf8}
+    .btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+    .btn.danger{background:var(--red);border-color:var(--red);color:#fff}
+    .tabs{display:flex;gap:4px;padding:0 18px;background:#fffdfb;border-bottom:1px solid var(--line);overflow:auto}
+    .tab{border:0;background:transparent;padding:13px 14px;color:var(--muted);border-bottom:2px solid transparent;white-space:nowrap}
+    .tab.active{color:var(--ink);border-bottom-color:var(--blue);font-weight:700}
+    main{padding:18px}
+    .metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:14px}
+    .metric{background:#fff;border:1px solid var(--line);border-radius:8px;padding:14px;box-shadow:0 8px 18px rgba(84,63,45,.05)}
+    .label{font-size:11px;color:var(--muted);text-transform:uppercase;font-weight:800;letter-spacing:.35px}
+    .value{font-size:24px;font-weight:850;margin-top:5px}
+    .green{color:var(--green)}.red{color:var(--red)}.blue{color:var(--blue)}.orange{color:var(--orange)}
+    .panel{background:#fff;border:1px solid var(--line);border-radius:8px;padding:14px;margin-bottom:14px;box-shadow:0 8px 18px rgba(84,63,45,.05)}
+    .panel-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px}
+    h2{font-size:15px;margin:0}
+    table{width:100%;border-collapse:collapse;font-size:13px}
+    th,td{padding:9px 10px;border-bottom:1px solid #eef2f7;text-align:left;vertical-align:top}
+    th{font-size:11px;color:var(--muted);text-transform:uppercase;background:#fbf7f2;position:sticky;top:0}
+    .table-wrap{max-height:66vh;overflow:auto;border:1px solid var(--line);border-radius:8px;background:#fff}
+    .filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+    input,select,textarea{border:1px solid var(--line);border-radius:8px;padding:8px 10px;background:#fff;color:var(--ink)}
+    .filters input{min-width:210px}
+    .pill{display:inline-flex;align-items:center;padding:3px 8px;border-radius:999px;font-size:11px;font-weight:800;background:#edf2ff;color:#31518f}
+    .pill.lead{background:#fff7ed;color:#9a3412}.pill.done{background:#ecfdf5;color:#166534}
+    .kanban{display:flex;gap:12px;overflow:auto;padding-bottom:12px}
+    .col{min-width:260px;width:260px;border-radius:8px;padding:10px;border:1px solid rgba(84,63,45,.08)}
+    .col[data-status="Лиды"]{background:var(--cream)}
+    .col[data-status="Ждём фото"]{background:var(--lilac)}
+    .col[data-status="В работе у дизайнера"]{background:var(--sky)}
+    .col[data-status="В печати"]{background:var(--rose)}
+    .col[data-status="Отправлено"]{background:var(--mint)}
+    .col-head{display:flex;justify-content:space-between;margin-bottom:8px;font-size:12px;font-weight:850;color:#475569;text-transform:uppercase}
+    .card{background:rgba(255,255,255,.92);border:1px solid rgba(255,255,255,.8);border-radius:8px;padding:10px;margin-bottom:8px;box-shadow:0 8px 18px rgba(84,63,45,.08)}
+    .card.dragging{opacity:.55}
+    .col.drop{outline:2px dashed var(--blue);outline-offset:2px}
+    .name{font-weight:800;margin-bottom:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .small{font-size:12px;color:var(--muted)}
+    .money{display:flex;justify-content:space-between;gap:8px;margin-top:8px;font-size:12px}
+    .actions{display:flex;gap:6px;margin-top:9px}
+    .iconbtn{border:1px solid var(--line);background:#fff;border-radius:7px;padding:5px 8px;font-size:12px}
+    .modal-back{display:none;position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:50;align-items:center;justify-content:center;padding:16px}
+    .modal-back.open{display:flex}
+    .modal{background:#fff;border-radius:10px;box-shadow:var(--shadow);width:min(720px,100%);max-height:92vh;overflow:auto;padding:18px}
+    .modal-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+    .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+    .field{display:flex;flex-direction:column;gap:4px;margin-bottom:10px}
+    .field label{font-size:11px;color:var(--muted);font-weight:850;text-transform:uppercase}
+    .full{grid-column:1/-1}
+    .footer{display:flex;justify-content:flex-end;gap:8px;border-top:1px solid var(--line);padding-top:12px;margin-top:8px}
+    .notice{background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;border-radius:8px;padding:10px 12px;font-size:13px;margin-bottom:14px}
+    .empty{color:var(--muted);font-size:13px;padding:14px}
+    .dash-grid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(320px,.75fr);gap:14px}
+    .task-row{display:grid;grid-template-columns:22px minmax(0,1fr) auto;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid #f2ede7}
+    .task-row:last-child{border-bottom:0}
+    .task-text{font-size:13px}
+    .task-text.done{text-decoration:line-through;color:#a3a3a3}
+    .task-form{display:flex;gap:8px;margin-top:10px}
+    .task-form input{flex:1;min-width:0}
+    .team-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+    .person{background:#fff;border:1px solid var(--line);border-radius:8px;padding:14px;box-shadow:0 8px 18px rgba(84,63,45,.05)}
+    .person h3{font-size:15px;margin:0 0 8px}
+    .person-count{font-size:12px;color:var(--muted);margin-bottom:10px}
+    .person-orders{display:flex;flex-direction:column;gap:7px;margin-bottom:12px}
+    .mini-order{border:1px solid #efe8df;background:#fffaf5;border-radius:8px;padding:8px}
+    .owner-chip{display:inline-flex;align-items:center;margin-top:6px;padding:3px 8px;border-radius:999px;background:#f3ecff;color:#65459a;font-size:11px;font-weight:800}
+    .section-title{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+    @media(max-width:980px){.dash-grid{grid-template-columns:1fr}}
+    @media(max-width:720px){.topbar{flex-wrap:wrap}.sync{width:100%}.grid{grid-template-columns:1fr}.value{font-size:20px}main{padding:12px}}
+  </style>
 </head>
 <body>
+  <header class="topbar">
+    <div class="brand">POBOOK CRM</div>
+    <div class="sync" id="syncText">Подключение...</div>
+    <button class="btn" id="reloadBtn" type="button">Обновить</button>
+    <button class="btn primary" id="newOrderBtn" type="button">Новый заказ</button>
+  </header>
 
-<div class="topbar">
-  <h1>📚 POBOOK CRM</h1>
-  <span class="topbar-info" id="tinfo"></span>
-  <button class="btn" id="btn-reset" type="button" style="background:#e67e22;color:#fff;border-color:#e67e22">🔄 Загрузить мои данные</button><button class="btn primary" id="btn-new-order" type="button">+ Новый заказ</button>
-</div>
+  <nav class="tabs">
+    <button class="tab active" data-tab="dashboard" type="button">Дашборд</button>
+    <button class="tab" data-tab="kanban" type="button">Этапы</button>
+    <button class="tab" data-tab="orders" type="button">Заказы</button>
+    <button class="tab" data-tab="team" type="button">Команда</button>
+    <button class="tab" data-tab="expenses" type="button">Траты</button>
+  </nav>
 
-<div class="tabs">
-  <div class="tab active" data-tab="dashboard">Дашборд</div>
-  <div class="tab" data-tab="kanban">Этапы работы</div>
-  <div class="tab" data-tab="orders">Все заказы</div>
-  <div class="tab" data-tab="expenses">💸 Траты</div>
-</div>
+  <main>
+    <section id="dashboardTab">
+      <div class="notice" id="dateNotice" hidden></div>
+      <div class="metrics" id="metrics"></div>
+      <div class="dash-grid">
+        <div>
+          <div class="panel">
+            <div class="panel-head"><h2>KPI по месяцам</h2></div>
+            <div class="table-wrap"><table><thead><tr><th>Месяц</th><th>Заказы</th><th>Сумма сделок</th><th>Выручка оплачено</th><th>Прибыль</th><th>Траты</th><th>Чистая</th></tr></thead><tbody id="kpiBody"></tbody></table></div>
+          </div>
+          <div class="panel">
+            <div class="panel-head"><h2>Источники клиентов</h2></div>
+            <div id="sources"></div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="section-title"><h2>Задачи на сегодня</h2></div>
+          <div id="dashboardTasks"></div>
+          <div class="task-form">
+            <input id="dashboardTaskInput" placeholder="Добавить задачу">
+            <button class="btn primary" id="addDashboardTaskBtn" type="button">Добавить</button>
+          </div>
+        </div>
+      </div>
+    </section>
 
-<div class="content">
-  <!-- ДАШБОРД -->
-  <div id="tab-dashboard">
-    <div class="metrics" id="metrics"></div>
-    <div class="dash-row">
-      <div class="card-block"><h3>Источники клиентов</h3><div class="src-grid" id="sources"></div></div>
-    </div>
-    <div class="card-block" style="margin-bottom:14px">
-      <h3 style="margin-bottom:10px">📝 Задачи на сегодня</h3>
-      <div id="tasks-list" style="margin-bottom:8px"></div>
-      <div style="display:flex;gap:8px">
-        <input id="task-input" placeholder="Добавить задачу..." style="flex:1;padding:7px 10px;border:1px solid #ddd;border-radius:7px;font-size:13px;font-family:inherit">
-        <button onclick="addTask()" style="padding:7px 14px;background:#2980b9;color:#fff;border:none;border-radius:7px;cursor:pointer;font-size:13px">+</button>
+    <section id="kanbanTab" hidden>
+      <div class="kanban" id="kanban"></div>
+    </section>
+
+    <section id="ordersTab" hidden>
+      <div class="filters">
+        <select id="monthFilter"><option value="">Все месяцы</option></select>
+        <select id="statusFilter"><option value="">Все статусы</option></select>
+        <select id="sourceFilter"><option value="">Все источники</option></select>
+        <input id="searchFilter" placeholder="Поиск по имени, TG, телефону">
+      </div>
+      <div class="table-wrap"><table><thead><tr><th>#</th><th>Клиент</th><th>Источник</th><th>Ответственный</th><th>Дата учета</th><th>Формат</th><th>Сумма</th><th>Оплачено</th><th>Долг</th><th>Статус</th><th></th></tr></thead><tbody id="ordersBody"></tbody></table></div>
+    </section>
+
+    <section id="teamTab" hidden>
+      <div class="panel-head">
+        <h2>Ответственные</h2>
+      </div>
+      <div class="team-grid" id="teamGrid"></div>
+    </section>
+
+    <section id="expensesTab" hidden>
+      <div class="panel-head">
+        <h2>Траты</h2>
+        <button class="btn primary" id="newExpenseBtn" type="button">Добавить трату</button>
+      </div>
+      <div class="metrics" id="expenseMetrics"></div>
+      <div class="table-wrap"><table><thead><tr><th>Дата</th><th>Категория</th><th>Описание</th><th>Сумма</th><th></th></tr></thead><tbody id="expensesBody"></tbody></table></div>
+    </section>
+  </main>
+
+  <div class="modal-back" id="orderModal">
+    <div class="modal">
+      <div class="modal-title"><h2 id="orderTitle">Новый заказ</h2><button class="iconbtn" id="closeOrderBtn" type="button">Закрыть</button></div>
+      <div class="grid">
+        <div class="field"><label>Имя клиента</label><input id="oName"></div>
+        <div class="field"><label>TG / телефон</label><input id="oTg"></div>
+        <div class="field full"><label>Ссылка на переписку</label><input id="oLink" placeholder="https://t.me/username"></div>
+        <div class="field"><label>Источник</label><select id="oSource"></select></div>
+        <div class="field"><label>Дата учета оплаты</label><input id="oDate" type="date"></div>
+        <div class="field"><label>Ответственный</label><select id="oOwner"></select></div>
+        <div class="field"><label>Статус</label><select id="oStatus"></select></div>
+        <div class="field"><label>Формат</label><input id="oFormat" placeholder="парню на др"></div>
+        <div class="field"><label>Тип печати</label><input id="oPrintType" placeholder="стандартная"></div>
+        <div class="field"><label>Сумма сделки</label><input id="oPrice" type="number" min="0"></div>
+        <div class="field"><label>Оплачено</label><input id="oPaid" type="number" min="0"></div>
+        <div class="field"><label>Стоимость печати</label><input id="oPrintCost" type="number" min="0"></div>
+        <div class="field"><label>Дедлайн</label><input id="oDeadline" type="date"></div>
+        <div class="field"><label>Город</label><input id="oCity"></div>
+        <div class="field full"><label>Заметки</label><textarea id="oNotes" rows="3"></textarea></div>
+      </div>
+      <div class="footer">
+        <button class="btn danger" id="deleteOrderBtn" type="button">Удалить</button>
+        <button class="btn" id="cancelOrderBtn" type="button">Отмена</button>
+        <button class="btn primary" id="saveOrderBtn" type="button">Сохранить</button>
       </div>
     </div>
-    <div class="dash-row" style="display:none">
-      <div class="card-block"><h3>Топ форматов по прибыли</h3><div id="top-formats"></div></div>
-    </div>
-    <div class="card-block">
-      <h3>KPI по месяцам</h3>
-      <table class="kpi-tbl"><thead><tr><th>Месяц</th><th>Заказов</th><th>Выручка</th><th>Прибыль с заказов</th><th>Траты (упак+диз+пр)</th><th>Чистая прибыль</th><th>Маржа</th></tr></thead><tbody id="kpi-body"></tbody></table>
-    </div>
   </div>
 
-  <!-- КАНБАН -->
-  <div id="tab-kanban" style="display:none">
-    <p style="font-size:12px;color:#888;margin-bottom:10px">Перетаскивай карточки или нажимай → Далее</p>
-    <div class="kanban" id="kanban"></div>
-  </div>
-
-  <!-- ВСЕ ЗАКАЗЫ -->
-  <div id="tab-orders" style="display:none">
-    <div class="filter-bar">
-      <select id="f-month"><option value="">Все месяцы</option></select>
-      <select id="f-status"><option value="">Все статусы</option></select>
-      <select id="f-source"><option value="">Все источники</option></select>
-      <input id="f-search" placeholder="🔍 Поиск..." style="min-width:140px">
-    </div>
-    <div class="tbl-wrap">
-      <table>
-        <thead><tr><th>#</th><th>Имя</th><th>TG</th><th>Источник</th><th>Формат</th><th>Дата заказа</th><th>Стоимость</th><th>Оплачено</th><th>Прибыль</th><th>Остаток</th><th>Статус</th><th>Дедлайн</th><th></th></tr></thead>
-        <tbody id="orders-body"></tbody>
-      </table>
+  <div class="modal-back" id="expenseModal">
+    <div class="modal" style="width:min(460px,100%)">
+      <div class="modal-title"><h2 id="expenseTitle">Новая трата</h2><button class="iconbtn" id="closeExpenseBtn" type="button">Закрыть</button></div>
+      <div class="field"><label>Дата</label><input id="eDate" type="date"></div>
+      <div class="field"><label>Категория</label><select id="eCat"></select></div>
+      <div class="field"><label>Описание</label><input id="eDesc"></div>
+      <div class="field"><label>Сумма</label><input id="eSum" type="number" min="0"></div>
+      <div class="footer">
+        <button class="btn danger" id="deleteExpenseBtn" type="button">Удалить</button>
+        <button class="btn" id="cancelExpenseBtn" type="button">Отмена</button>
+        <button class="btn primary" id="saveExpenseBtn" type="button">Сохранить</button>
+      </div>
     </div>
   </div>
 
-  <!-- ТРАТЫ -->
-  <div id="tab-expenses" style="display:none">
-    <div class="exp-summary" id="exp-summary"></div>
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-      <h3 style="font-size:14px;font-weight:600">История трат</h3>
-      <button class="btn primary" id="btn-new-expense" type="button">+ Добавить трату</button>
-    </div>
-    <div class="expenses-wrap">
-      <table>
-        <thead><tr><th>Дата</th><th>Категория</th><th>Описание</th><th>Сумма (₽)</th><th>Месяц</th><th></th></tr></thead>
-        <tbody id="expenses-body"></tbody>
-      </table>
-    </div>
-  </div>
-</div>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getFirestore, collection, doc, getDocs, setDoc, deleteDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-<!-- МОДАЛКА ЗАКАЗ -->
-<div class="overlay" id="modal-order">
-<div class="modal">
-  <h2><span id="mo-title">Новый заказ</span><button class="modal-close" id="mo-close">✕</button></h2>
-  <div class="sep">Клиент</div>
-  <div class="fg">
-    <div class="fr"><label>Имя клиента</label><input id="mo-name" placeholder="Имя"></div>
-    <div class="fr"><label>TG / Inst</label><input id="mo-tg" placeholder="@username"></div>
-  </div>
-  <div class="fr">
-    <label>Ссылка на переписку</label>
-    <input id="mo-link" placeholder="https://t.me/username">
-    <a class="link-prev" id="mo-link-prev" href="#" target="_blank">💬 Открыть переписку</a>
-  </div>
-  <div class="fg">
-    <div class="fr">
-      <label>Анкета клиента</label>
-      <input id="mo-anketa" placeholder="Ссылка на анкету">
-      <a class="link-prev" id="mo-anketa-prev" href="#" target="_blank" style="display:none">📋 Открыть анкету</a>
-    </div>
-    <div class="fr">
-      <label>Накладная СДЭК</label>
-      <input id="mo-sdek" placeholder="Ссылка на накладную СДЭК">
-      <a class="link-prev" id="mo-sdek-prev" href="#" target="_blank" style="display:none">📦 Открыть накладную</a>
-    </div>
-  </div>
-  <div class="fg">
-    <div class="fr"><label>Источник</label>
-      <select id="mo-src"><option>Инстаграм</option><option>Телеграм</option><option>Сарафан</option><option>Реклама</option></select>
-    </div>
-    <div class="fr">
-      <label>Дата создания (лид)</label>
-      <input id="mo-date" type="date">
-    </div>
-  </div>
-  <div class="fr">
-    <label>Дата заказа <span style="color:#aaa;font-weight:400;text-transform:none;letter-spacing:0">(когда клиент оплатил — выручка считается по этой дате)</span></label>
-    <div style="display:flex;gap:6px">
-      <input id="mo-orderdate" type="date" style="flex:1">
-      <button type="button" class="btn" id="mo-orderdate-today" style="white-space:nowrap">📅 Сегодня</button>
-    </div>
-    <span class="month-hint" id="mo-month-hint"></span>
-  </div>
-  <div class="sep">Заказ</div>
-  <div class="fg">
-    <div class="fr"><label>Формат</label>
-      <select id="mo-fmt">
-        <option>парню/мужу на др</option>
-        <option>сестре/подруге на др</option>
-        <option>плэйбой</option>
-        <option>годовщина</option>
-        <option>другое</option>
-      </select>
-    </div>
-    <div class="fr"><label>Тип печати</label>
-      <select id="mo-pt"><option>стандартная</option><option>премиальная</option><option>фотокнига</option><option>срочный</option></select>
-    </div>
-  </div>
-  <div class="fg">
-    <div class="fr"><label>Стоимость (₽)</label><input id="mo-price" type="number" placeholder="7490"></div>
-    <div class="fr"><label>Стоимость печати (₽)</label><input id="mo-pcost" type="number" placeholder="1475"></div>
-  </div>
-  <div class="fr"><label>Оплачено (₽)</label><input id="mo-paid" type="number" placeholder="0"></div>
-  <div class="profit-box" id="mo-profit-box">
-    <div><div class="pb-label">Прибыль с заказа</div><div class="pb-val" id="mo-profit">0₽</div></div>
-    <div class="profit-box-r"><div class="pb-label">Остаток к оплате</div><div class="pb-val red" id="mo-debt">0₽</div></div>
-  </div>
-  <div class="fg">
-    <div class="fr"><label>Дедлайн</label><input id="mo-dl" type="date"></div>
-    <div class="fr"><label>Город</label><input id="mo-city" placeholder="Москва"></div>
-  </div>
-  <div class="fr"><label>Статус</label>
-    <select id="mo-status">
-      <option>Лиды</option><option>Ждём фото</option><option>В работе у дизайнера</option><option>В печати</option><option>Отправлено</option>
-    </select>
-  </div>
-  <div class="fr"><label>Заметки</label><textarea id="mo-notes" rows="2" placeholder="Пожелания, особенности..."></textarea></div>
-  <div class="mfooter">
-    <button class="btn danger" id="mo-del" type="button">Удалить</button>
-    <button class="btn" id="mo-cancel" type="button">Отмена</button>
-    <button class="btn primary" id="mo-save" type="button">Сохранить</button>
-  </div>
-</div>
-</div>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDRK8Ze7VUtfgaQWf4HKxyeQdgz8ky5HHw",
+      authDomain: "pobookcrm.firebaseapp.com",
+      projectId: "pobookcrm",
+      storageBucket: "pobookcrm.firebasestorage.app",
+      messagingSenderId: "191229001674",
+      appId: "1:191229001674:web:8226011df102e7d4c91933"
+    };
 
-<!-- МОДАЛКА ТРАТА -->
-<div class="overlay" id="modal-expense">
-<div class="modal" style="max-width:400px">
-  <h2><span id="me-title">Новая трата</span><button class="modal-close" id="me-close">✕</button></h2>
-  <div class="fr"><label>Дата</label><input id="me-date" type="date"></div>
-  <div class="fr"><label>Категория</label>
-    <select id="me-cat"><option>Упаковка</option><option>Дизайнер</option><option>Реклама</option><option>Прочее</option></select>
-  </div>
-  <div class="fr"><label>Описание</label><input id="me-desc" placeholder="Упаковка для 5 заказов"></div>
-  <div class="fr"><label>Сумма (₽)</label><input id="me-sum" type="number" placeholder="0"></div>
-  <div class="mfooter">
-    <button class="btn danger" id="me-del" type="button">Удалить</button>
-    <button class="btn" id="me-cancel" type="button">Отмена</button>
-    <button class="btn primary" id="me-save" type="button">Сохранить</button>
-  </div>
-</div>
-</div>
+    const STATUSES = ["Лиды","Ждём фото","В работе у дизайнера","В печати","Отправлено"];
+    const SOURCES = ["Инстаграм","Телеграм","ТГ Бот","Сарафан","Реклама","Другое"];
+    const OWNERS = ["Дизайнер Юля","Дизайнер Сима","Дизайнер Аня","Менеджер Ирина"];
+    const EXPENSE_CATS = ["Упаковка","Дизайнер","Реклама","Прочее"];
+    const MONTHS = ["Январь","Февраль","Март","Апрель","Май","Июнь","Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"];
 
-<script type="module">
-// ── FIREBASE ─────────────────────────────────────────────────
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, collection, getDocs, setDoc, deleteDoc, doc, onSnapshot, runTransaction } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
 
-const firebaseConfig = {
-  apiKey: "AIzaSyDRK8Ze7VUtfgaQWf4HKxyeQdgz8ky5HHw",
-  authDomain: "pobookcrm.firebaseapp.com",
-  projectId: "pobookcrm",
-  storageBucket: "pobookcrm.firebasestorage.app",
-  messagingSenderId: "191229001674",
-  appId: "1:191229001674:web:8226011df102e7d4c91933"
-};
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+    let orders = [];
+    let expenses = [];
+    let editOrderDocId = null;
+    let editExpenseDocId = null;
+    let currentTab = "dashboard";
+    let unsubOrders = null;
+    let unsubExpenses = null;
+    let dragDocId = null;
+    let dashboardTasks = JSON.parse(localStorage.getItem("pobook_dashboard_tasks") || "[]");
+    let teamTasks = JSON.parse(localStorage.getItem("pobook_team_tasks") || "{}");
 
-// ── ДАННЫЕ ──────────────────────────────────────────────────
-const STATUSES = ["Лиды","Ждём фото","В работе у дизайнера","В печати","Отправлено"];
-const SBG = {"Лиды":"#f5f5f5","Ждём фото":"#fffbea","В работе у дизайнера":"#e8f4fd","В печати":"#fde8f0","Отправлено":"#eafaf1"};
-const STX = {"Лиды":"#666","Ждём фото":"#9a6f00","В работе у дизайнера":"#1a6fa3","В печати":"#c0392b","Отправлено":"#1e8449"};
-const MORD = ["Январь","Февраль","Март","Апрель","Май","Июнь","Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"];
+    const $ = id => document.getElementById(id);
+    const rub = n => Number(n || 0).toLocaleString("ru-RU") + "₽";
+    const num = v => {
+      if (typeof v === "number") return Number.isFinite(v) ? v : 0;
+      if (v === null || v === undefined) return 0;
+      return Number(String(v).replace(/\s/g,"").replace(",", ".")) || 0;
+    };
+    const todayIso = () => {
+      const d = new Date();
+      return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
+    };
+    const validDate = v => typeof v === "string" && /^\d{4}-\d{2}-\d{2}$/.test(v);
+    const monthKey = d => validDate(d) ? d.slice(0,7) : "";
+    const monthName = key => {
+      if (!/^\d{4}-\d{2}$/.test(key)) return "Без даты";
+      return MONTHS[Number(key.slice(5,7))-1] + " " + key.slice(0,4);
+    };
+    const escapeHtml = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
 
-const INIT_ORDERS = [{"id": 1, "name": "Анастасия Чистякова", "tg": "@Anastasiya_Chis", "link": "", "source": "Инстаграм", "createdAt": "2026-02-26", "format": "парню на др", "printType": "стандартная", "price": 7000, "printCost": 1475, "prepay": 0, "paid": 7000, "deadline": "2026-04-24", "city": "Сургут", "status": "Отправлено", "notes": ""}, {"id": 2, "name": "Марго", "tg": "79200386956", "link": "", "source": "Инстаграм", "createdAt": "2026-02-20", "format": "парню на др", "printType": "стандартная", "price": 7000, "printCost": 1415, "prepay": 0, "paid": 5000, "deadline": "", "city": "Нижний новгород", "status": "Отправлено", "notes": ""}, {"id": 3, "name": "-", "tg": "@albertovnnnna", "link": "", "source": "Инстаграм", "createdAt": "2026-02-21", "format": "парню на др", "printType": "стандартная", "price": 5900, "printCost": 1656, "prepay": 0, "paid": 5900, "deadline": "", "city": "Москва", "status": "Отправлено", "notes": ""}, {"id": 4, "name": "Алина", "tg": "@doronchuk_alina", "link": "", "source": "Инстаграм", "createdAt": "2026-02-26", "format": "парню на др", "printType": "стандартная", "price": 7000, "printCost": 1596, "prepay": 0, "paid": 7000, "deadline": "2026-04-02", "city": "Сургут", "status": "Отправлено", "notes": ""}, {"id": 5, "name": "Наташа", "tg": "@na_frolovaa", "link": "", "source": "Инстаграм", "createdAt": "2026-02-26", "format": "парню про отношения", "printType": "стандартная", "price": 7000, "printCost": 1475, "prepay": 0, "paid": 8000, "deadline": "", "city": "Питер", "status": "Отправлено", "notes": ""}, {"id": 6, "name": "Екатерина", "tg": "@iamlefterova", "link": "", "source": "Инстаграм", "createdAt": "2026-02-27", "format": "парню др", "printType": "стандартная", "price": 7000, "printCost": 3000, "prepay": 0, "paid": 7000, "deadline": "2026-04-08", "city": "Москва", "status": "Отправлено", "notes": ""}, {"id": 7, "name": "@kris27_99", "tg": "@kris27_99", "link": "", "source": "Инстаграм", "createdAt": "2026-03-05", "format": "парню др", "printType": "стандартная", "price": 7000, "printCost": 1476, "prepay": 0, "paid": 7000, "deadline": "2026-04-14", "city": "Сургут", "status": "Отправлено", "notes": ""}, {"id": 8, "name": "Маша", "tg": "@Mashka2101", "link": "", "source": "Инстаграм", "createdAt": "2026-03-07", "format": "плэйбой", "printType": "стандартная", "price": 6000, "printCost": 1500, "prepay": 0, "paid": 6000, "deadline": "", "city": "Питер", "status": "Отправлено", "notes": ""}, {"id": 9, "name": "Катя", "tg": "@itskaterinaaa1", "link": "", "source": "Инстаграм", "createdAt": "2026-03-10", "format": "парню на др", "printType": "стандартная", "price": 7000, "printCost": 3200, "prepay": 0, "paid": 7000, "deadline": "2026-04-27", "city": "Москва", "status": "Отправлено", "notes": ""}, {"id": 10, "name": "Елена", "tg": "@elena_melnichuk1", "link": "", "source": "Инстаграм", "createdAt": "2026-03-26", "format": "парню на др", "printType": "стандартная", "price": 7490, "printCost": 1476, "prepay": 0, "paid": 7490, "deadline": "2026-04-10", "city": "Москва", "status": "Отправлено", "notes": ""}, {"id": 11, "name": "@alexa_abramov", "tg": "@alexa_abramov", "link": "", "source": "Инстаграм", "createdAt": "2026-03-23", "format": "парню на др", "printType": "стандартная", "price": 7490, "printCost": 2800, "prepay": 0, "paid": 7490, "deadline": "2026-05-22", "city": "", "status": "Отправлено", "notes": ""}, {"id": 12, "name": "@beautiful_lights", "tg": "@beautiful_lights", "link": "", "source": "Инстаграм", "createdAt": "2026-03-26", "format": "парню на др", "printType": "стандартная", "price": 7490, "printCost": 1415, "prepay": 0, "paid": 7490, "deadline": "2026-05-09", "city": "", "status": "Отправлено", "notes": ""}, {"id": 13, "name": "@Natasha_zimina", "tg": "@Natasha_zimina", "link": "", "source": "Инстаграм", "createdAt": "2026-03-26", "format": "годовщина", "printType": "стандартная", "price": 7490, "printCost": 1475, "prepay": 0, "paid": 7490, "deadline": "2026-05-25", "city": "", "status": "Отправлено", "notes": ""}, {"id": 14, "name": "@kokeeetka", "tg": "@kokeeetka", "link": "", "source": "Инстаграм", "createdAt": "2026-03-25", "format": "годовщина", "printType": "премиальная", "price": 11490, "printCost": 4840, "prepay": 0, "paid": 11490, "deadline": "2026-06-06", "city": "Сургут", "status": "Отправлено", "notes": ""}, {"id": 15, "name": "daria_derish", "tg": "daria_derish", "link": "", "source": "Инстаграм", "createdAt": "2026-03-25", "format": "парню на др", "printType": "стандартная", "price": 7490, "printCost": 1476, "prepay": 0, "paid": 7490, "deadline": "2026-04-09", "city": "Москва", "status": "Отправлено", "notes": ""}, {"id": 16, "name": "89186229041", "tg": "89186229041", "link": "", "source": "Инстаграм", "createdAt": "2026-03-25", "format": "парню на др", "printType": "стандартная", "price": 7490, "printCost": 1476, "prepay": 0, "paid": 7490, "deadline": "2026-04-15", "city": "", "status": "Отправлено", "notes": ""}, {"id": 17, "name": "@olnemash", "tg": "@olnemash", "link": "", "source": "Инстаграм", "createdAt": "2026-03-27", "format": "сестре", "printType": "стандартная", "price": 7000, "printCost": 1476, "prepay": 0, "paid": 7000, "deadline": "2026-06-06", "city": "", "status": "Отправлено", "notes": ""}, {"id": 18, "name": "@Seviron2104", "tg": "@Seviron2104", "link": "", "source": "Инстаграм", "createdAt": "2026-03-28", "format": "парню на др", "printType": "премиальная", "price": 11490, "printCost": 5160, "prepay": 0, "paid": 11490, "deadline": "2026-05-26", "city": "", "status": "Отправлено", "notes": ""}, {"id": 19, "name": "@MariPasechnik", "tg": "@MariPasechnik", "link": "", "source": "Инстаграм", "createdAt": "2026-03-27", "format": "парню на др", "printType": "стандартная", "price": 7490, "printCost": 1475, "prepay": 0, "paid": 7490, "deadline": "2026-04-20", "city": "", "status": "Отправлено", "notes": ""}, {"id": 20, "name": "Кристина", "tg": "@kris_shumova", "link": "", "source": "Инстаграм", "createdAt": "2026-03-05", "format": "годовщина", "printType": "стандартная", "price": 7490, "printCost": 2800, "prepay": 0, "paid": 7490, "deadline": "2026-05-01", "city": "Краснодар", "status": "Отправлено", "notes": ""}, {"id": 21, "name": "Екатерина", "tg": "@katrinka_3105", "link": "", "source": "Инстаграм", "createdAt": "2026-03-06", "format": "на свадьбу", "printType": "стандартная", "price": 7490, "printCost": 1415, "prepay": 0, "paid": 7490, "deadline": "2026-05-29", "city": "", "status": "Отправлено", "notes": ""}, {"id": 22, "name": "Специфика", "tg": "@kolesnikova_va", "link": "", "source": "Инстаграм", "createdAt": "2026-03-05", "format": "парню на др", "printType": "премиальная", "price": 11490, "printCost": 4840, "prepay": 0, "paid": 11490, "deadline": "", "city": "", "status": "Отправлено", "notes": ""}, {"id": 23, "name": "Полина", "tg": "@shubnaap", "link": "", "source": "Инстаграм", "createdAt": "2026-03-05", "format": "парню на др", "printType": "стандартная", "price": 7490, "printCost": 1536, "prepay": 0, "paid": 7490, "deadline": "", "city": "Старый оскол", "status": "Отправлено", "notes": ""}, {"id": 24, "name": "Наталья", "tg": "@Nat_Os", "link": "", "source": "Инстаграм", "createdAt": "2026-04-09", "format": "парню на др", "printType": "стандартная", "price": 7490, "printCost": 0, "prepay": 0, "paid": 7490, "deadline": "", "city": "Пермь", "status": "Отправлено", "notes": ""}, {"id": 25, "name": "Валерия", "tg": "79605916940", "link": "", "source": "Инстаграм", "createdAt": "2026-04-08", "format": "подруге", "printType": "стандартная", "price": 7490, "printCost": 1476, "prepay": 0, "paid": 7490, "deadline": "2026-05-07", "city": "Москва", "status": "Отправлено", "notes": ""}, {"id": 26, "name": "Владислава", "tg": "@VLLrrrl", "link": "", "source": "Инстаграм", "createdAt": "2026-04-08", "format": "парню на др", "printType": "премиальная", "price": 11490, "printCost": 5160, "prepay": 0, "paid": 11490, "deadline": "", "city": "Казань", "status": "Отправлено", "notes": ""}, {"id": 27, "name": "Алиса", "tg": "@alice_tivv", "link": "", "source": "Инстаграм", "createdAt": "2026-04-09", "format": "сестре на др", "printType": "премиальная", "price": 11490, "printCost": 7500, "prepay": 0, "paid": 11490, "deadline": "", "city": "Москва", "status": "Отправлено", "notes": ""}, {"id": 28, "name": "Елизавета", "tg": "@Elllllzr", "link": "", "source": "Инстаграм", "createdAt": "2026-04-10", "format": "парню на др", "printType": "стандартная", "price": 7490, "printCost": 1415, "prepay": 0, "paid": 7490, "deadline": "", "city": "Тюмень", "status": "Отправлено", "notes": ""}, {"id": 29, "name": "Виктория", "tg": "@ViktoriiaAnisimova94", "link": "", "source": "Инстаграм", "createdAt": "2026-04-09", "format": "парню на др", "printType": "стандартная", "price": 7500, "printCost": 1476, "prepay": 0, "paid": 7500, "deadline": "", "city": "Казань", "status": "Отправлено", "notes": ""}, {"id": 30, "name": "79779437606", "tg": "79779437606", "link": "", "source": "Инстаграм", "createdAt": "2026-04-10", "format": "парню на др", "printType": "срочный", "price": 19500, "printCost": 7500, "prepay": 0, "paid": 19500, "deadline": "2026-04-15", "city": "Москва", "status": "Отправлено", "notes": ""}, {"id": 31, "name": "valukhova", "tg": "valukhova", "link": "", "source": "Инстаграм", "createdAt": "2026-04-11", "format": "travel", "printType": "стандартная", "price": 4500, "printCost": 1656, "prepay": 0, "paid": 4500, "deadline": "", "city": "", "status": "Отправлено", "notes": ""}, {"id": 32, "name": "@lisparroww", "tg": "@lisparroww", "link": "", "source": "Инстаграм", "createdAt": "2026-04-14", "format": "парню на др", "printType": "стандартная", "price": 7500, "printCost": 0, "prepay": 0, "paid": 7500, "deadline": "2026-05-27", "city": "Питер", "status": "Отправлено", "notes": ""}, {"id": 33, "name": "@tlss43", "tg": "@tlss43", "link": "", "source": "Инстаграм", "createdAt": "2026-04-14", "format": "подруге", "printType": "стандартная", "price": 7500, "printCost": 1475, "prepay": 0, "paid": 7500, "deadline": "2026-05-19", "city": "Сургут", "status": "Отправлено", "notes": ""}, {"id": 34, "name": "@Tabaralina", "tg": "@Tabaralina", "link": "", "source": "Инстаграм", "createdAt": "2026-04-20", "format": "годовщина", "printType": "премиальная", "price": 11490, "printCost": 0, "prepay": 0, "paid": 12490, "deadline": "2026-05-30", "city": "Москва", "status": "Отправлено", "notes": ""}, {"id": 35, "name": "@mkd0023", "tg": "@mkd0023", "link": "", "source": "Инстаграм", "createdAt": "2026-04-15", "format": "годовщина", "printType": "стандартная", "price": 7490, "printCost": 1415, "prepay": 0, "paid": 7490, "deadline": "", "city": "Москва", "status": "Отправлено", "notes": ""}, {"id": 36, "name": "@luubovina", "tg": "@luubovina", "link": "", "source": "Инстаграм", "createdAt": "2026-04-11", "format": "про отношения", "printType": "стандартная", "price": 7490, "printCost": 1475, "prepay": 0, "paid": 7490, "deadline": "", "city": "Сургут", "status": "Отправлено", "notes": ""}, {"id": 37, "name": "@borovkova99", "tg": "@borovkova99", "link": "", "source": "Инстаграм", "createdAt": "2026-04-22", "format": "парню на др", "printType": "стандартная", "price": 7490, "printCost": 1476, "prepay": 0, "paid": 7490, "deadline": "2026-05-20", "city": "Когалым", "status": "Отправлено", "notes": ""}, {"id": 38, "name": "Виктория 35", "tg": "Виктория 35", "link": "", "source": "Инстаграм", "createdAt": "2026-04-22", "format": "годовщина", "printType": "стандартная", "price": 7490, "printCost": 1475, "prepay": 0, "paid": 7490, "deadline": "2026-06-15", "city": "", "status": "Отправлено", "notes": ""}, {"id": 39, "name": "@krknight_a22", "tg": "@krknight_a22", "link": "", "source": "Инстаграм", "createdAt": "2026-04-25", "format": "парню на др", "printType": "премиальная", "price": 11490, "printCost": 5160, "prepay": 0, "paid": 11490, "deadline": "2026-05-25", "city": "", "status": "Отправлено", "notes": ""}, {"id": 40, "name": "@gesssi", "tg": "@gesssi", "link": "", "source": "Инстаграм", "createdAt": "2026-04-24", "format": "парню на др", "printType": "стандартная", "price": 7490, "printCost": 1476, "prepay": 0, "paid": 7490, "deadline": "2026-05-20", "city": "Москва Мытищи", "status": "Отправлено", "notes": ""}, {"id": 41, "name": "@jpetrovaaa", "tg": "@jpetrovaaa", "link": "", "source": "Инстаграм", "createdAt": "2026-04-16", "format": "парню на др", "printType": "стандартная", "price": 7490, "printCost": 1475, "prepay": 0, "paid": 7490, "deadline": "2026-06-05", "city": "Уфа", "status": "Отправлено", "notes": ""}, {"id": 42, "name": "@Osipova_vero", "tg": "@Osipova_vero", "link": "", "source": "Инстаграм", "createdAt": "2026-04-05", "format": "парню на др", "printType": "премиальная", "price": 11490, "printCost": 4840, "prepay": 0, "paid": 11490, "deadline": "2026-05-26", "city": "", "status": "Отправлено", "notes": ""}, {"id": 43, "name": "@ekaterina_klenina", "tg": "@ekaterina_klenina", "link": "", "source": "Инстаграм", "createdAt": "", "format": "парню на др", "printType": "премиальная", "price": 11490, "printCost": 4840, "prepay": 0, "paid": 11490, "deadline": "2026-06-24", "city": "г. Шахты", "status": "Отправлено", "notes": ""}, {"id": 44, "name": "Арина", "tg": "@Arin4ik2307", "link": "", "source": "Инстаграм", "createdAt": "2026-04-21", "format": "подруге", "printType": "стандартная", "price": 7490, "printCost": 1476, "prepay": 0, "paid": 7490, "deadline": "2026-05-25", "city": "Тольятти", "status": "Отправлено", "notes": ""}, {"id": 45, "name": "Юлия макс", "tg": "89040235891", "link": "", "source": "Инстаграм", "createdAt": "2026-04-25", "format": "парню на др", "printType": "стандартная", "price": 7490, "printCost": 1476, "prepay": 0, "paid": 7490, "deadline": "2026-05-19", "city": "", "status": "Отправлено", "notes": ""}, {"id": 46, "name": "@Denisovnaaaaa", "tg": "@Denisovnaaaaa", "link": "", "source": "Инстаграм", "createdAt": "2026-04-29", "format": "парню на др", "printType": "стандартная", "price": 7490, "printCost": 1596, "prepay": 0, "paid": 8490, "deadline": "2026-06-24", "city": "", "status": "Отправлено", "notes": ""}, {"id": 47, "name": "Екатерина", "tg": "@mironova_es", "link": "", "source": "Инстаграм", "createdAt": "2026-04-27", "format": "", "printType": "", "price": 0, "printCost": 4840, "prepay": 0, "paid": 0, "deadline": "", "city": "", "status": "Лиды", "notes": ""}, {"id": 48, "name": "@inesska19", "tg": "@inesska19", "link": "", "source": "Инстаграм", "createdAt": "2026-04-27", "format": "парню на др", "printType": "срочный", "price": 11500, "printCost": 5160, "prepay": 0, "paid": 11500, "deadline": "2026-05-15", "city": "", "status": "Отправлено", "notes": ""}, {"id": 49, "name": "Vladislav Gluhov", "tg": "vladislav gluhov", "link": "", "source": "Инстаграм", "createdAt": "2026-04-28", "format": "жене", "printType": "премиальная", "price": 11500, "printCost": 4840, "prepay": 0, "paid": 11500, "deadline": "", "city": "", "status": "Отправлено", "notes": ""}, {"id": 50, "name": "@kKkirosha", "tg": "@kKkirosha", "link": "", "source": "Инстаграм", "createdAt": "2026-05-08", "format": "парню на др", "printType": "стандартная", "price": 7490, "printCost": 1596, "prepay": 0, "paid": 7490, "deadline": "2026-05-29", "city": "Москва", "status": "Отправлено", "notes": ""}, {"id": 51, "name": "Марина", "tg": "Марина тг", "link": "", "source": "Инстаграм", "createdAt": "2026-05-07", "format": "парню на др", "printType": "стандартная", "price": 7490, "printCost": 1475, "prepay": 0, "paid": 7490, "deadline": "2026-05-25", "city": "Москва", "status": "Отправлено", "notes": ""}, {"id": 52, "name": "@vasilytikhonov", "tg": "@vasilytikhonov", "link": "", "source": "Инстаграм", "createdAt": "2026-05-05", "format": "для нее", "printType": "стандартная", "price": 9000, "printCost": 4300, "prepay": 0, "paid": 9000, "deadline": "2026-05-28", "city": "", "status": "Отправлено", "notes": ""}, {"id": 53, "name": "@polina_tyrlanovaa", "tg": "@polina_tyrlanovaa", "link": "", "source": "Инстаграм", "createdAt": "", "format": "парню на др", "printType": "премиальная", "price": 11490, "printCost": 0, "prepay": 5745, "paid": 5745, "deadline": "", "city": "", "status": "Ждём фото", "notes": ""}, {"id": 54, "name": "@evl_up", "tg": "@evl_up", "link": "", "source": "Инстаграм", "createdAt": "2026-05-16", "format": "парню на др", "printType": "стандартная", "price": 7490, "printCost": 1535, "prepay": 3745, "paid": 3745, "deadline": "", "city": "", "status": "Ждём фото", "notes": ""}, {"id": 55, "name": "Максим макс", "tg": "Максим макс", "link": "", "source": "Инстаграм", "createdAt": "2026-05-15", "format": "супруге на др", "printType": "премиальная", "price": 11490, "printCost": 4840, "prepay": 0, "paid": 11490, "deadline": "2026-07-03", "city": "", "status": "Отправлено", "notes": ""}, {"id": 56, "name": "@KaterinaAlekseevna8", "tg": "@KaterinaAlekseevna8", "link": "", "source": "Инстаграм", "createdAt": "2026-05-19", "format": "парню на др", "printType": "стандартная", "price": 7490, "printCost": 1475, "prepay": 0, "paid": 7490, "deadline": "", "city": "", "status": "Отправлено", "notes": ""}, {"id": 57, "name": "Катя", "tg": "@lovely7_8", "link": "", "source": "Инстаграм", "createdAt": "2026-05-28", "format": "годовщина", "printType": "премиальная", "price": 11490, "printCost": 4520, "prepay": 5745, "paid": 5745, "deadline": "", "city": "", "status": "Ждём фото", "notes": ""}, {"id": 58, "name": "Анна", "tg": "@anna_levagina", "link": "", "source": "Инстаграм", "createdAt": "2026-05-27", "format": "СРОЧНАЯ ДР", "printType": "премиальная", "price": 11490, "printCost": 7916, "prepay": 0, "paid": 12490, "deadline": "", "city": "Дзержинск", "status": "Отправлено", "notes": ""}, {"id": 59, "name": "@bikalyuk", "tg": "@bikalyuk", "link": "", "source": "Инстаграм", "createdAt": "2026-05-26", "format": "парню на др", "printType": "стандартная", "price": 7490, "printCost": 738, "prepay": 0, "paid": 7490, "deadline": "", "city": "Москва", "status": "Отправлено", "notes": ""}, {"id": 60, "name": "@anastasia31_n", "tg": "@anastasia31_n", "link": "", "source": "Инстаграм", "createdAt": "2026-05-27", "format": "парню на др", "printType": "стандартная", "price": 7490, "printCost": 0, "prepay": 3745, "paid": 3745, "deadline": "", "city": "", "status": "Ждём фото", "notes": ""}, {"id": 61, "name": "Ира", "tg": "моя ученица", "link": "", "source": "Инстаграм", "createdAt": "2026-05-23", "format": "подруге", "printType": "стандартная", "price": 4500, "printCost": 1475, "prepay": 0, "paid": 4500, "deadline": "", "city": "Москва", "status": "Отправлено", "notes": ""}, {"id": 62, "name": "Юля плэй бой", "tg": "Юля плэй бой", "link": "", "source": "Инстаграм", "createdAt": "", "format": "плэйбой", "printType": "стандартная", "price": 6000, "printCost": 2000, "prepay": 0, "paid": 6000, "deadline": "", "city": "", "status": "Отправлено", "notes": ""}, {"id": 63, "name": "Влада макс", "tg": "79226543992", "link": "", "source": "Инстаграм", "createdAt": "2026-05-26", "format": "парню на др", "printType": "стандартная", "price": 7500, "printCost": 0, "prepay": 3745, "paid": 3745, "deadline": "2026-06-27", "city": "", "status": "В работе у дизайнера", "notes": ""}, {"id": 64, "name": "Евгений макс", "tg": "Евгений макс", "link": "", "source": "Инстаграм", "createdAt": "2026-05-25", "format": "девушке", "printType": "стандартная", "price": 7500, "printCost": 0, "prepay": 3745, "paid": 3745, "deadline": "", "city": "", "status": "Ждём фото", "notes": ""}, {"id": 65, "name": "@zakatbydet", "tg": "@zakatbydet", "link": "", "source": "Инстаграм", "createdAt": "2026-05-31", "format": "подруге", "printType": "стандартная", "price": 7500, "printCost": 1475, "prepay": 0, "paid": 7500, "deadline": "", "city": "", "status": "Отправлено", "notes": ""}, {"id": 66, "name": "@litvinennkkoo", "tg": "@litvinennkkoo", "link": "", "source": "Инстаграм", "createdAt": "2026-06-01", "format": "парню на др", "printType": "стандартная", "price": 7500, "printCost": 0, "prepay": 3745, "paid": 3745, "deadline": "", "city": "", "status": "Ждём фото", "notes": ""}, {"id": 67, "name": "@nataly_19_86", "tg": "@nataly_19_86", "link": "", "source": "Инстаграм", "createdAt": "2026-06-01", "format": "сыну 18 лет", "printType": "стандартная", "price": 7500, "printCost": 0, "prepay": 3745, "paid": 3745, "deadline": "", "city": "", "status": "Ждём фото", "notes": ""}, {"id": 68, "name": "@kati_plu", "tg": "@kati_plu", "link": "", "source": "Инстаграм", "createdAt": "2026-06-01", "format": "мужу от друзей", "printType": "премиальная", "price": 0, "printCost": 0, "prepay": 0, "paid": 0, "deadline": "2026-06-26", "city": "", "status": "Лиды", "notes": ""}, {"id": 69, "name": "79243459521", "tg": "79243459521", "link": "", "source": "Инстаграм", "createdAt": "2026-06-02", "format": "подруге на др", "printType": "стандартная", "price": 7500, "printCost": 1475, "prepay": 3745, "paid": 3745, "deadline": "", "city": "Благовещенск", "status": "Ждём фото", "notes": ""}, {"id": 70, "name": "Настя котельникова", "tg": "Настя котельникова", "link": "", "source": "Инстаграм", "createdAt": "2026-06-03", "format": "плэйбой", "printType": "журнал", "price": 3500, "printCost": 2000, "prepay": 0, "paid": 3500, "deadline": "", "city": "", "status": "Отправлено", "notes": ""}, {"id": 71, "name": "@lion777_li", "tg": "@lion777_li", "link": "", "source": "Инстаграм", "createdAt": "2026-06-08", "format": "подруге", "printType": "стандартная", "price": 7500, "printCost": 0, "prepay": 3745, "paid": 3745, "deadline": "2026-07-18", "city": "", "status": "Ждём фото", "notes": ""}, {"id": 72, "name": "@jeywqshhhhhh", "tg": "@jeywqshhhhhh", "link": "", "source": "Инстаграм", "createdAt": "2026-06-09", "format": "парню на др", "printType": "стандартная", "price": 7500, "printCost": 0, "prepay": 0, "paid": 7500, "deadline": "2026-07-24", "city": "", "status": "Лиды", "notes": ""}, {"id": 73, "name": "@missrodinss", "tg": "@missrodinss", "link": "", "source": "Инстаграм", "createdAt": "2026-06-10", "format": "парню на др", "printType": "стандартная", "price": 7500, "printCost": 0, "prepay": 3745, "paid": 3745, "deadline": "", "city": "", "status": "Ждём фото", "notes": ""}, {"id": 74, "name": "@ElenaSL_V", "tg": "@ElenaSL_V", "link": "", "source": "Инстаграм", "createdAt": "2026-06-07", "format": "парню на др", "printType": "премиальная", "price": 11500, "printCost": 0, "prepay": 5745, "paid": 5745, "deadline": "2026-06-22", "city": "", "status": "В работе у дизайнера", "notes": ""}];
+    function accountingDate(o){
+      return o.orderDate || o.createdAt || o.created_at || o.date || "";
+    }
 
-const INIT_EXPENSES = [{"id": 1, "date": "2026-02-26", "cat": "Упаковка", "desc": "Февраль упаковка", "sum": 571}, {"id": 2, "date": "2026-02-26", "cat": "Прочее", "desc": "Прочие февраль", "sum": 1656}, {"id": 3, "date": "2026-03-31", "cat": "Упаковка", "desc": "Март упаковка", "sum": 6830}, {"id": 4, "date": "2026-03-31", "cat": "Прочее", "desc": "Прочие март", "sum": 1500}, {"id": 5, "date": "2026-04-30", "cat": "Упаковка", "desc": "Апрель упаковка", "sum": 800}, {"id": 6, "date": "2026-04-30", "cat": "Дизайнер", "desc": "Апрель дизайнер", "sum": 11700}, {"id": 7, "date": "2026-04-30", "cat": "Прочее", "desc": "Прочие апрель", "sum": 3700}, {"id": 8, "date": "2026-05-31", "cat": "Упаковка", "desc": "Май упаковка", "sum": 16800}, {"id": 9, "date": "2026-05-31", "cat": "Дизайнер", "desc": "Май дизайнер", "sum": 19600}];
+    function normalizeOrder(raw, docId){
+      const displayId = raw.displayId || raw.number || raw.id || docId;
+      const tgRaw = raw.tg || raw.telegram || raw.username || raw.phone || "";
+      const tg = tgRaw && raw.username && !String(tgRaw).startsWith("@") ? "@" + tgRaw : String(tgRaw || "");
+      const link = raw.link || raw.chatLink || raw.telegramLink || (tg.startsWith("@") ? "https://t.me/" + tg.slice(1) : "");
+      return {
+        _docId: docId,
+        id: displayId,
+        name: raw.name || raw.clientName || raw.username || raw.tg || "Без имени",
+        tg,
+        link,
+        source: raw.source || (raw.username ? "ТГ Бот" : "Инстаграм"),
+        owner: raw.owner || raw.responsible || raw.assignee || "",
+        orderDate: raw.orderDate || raw.createdAt || raw.created_at || raw.date || "",
+        createdAt: raw.createdAt || raw.created_at || raw.orderDate || "",
+        format: raw.format || "",
+        printType: raw.printType || raw.print_type || "",
+        price: num(raw.price || raw.amount || raw.sum),
+        paid: num(raw.paid || raw.prepay || raw.prepayment),
+        printCost: num(raw.printCost || raw.print_cost),
+        deadline: raw.deadline || "",
+        city: raw.city || "",
+        status: STATUSES.includes(raw.status) ? raw.status : "Лиды",
+        notes: raw.notes || "",
+        anketa: raw.anketa || "",
+        sdek: raw.sdek || ""
+      };
+    }
 
-let orders = [];
-let expenses = [];
-let nextOid = 1;
-let nextEid = 1;
-let editOid = null, editEid = null, dragId = null;
-let dbReady = false;
+    function normalizeExpense(raw, docId){
+      return {
+        _docId: docId,
+        id: raw.id || docId,
+        date: raw.date || "",
+        cat: raw.cat || raw.category || "Прочее",
+        desc: raw.desc || raw.description || "",
+        sum: num(raw.sum || raw.amount)
+      };
+    }
 
-// ── FIREBASE SYNC ─────────────────────────────────────────────
-async function saveO(){
-  for(const o of orders){
-    await setDoc(doc(db,'orders',String(o.id)),o);
-  }
-}
-async function saveE(){
-  for(const e of expenses){
-    await setDoc(doc(db,'expenses',String(e.id)),e);
-  }
-}
-async function saveOneOrder(o){
-  await setDoc(doc(db,'orders',String(o.id)),o);
-}
-async function saveOneExpense(e){
-  await setDoc(doc(db,'expenses',String(e.id)),e);
-}
-async function deleteOrder(id){
-  await deleteDoc(doc(db,'orders',String(id)));
-}
-async function deleteExpense(id){
-  await deleteDoc(doc(db,'expenses',String(id)));
-}
+    function cleanOrderForSave(o){
+      const { _docId, ...data } = o;
+      return data;
+    }
 
-// Атомарный счётчик ID для новых заказов.
-// Раньше id считался локально в браузере (nextOid++), и если два человека
-// с разных устройств создавали заказ почти одновременно — оба могли
-// получить один и тот же id, и вторая запись стирала первую.
-// runTransaction гарантирует уникальность на стороне самого Firebase,
-// даже при одновременных сохранениях с разных устройств.
-async function getNextOrderId(){
-  const counterRef = doc(db, 'meta', 'counters');
-  const newId = await runTransaction(db, async (tx) => {
-    const snap = await tx.get(counterRef);
-    const current = snap.exists() ? (snap.data().nextOrderId || nextOid) : nextOid;
-    tx.set(counterRef, { nextOrderId: current + 1 }, { merge: true });
-    return current;
-  });
-  return newId;
-}
+    function cleanExpenseForSave(e){
+      const { _docId, ...data } = e;
+      return data;
+    }
 
-// Заказы могут приходить из трёх мест: ручной ввод в CRM, бот, и просто
-// то, что уже лежит в Firebase. Бот пишет числа как текст, и раньше
-// сумма (price/paid/printCost) от этого превращалась в строку — и вся
-// выручка в отчётах считалась неправильно (сложение строк, а не чисел).
-// Эта функция гарантирует, что деньги — всегда числа, откуда бы заказ ни пришёл.
-function coerceOrderTypes(o){
-  o.price = parseInt(o.price) || 0;
-  o.printCost = parseInt(o.printCost) || 0;
-  o.paid = parseInt(o.paid) || 0;
-  o.prepay = parseInt(o.prepay) || 0;
-  if(o.id !== undefined && o.id !== null) o.id = parseInt(o.id) || o.id;
-  return o;
-}
+    function realOrders(){
+      return orders.filter(o => o.status !== "Лиды");
+    }
 
-// Загрузка данных из Firebase при старте
-async function loadFromFirebase(){
-  document.getElementById('tinfo').textContent = 'Загрузка...';
-  let oSnap, eSnap;
-  try {
-    oSnap = await getDocs(collection(db,'orders'));
-    eSnap = await getDocs(collection(db,'expenses'));
-  } catch(err) {
-    document.getElementById('tinfo').textContent = '❌ Ошибка: ' + err.message;
-    console.error('Firebase load error:', err);
-    setTimeout(loadFromFirebase, 3000);
-    return;
-  }
-  
-  if(oSnap.empty && eSnap.empty){
-    orders = INIT_ORDERS;
-    expenses = INIT_EXPENSES;
-    for(const o of orders) await setDoc(doc(db,'orders',String(o.id)),o);
-    for(const e of expenses) await setDoc(doc(db,'expenses',String(e.id)),e);
-  } else {
-    orders = [];
-    oSnap.forEach(d => orders.push(coerceOrderTypes(d.data())));
-    expenses = [];
-    eSnap.forEach(d => expenses.push(d.data()));
-  }
-  
-  orders.sort((a,b)=>a.id-b.id);
-  expenses.sort((a,b)=>a.id-b.id);
-  nextOid = Math.max(...orders.map(o=>o.id),0)+1;
-  nextEid = Math.max(...expenses.map(e=>e.id),0)+1;
-  dbReady = true;
-  renderDashboard();
+    function dealProfit(o){
+      return num(o.price) - num(o.printCost);
+    }
 
-  // Реальное время — новые лиды появляются автоматически
-  onSnapshot(collection(db,'orders'), (snapshot) => {
-    snapshot.docChanges().forEach((change) => {
-      const data = change.doc.data();
-      const docId = change.doc.id;
-      if(change.type === 'added'){
-        if(!orders.find(o => String(o.id) === String(data.id || docId))){
-          const normalized = {
-            id: data.id || parseInt(docId) || nextOid++,
-            name: data.name || data.username || docId,
-            tg: data.tg || (data.username ? '@'+data.username : ''),
-            link: data.link || '',
-            source: data.source || 'Telegram бот',
-            status: data.status || 'Лиды',
-            format: data.format || '',
-            printType: data.printType || 'стандартная',
-            price: parseInt(data.price) || 0,
-            printCost: parseInt(data.printCost) || 0,
-            paid: parseInt(data.paid) || 0,
-            notes: data.notes || '',
-            deadline: data.deadline || '',
-            city: data.city || '',
-          };
-          orders.push(normalized);
-          orders.sort((a,b)=>a.id-b.id);
-          nextOid = Math.max(...orders.map(o=>o.id),0)+1;
-          renderDashboard();
+    function debt(o){
+      return Math.max(0, num(o.price) - num(o.paid));
+    }
+
+    function render(){
+      renderMetrics();
+      if (currentTab === "dashboard") renderDashboard();
+      if (currentTab === "kanban") renderKanban();
+      if (currentTab === "orders") renderOrders();
+      if (currentTab === "team") renderTeam();
+      if (currentTab === "expenses") renderExpenses();
+      $("syncText").textContent = orders.length + " клиентов в Firebase";
+    }
+
+    function renderMetrics(){
+      const active = realOrders();
+      const dealSum = active.reduce((s,o)=>s+num(o.price),0);
+      const revenue = active.reduce((s,o)=>s+num(o.paid),0);
+      const profit = active.reduce((s,o)=>s+dealProfit(o),0);
+      const totalDebt = active.reduce((s,o)=>s+debt(o),0);
+      const exp = expenses.reduce((s,e)=>s+num(e.sum),0);
+      const leads = orders.length - active.length;
+      $("metrics").innerHTML = [
+        ["Клиенты в работе", active.length, "blue"],
+        ["Лиды без заказа", leads, "orange"],
+        ["Сумма сделок", rub(dealSum), ""],
+        ["Выручка оплачено", rub(revenue), "green"],
+        ["Прибыль", rub(profit), "green"],
+        ["Долг клиентов", rub(totalDebt), "red"],
+        ["Траты", rub(exp), "red"],
+        ["Чистая", rub(profit-exp), profit-exp >= 0 ? "green" : "red"]
+      ].map(([label,value,cls]) => `<div class="metric"><div class="label">${label}</div><div class="value ${cls}">${value}</div></div>`).join("");
+    }
+
+    function renderDashboard(){
+      const undated = realOrders().filter(o => !validDate(accountingDate(o))).length;
+      $("dateNotice").hidden = undated === 0;
+      $("dateNotice").textContent = undated ? `${undated} заказ(ов) без даты учета. Они не потеряны, но попали в строку "Без даты". Откройте заказ и поставьте дату оплаты.` : "";
+
+      const byMonth = new Map();
+      for (const o of realOrders()) {
+        const key = monthKey(accountingDate(o)) || "undated";
+        if (!byMonth.has(key)) byMonth.set(key, { count:0, deal:0, paid:0, profit:0, expenses:0 });
+        const row = byMonth.get(key);
+        row.count += 1;
+        row.deal += num(o.price);
+        row.paid += num(o.paid);
+        row.profit += dealProfit(o);
+      }
+      for (const e of expenses) {
+        const key = monthKey(e.date) || "undated";
+        if (!byMonth.has(key)) byMonth.set(key, { count:0, deal:0, paid:0, profit:0, expenses:0 });
+        byMonth.get(key).expenses += num(e.sum);
+      }
+      const keys = [...byMonth.keys()].sort((a,b) => a === "undated" ? 1 : b === "undated" ? -1 : a.localeCompare(b));
+      let totals = { count:0, deal:0, paid:0, profit:0, expenses:0 };
+      $("kpiBody").innerHTML = keys.map(key => {
+        const r = byMonth.get(key);
+        totals.count += r.count; totals.deal += r.deal; totals.paid += r.paid; totals.profit += r.profit; totals.expenses += r.expenses;
+        return `<tr><td><b>${monthName(key)}</b></td><td>${r.count}</td><td>${rub(r.deal)}</td><td class="green">${rub(r.paid)}</td><td class="green">${rub(r.profit)}</td><td class="red">${rub(r.expenses)}</td><td>${rub(r.profit-r.expenses)}</td></tr>`;
+      }).join("") + `<tr><td><b>Итого</b></td><td><b>${totals.count}</b></td><td><b>${rub(totals.deal)}</b></td><td class="green"><b>${rub(totals.paid)}</b></td><td class="green"><b>${rub(totals.profit)}</b></td><td class="red"><b>${rub(totals.expenses)}</b></td><td><b>${rub(totals.profit-totals.expenses)}</b></td></tr>`;
+
+      const sources = {};
+      for (const o of orders) sources[o.source] = (sources[o.source] || 0) + 1;
+      $("sources").innerHTML = Object.entries(sources).sort((a,b)=>b[1]-a[1]).map(([s,c]) => `<span class="pill" style="margin:0 6px 6px 0">${escapeHtml(s)}: ${c}</span>`).join("") || "<div class='empty'>Пока нет данных</div>";
+      renderDashboardTasks();
+    }
+
+    function renderKanban(){
+      $("kanban").innerHTML = STATUSES.map(st => {
+        const list = orders.filter(o => o.status === st).sort((a,b)=>String(accountingDate(b)).localeCompare(String(accountingDate(a))));
+        return `<div class="col" data-status="${escapeHtml(st)}">
+          <div class="col-head"><span>${escapeHtml(st)}</span><span>${list.length}</span></div>
+          ${list.map(orderCard).join("") || "<div class='empty'>Пусто</div>"}
+        </div>`;
+      }).join("");
+      setupDrag();
+    }
+
+    function orderCard(o){
+      return `<div class="card" draggable="true" data-doc="${escapeHtml(o._docId)}">
+        <div class="name">${escapeHtml(o.name)}</div>
+        <div class="small">${escapeHtml(o.tg || "без контакта")}</div>
+        <div class="small">${escapeHtml(o.format || "формат не указан")}</div>
+        ${o.owner ? `<div class="owner-chip">${escapeHtml(o.owner)}</div>` : ""}
+        ${o.link ? `<a class="small" href="${escapeHtml(o.link)}" target="_blank" rel="noopener">Открыть переписку</a>` : ""}
+        <div class="money"><span class="green">${rub(dealProfit(o))}</span><span class="${debt(o)>0 ? "red" : "green"}">${debt(o)>0 ? "долг " + rub(debt(o)) : "оплачен"}</span></div>
+        <div class="actions"><button class="iconbtn" type="button" data-edit="${escapeHtml(o._docId)}">Изменить</button>${STATUSES.indexOf(o.status)<STATUSES.length-1 ? `<button class="iconbtn" type="button" data-next="${escapeHtml(o._docId)}">Далее</button>` : ""}</div>
+      </div>`;
+    }
+
+    function renderOrders(){
+      fillFilterOptions();
+      const m = $("monthFilter").value;
+      const st = $("statusFilter").value;
+      const src = $("sourceFilter").value;
+      const q = $("searchFilter").value.trim().toLowerCase();
+      const filtered = [...orders].sort((a,b)=>String(accountingDate(b)).localeCompare(String(accountingDate(a)))).filter(o => {
+        const text = [o.name,o.tg,o.city,o.format,o.notes].join(" ").toLowerCase();
+        return (!m || monthKey(accountingDate(o)) === m) && (!st || o.status === st) && (!src || o.source === src) && (!q || text.includes(q));
+      });
+      $("ordersBody").innerHTML = filtered.map(o => `<tr>
+        <td>${escapeHtml(o.id)}</td>
+        <td><b>${escapeHtml(o.name)}</b><br><span class="small">${escapeHtml(o.tg)}</span>${o.link ? `<br><a class="small" href="${escapeHtml(o.link)}" target="_blank" rel="noopener">переписка</a>` : ""}</td>
+        <td>${escapeHtml(o.source)}</td>
+        <td>${o.owner ? `<span class="owner-chip" style="margin-top:0">${escapeHtml(o.owner)}</span>` : "—"}</td>
+        <td>${escapeHtml(accountingDate(o) || "без даты")}</td>
+        <td>${escapeHtml(o.format || "—")}</td>
+        <td>${rub(o.price)}</td>
+        <td class="green">${rub(o.paid)}</td>
+        <td class="${debt(o)>0 ? "red" : "green"}">${debt(o)>0 ? rub(debt(o)) : "нет"}</td>
+        <td><span class="pill ${o.status==="Лиды" ? "lead" : o.status==="Отправлено" ? "done" : ""}">${escapeHtml(o.status)}</span></td>
+        <td><button class="iconbtn" type="button" data-edit="${escapeHtml(o._docId)}">Изменить</button></td>
+      </tr>`).join("") || "<tr><td colspan='11' class='empty'>Ничего не найдено</td></tr>";
+    }
+
+    function saveDashboardTasks(){
+      localStorage.setItem("pobook_dashboard_tasks", JSON.stringify(dashboardTasks));
+    }
+
+    function saveTeamTasks(){
+      localStorage.setItem("pobook_team_tasks", JSON.stringify(teamTasks));
+    }
+
+    function taskRow(task, index, scope, owner = ""){
+      const checked = task.done ? "checked" : "";
+      const cls = task.done ? "task-text done" : "task-text";
+      const ownerAttr = escapeHtml(owner);
+      return `<div class="task-row">
+        <input type="checkbox" ${checked} data-task-toggle="${scope}" data-owner="${ownerAttr}" data-index="${index}">
+        <div class="${cls}">${escapeHtml(task.text)}</div>
+        <button class="iconbtn" type="button" data-task-delete="${scope}" data-owner="${ownerAttr}" data-index="${index}">Удалить</button>
+      </div>`;
+    }
+
+    function renderDashboardTasks(){
+      $("dashboardTasks").innerHTML = dashboardTasks.length
+        ? dashboardTasks.map((task,index) => taskRow(task, index, "dashboard")).join("")
+        : "<div class='empty'>Задач пока нет</div>";
+    }
+
+    function addDashboardTask(){
+      const input = $("dashboardTaskInput");
+      const text = input.value.trim();
+      if (!text) return;
+      dashboardTasks.push({ text, done:false });
+      input.value = "";
+      saveDashboardTasks();
+      renderDashboardTasks();
+    }
+
+    function ownerTasks(owner){
+      if (!Array.isArray(teamTasks[owner])) teamTasks[owner] = [];
+      return teamTasks[owner];
+    }
+
+    function renderTeam(){
+      $("teamGrid").innerHTML = OWNERS.map(owner => {
+        const assigned = orders.filter(o => o.owner === owner && o.status !== "Отправлено");
+        const tasks = ownerTasks(owner);
+        return `<div class="person">
+          <h3>${escapeHtml(owner)}</h3>
+          <div class="person-count">${assigned.length} заказ(ов) сейчас у этого человека</div>
+          <div class="person-orders">
+            ${assigned.slice(0,5).map(o => `<div class="mini-order"><b>${escapeHtml(o.name)}</b><br><span class="small">${escapeHtml(o.status)} · ${escapeHtml(o.format || "формат не указан")}</span></div>`).join("") || "<div class='empty'>Заказов нет</div>"}
+          </div>
+          <div class="section-title"><h2 style="font-size:13px">Задачи</h2></div>
+          <div>${tasks.length ? tasks.map((task,index) => taskRow(task, index, "team", owner)).join("") : "<div class='empty'>Задач пока нет</div>"}</div>
+          <div class="task-form">
+            <input placeholder="Задача для сотрудника" data-team-task-input="${escapeHtml(owner)}">
+            <button class="btn primary" type="button" data-team-task-add="${escapeHtml(owner)}">Добавить</button>
+          </div>
+        </div>`;
+      }).join("");
+    }
+
+    function renderExpenses(){
+      const totals = {};
+      for (const cat of EXPENSE_CATS) totals[cat] = 0;
+      for (const e of expenses) totals[e.cat] = (totals[e.cat] || 0) + num(e.sum);
+      $("expenseMetrics").innerHTML = Object.entries(totals).map(([cat,sum]) => `<div class="metric"><div class="label">${escapeHtml(cat)}</div><div class="value red">${rub(sum)}</div></div>`).join("");
+      $("expensesBody").innerHTML = [...expenses].sort((a,b)=>String(b.date).localeCompare(String(a.date))).map(e => `<tr><td>${escapeHtml(e.date || "без даты")}</td><td>${escapeHtml(e.cat)}</td><td>${escapeHtml(e.desc)}</td><td class="red"><b>${rub(e.sum)}</b></td><td><button class="iconbtn" type="button" data-edit-expense="${escapeHtml(e._docId)}">Изменить</button></td></tr>`).join("") || "<tr><td colspan='5' class='empty'>Трат пока нет</td></tr>";
+    }
+
+    function fillSelect(el, values){
+      el.innerHTML = values.map(v => `<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`).join("");
+    }
+
+    function fillFilterOptions(){
+      const oldM = $("monthFilter").value, oldS = $("statusFilter").value, oldSrc = $("sourceFilter").value;
+      const months = [...new Set(orders.map(o => monthKey(accountingDate(o))).filter(Boolean))].sort();
+      $("monthFilter").innerHTML = `<option value="">Все месяцы</option>` + months.map(m=>`<option value="${m}">${monthName(m)}</option>`).join("");
+      $("statusFilter").innerHTML = `<option value="">Все статусы</option>` + STATUSES.map(s=>`<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join("");
+      const sources = [...new Set([...SOURCES, ...orders.map(o=>o.source).filter(Boolean)])];
+      $("sourceFilter").innerHTML = `<option value="">Все источники</option>` + sources.map(s=>`<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join("");
+      $("monthFilter").value = oldM;
+      $("statusFilter").value = oldS;
+      $("sourceFilter").value = oldSrc;
+    }
+
+    function showTab(tab){
+      currentTab = tab;
+      for (const id of ["dashboard","kanban","orders","team","expenses"]) $(id+"Tab").hidden = id !== tab;
+      document.querySelectorAll(".tab").forEach(b => b.classList.toggle("active", b.dataset.tab === tab));
+      render();
+    }
+
+    function openOrder(docId){
+      editOrderDocId = docId;
+      const o = docId ? orders.find(x => x._docId === docId) : null;
+      $("orderTitle").textContent = o ? "Редактировать заказ" : "Новый заказ";
+      $("deleteOrderBtn").style.display = o ? "" : "none";
+      $("oName").value = o?.name || "";
+      $("oTg").value = o?.tg || "";
+      $("oLink").value = o?.link || "";
+      $("oSource").value = o?.source || "Инстаграм";
+      $("oDate").value = validDate(o?.orderDate) ? o.orderDate : todayIso();
+      $("oOwner").value = o?.owner || "";
+      $("oStatus").value = o?.status || "Ждём фото";
+      $("oFormat").value = o?.format || "";
+      $("oPrintType").value = o?.printType || "стандартная";
+      $("oPrice").value = o?.price || "";
+      $("oPaid").value = o?.paid || "";
+      $("oPrintCost").value = o?.printCost || "";
+      $("oDeadline").value = validDate(o?.deadline) ? o.deadline : "";
+      $("oCity").value = o?.city || "";
+      $("oNotes").value = o?.notes || "";
+      $("orderModal").classList.add("open");
+    }
+
+    async function saveOrder(){
+      const name = $("oName").value.trim();
+      if (!name) return alert("Введите имя клиента");
+      $("saveOrderBtn").disabled = true;
+      try {
+        const base = editOrderDocId ? orders.find(o => o._docId === editOrderDocId) : null;
+        const ref = editOrderDocId ? doc(db, "orders", editOrderDocId) : doc(collection(db, "orders"));
+        const data = {
+          ...(base ? cleanOrderForSave(base) : {}),
+          id: base?.id || ref.id,
+          name,
+          tg: $("oTg").value.trim(),
+          link: $("oLink").value.trim(),
+          source: $("oSource").value,
+          owner: $("oOwner").value,
+          orderDate: $("oDate").value,
+          createdAt: base?.createdAt || $("oDate").value || todayIso(),
+          format: $("oFormat").value.trim(),
+          printType: $("oPrintType").value.trim(),
+          price: num($("oPrice").value),
+          paid: num($("oPaid").value),
+          printCost: num($("oPrintCost").value),
+          deadline: $("oDeadline").value,
+          city: $("oCity").value.trim(),
+          status: $("oStatus").value,
+          notes: $("oNotes").value.trim(),
+          updatedAt: serverTimestamp()
+        };
+        await setDoc(ref, data, { merge: true });
+        closeOrder();
+      } catch (err) {
+        alert("Ошибка сохранения: " + err.message);
+      } finally {
+        $("saveOrderBtn").disabled = false;
+      }
+    }
+
+    async function removeOrder(){
+      if (!editOrderDocId || !confirm("Удалить заказ?")) return;
+      await deleteDoc(doc(db, "orders", editOrderDocId));
+      closeOrder();
+    }
+
+    function closeOrder(){
+      $("orderModal").classList.remove("open");
+      editOrderDocId = null;
+    }
+
+    function openExpense(docId){
+      editExpenseDocId = docId;
+      const e = docId ? expenses.find(x => x._docId === docId) : null;
+      $("expenseTitle").textContent = e ? "Редактировать трату" : "Новая трата";
+      $("deleteExpenseBtn").style.display = e ? "" : "none";
+      $("eDate").value = validDate(e?.date) ? e.date : todayIso();
+      $("eCat").value = e?.cat || "Упаковка";
+      $("eDesc").value = e?.desc || "";
+      $("eSum").value = e?.sum || "";
+      $("expenseModal").classList.add("open");
+    }
+
+    async function saveExpense(){
+      const sum = num($("eSum").value);
+      if (!sum) return alert("Введите сумму");
+      const base = editExpenseDocId ? expenses.find(e => e._docId === editExpenseDocId) : null;
+      const ref = editExpenseDocId ? doc(db, "expenses", editExpenseDocId) : doc(collection(db, "expenses"));
+      await setDoc(ref, {
+        ...(base ? cleanExpenseForSave(base) : {}),
+        id: base?.id || ref.id,
+        date: $("eDate").value,
+        cat: $("eCat").value,
+        desc: $("eDesc").value.trim(),
+        sum,
+        updatedAt: serverTimestamp()
+      }, { merge: true });
+      closeExpense();
+    }
+
+    async function removeExpense(){
+      if (!editExpenseDocId || !confirm("Удалить трату?")) return;
+      await deleteDoc(doc(db, "expenses", editExpenseDocId));
+      closeExpense();
+    }
+
+    function closeExpense(){
+      $("expenseModal").classList.remove("open");
+      editExpenseDocId = null;
+    }
+
+    async function moveTo(docId, status){
+      const o = orders.find(x => x._docId === docId);
+      if (!o) return;
+      o.status = status;
+      await setDoc(doc(db, "orders", docId), { status, updatedAt: serverTimestamp() }, { merge: true });
+    }
+
+    async function moveNext(docId){
+      const o = orders.find(x => x._docId === docId);
+      if (!o) return;
+      const i = STATUSES.indexOf(o.status);
+      if (i >= 0 && i < STATUSES.length - 1) await moveTo(docId, STATUSES[i+1]);
+    }
+
+    function setupDrag(){
+      document.querySelectorAll(".card").forEach(card => {
+        card.addEventListener("dragstart", e => {
+          if (e.target.closest("button,a")) return e.preventDefault();
+          dragDocId = card.dataset.doc;
+          card.classList.add("dragging");
+          e.dataTransfer.setData("text/plain", dragDocId);
+        });
+        card.addEventListener("dragend", () => {
+          dragDocId = null;
+          card.classList.remove("dragging");
+          document.querySelectorAll(".col").forEach(c => c.classList.remove("drop"));
+        });
+      });
+      document.querySelectorAll(".col").forEach(col => {
+        col.addEventListener("dragover", e => { e.preventDefault(); col.classList.add("drop"); });
+        col.addEventListener("dragleave", e => { if (!col.contains(e.relatedTarget)) col.classList.remove("drop"); });
+        col.addEventListener("drop", async e => {
+          e.preventDefault();
+          col.classList.remove("drop");
+          const docId = e.dataTransfer.getData("text/plain") || dragDocId;
+          if (docId) await moveTo(docId, col.dataset.status);
+        });
+      });
+    }
+
+    async function loadData(){
+      $("syncText").textContent = "Загрузка...";
+      const [orderSnap, expenseSnap] = await Promise.all([getDocs(collection(db, "orders")), getDocs(collection(db, "expenses"))]);
+      orders = orderSnap.docs.map(d => normalizeOrder(d.data(), d.id));
+      expenses = expenseSnap.docs.map(d => normalizeExpense(d.data(), d.id));
+      if (unsubOrders) unsubOrders();
+      if (unsubExpenses) unsubExpenses();
+      unsubOrders = onSnapshot(collection(db, "orders"), snap => {
+        orders = snap.docs.map(d => normalizeOrder(d.data(), d.id));
+        render();
+      }, err => $("syncText").textContent = "Ошибка Firebase: " + err.message);
+      unsubExpenses = onSnapshot(collection(db, "expenses"), snap => {
+        expenses = snap.docs.map(d => normalizeExpense(d.data(), d.id));
+        render();
+      });
+      render();
+    }
+
+    document.querySelectorAll(".tab").forEach(b => b.addEventListener("click", () => showTab(b.dataset.tab)));
+    $("reloadBtn").addEventListener("click", loadData);
+    $("newOrderBtn").addEventListener("click", () => openOrder(null));
+    $("newExpenseBtn").addEventListener("click", () => openExpense(null));
+    $("saveOrderBtn").addEventListener("click", saveOrder);
+    $("deleteOrderBtn").addEventListener("click", removeOrder);
+    $("closeOrderBtn").addEventListener("click", closeOrder);
+    $("cancelOrderBtn").addEventListener("click", closeOrder);
+    $("saveExpenseBtn").addEventListener("click", saveExpense);
+    $("deleteExpenseBtn").addEventListener("click", removeExpense);
+    $("closeExpenseBtn").addEventListener("click", closeExpense);
+    $("cancelExpenseBtn").addEventListener("click", closeExpense);
+    $("orderModal").addEventListener("click", e => { if (e.target === $("orderModal")) closeOrder(); });
+    $("expenseModal").addEventListener("click", e => { if (e.target === $("expenseModal")) closeExpense(); });
+    for (const id of ["monthFilter","statusFilter","sourceFilter","searchFilter"]) $(id).addEventListener("input", renderOrders);
+    $("addDashboardTaskBtn").addEventListener("click", addDashboardTask);
+    $("dashboardTaskInput").addEventListener("keydown", e => { if (e.key === "Enter") addDashboardTask(); });
+    document.body.addEventListener("click", e => {
+      const edit = e.target.closest("[data-edit]");
+      const next = e.target.closest("[data-next]");
+      const editExpense = e.target.closest("[data-edit-expense]");
+      const taskDelete = e.target.closest("[data-task-delete]");
+      const teamAdd = e.target.closest("[data-team-task-add]");
+      if (edit) openOrder(edit.dataset.edit);
+      if (next) moveNext(next.dataset.next);
+      if (editExpense) openExpense(editExpense.dataset.editExpense);
+      if (taskDelete) {
+        const index = Number(taskDelete.dataset.index);
+        if (taskDelete.dataset.taskDelete === "dashboard") {
+          dashboardTasks.splice(index, 1);
+          saveDashboardTasks();
+          renderDashboardTasks();
+        } else {
+          ownerTasks(taskDelete.dataset.owner).splice(index, 1);
+          saveTeamTasks();
+          renderTeam();
         }
       }
-      if(change.type === 'modified'){
-        const idx = orders.findIndex(o => String(o.id) === String(data.id || docId));
-        if(idx !== -1){ orders[idx] = coerceOrderTypes({...orders[idx], ...data}); renderDashboard(); }
+      if (teamAdd) {
+        const owner = teamAdd.dataset.teamTaskAdd;
+        const input = [...document.querySelectorAll("[data-team-task-input]")].find(el => el.dataset.teamTaskInput === owner);
+        const text = input?.value.trim();
+        if (!text) return;
+        ownerTasks(owner).push({ text, done:false });
+        input.value = "";
+        saveTeamTasks();
+        renderTeam();
       }
-      if(change.type === 'removed'){
-        orders = orders.filter(o => String(o.id) !== String(data.id || docId));
-        renderDashboard();
+    });
+    document.body.addEventListener("change", e => {
+      const toggle = e.target.closest("[data-task-toggle]");
+      if (!toggle) return;
+      const index = Number(toggle.dataset.index);
+      if (toggle.dataset.taskToggle === "dashboard") {
+        if (dashboardTasks[index]) dashboardTasks[index].done = toggle.checked;
+        saveDashboardTasks();
+        renderDashboardTasks();
+      } else {
+        const tasks = ownerTasks(toggle.dataset.owner);
+        if (tasks[index]) tasks[index].done = toggle.checked;
+        saveTeamTasks();
+        renderTeam();
       }
     });
-  });
-}
-function profit(o){return (o.price||0)-(o.printCost||0);}
-function fmt(n){return Number(n||0).toLocaleString('ru-RU')+'₽';}
-function dLeft(dl){if(!dl||!dl.match(/^\d{4}/))return null;return Math.round((new Date(dl)-new Date())/86400000);}
-function getMonth(d){if(!d||!d.match(/^\d{4}/))return'';try{return MORD[new Date(d).getMonth()];}catch(e){return'';}}
-function revDate(o){return o.orderDate||o.createdAt||'';}
-function srcBadge(s){return s==='Телеграм'?'bt':s==='Сарафан'?'bs':s==='Реклама'?'br':'bi';}
-function ptBadge(p){return p==='премиальная'?'bp':p==='срочный'?'bu':'bst';}
 
-// ── ТАБЫ ────────────────────────────────────────────────────
-function showTab(t){
-  document.querySelectorAll('[id^="tab-"]').forEach(el=>el.style.display='none');
-  document.getElementById('tab-'+t).style.display='';
-  document.querySelectorAll('.tab').forEach(el=>el.classList.toggle('active',el.dataset.tab===t));
-  if(t==='dashboard') renderDashboard();
-  if(t==='kanban') renderKanban();
-  if(t==='orders'){populateFilters();renderOrders();}
-  if(t==='expenses') renderExpenses();
-}
-document.querySelectorAll('.tab').forEach(tab=>{
-  tab.addEventListener('click',()=>showTab(tab.dataset.tab));
-});
-
-// ── ДАШБОРД ─────────────────────────────────────────────────
-function renderDashboard(){
-  // "Лиды" — это те, кто просто написал боту и ещё не сделал заказ.
-  // Их не считаем как заказы в метриках и отчётах — иначе выручка
-  // и количество заказов выглядят раздутыми не по делу.
-  const realOrders=orders.filter(o=>o.status!=='Лиды');
-  const leadsCount=orders.filter(o=>o.status==='Лиды').length;
-  const total=realOrders.reduce((s,o)=>s+(o.price||0),0);
-  const totalP=realOrders.reduce((s,o)=>s+profit(o),0);
-  const totalExp=expenses.reduce((s,e)=>s+(e.sum||0),0);
-  const netProfit=totalP-totalExp;
-  const active=realOrders.filter(o=>o.status!=='Отправлено').length;
-  const debt=realOrders.reduce((s,o)=>s+Math.max(0,(o.price||0)-(o.paid||0)),0);
-  const inDesign=realOrders.filter(o=>o.status==='В работе у дизайнера').length;
-  const inPrint=realOrders.filter(o=>o.status==='В печати').length;
-  const nowMonth=MORD[new Date().getMonth()];
-  const thisMonthOrders=realOrders.filter(o=>getMonth(revDate(o))===nowMonth).length;
-  document.getElementById('tinfo').textContent=`${realOrders.length} заказов · ${fmt(total)}`;
-  document.getElementById('metrics').innerHTML=`
-    <div class="metric"><div class="metric-label">Всего заказов</div><div class="metric-value blue">${realOrders.length}</div></div>
-    <div class="metric"><div class="metric-label">Лидов (ещё не заказ)</div><div class="metric-value orange">${leadsCount}</div></div>
-    <div class="metric"><div class="metric-label">Выручка</div><div class="metric-value">${fmt(total)}</div></div>
-    <div class="metric"><div class="metric-label">Прибыль с заказов</div><div class="metric-value green">${fmt(totalP)}</div></div>
-    <div class="metric"><div class="metric-label">Все траты</div><div class="metric-value red">${fmt(totalExp)}</div></div>
-    <div class="metric"><div class="metric-label">Чистая прибыль</div><div class="metric-value green">${fmt(netProfit)}</div></div>
-    <div class="metric"><div class="metric-label">Активных</div><div class="metric-value orange">${active}</div></div>
-    <div class="metric"><div class="metric-label">У дизайнера</div><div class="metric-value blue">${inDesign}</div></div>
-    <div class="metric"><div class="metric-label">В печати</div><div class="metric-value orange">${inPrint}</div></div>
-    <div class="metric"><div class="metric-label">Заказов в ${nowMonth}</div><div class="metric-value blue">${thisMonthOrders}</div></div>
-    <div class="metric"><div class="metric-label">Долг клиентов</div><div class="metric-value red">${fmt(debt)}</div></div>
-  `;
-  const srcs={};realOrders.forEach(o=>{srcs[o.source]=(srcs[o.source]||0)+1;});
-  document.getElementById('sources').innerHTML=Object.entries(srcs).sort((a,b)=>b[1]-a[1]).map(([s,c])=>`<div class="src-item"><div class="src-name">${s}</div><div class="src-val">${c} <span style="font-size:11px;color:#aaa">зак.</span></div></div>`).join('');
-  const fmts={};realOrders.forEach(o=>{if(!fmts[o.format])fmts[o.format]=0;fmts[o.format]+=profit(o);});
-  const top=Object.entries(fmts).sort((a,b)=>b[1]-a[1]).slice(0,6);
-  const maxP=top[0]?top[0][1]:1;
-  document.getElementById('top-formats').innerHTML=top.map(([f,p])=>`<div class="bar"><div class="bar-top"><span>${f}</span><span style="color:#27ae60;font-weight:600">${fmt(p)}</span></div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(p/maxP*100)}%"></div></div></div>`).join('');
-  // KPI
-  const months=[...new Set(realOrders.filter(o=>revDate(o)&&revDate(o).match(/^\d{4}/)).map(o=>getMonth(revDate(o))).filter(Boolean))];
-  months.sort((a,b)=>MORD.indexOf(a)-MORD.indexOf(b));
-  let html='',tR=0,tP=0,tN=0,tC=0;
-  months.forEach(m=>{
-    const mo=realOrders.filter(o=>getMonth(revDate(o))===m);
-    const rev=mo.reduce((s,o)=>s+(o.price||0),0);
-    const pr=mo.reduce((s,o)=>s+profit(o),0);
-    const mDate=new Date(2026,MORD.indexOf(m)+1,0);
-    const mExp=expenses.filter(e=>{
-      if(!e.date) return false;
-      const d=new Date(e.date);
-      return d.getMonth()===MORD.indexOf(m);
-    }).reduce((s,e)=>s+(e.sum||0),0);
-    const net=pr-mExp;
-    tR+=rev;tP+=pr;tN+=net;tC+=mo.length;
-    html+=`<tr><td><b>${m}</b></td><td style="text-align:center">${mo.length}</td><td>${fmt(rev)}</td><td style="color:#27ae60">${fmt(pr)}</td><td style="color:#e74c3c">${fmt(mExp)}</td><td style="color:#27ae60;font-weight:700">${fmt(net)}</td><td>${rev>0?Math.round(net/rev*100):0}%</td></tr>`;
-  });
-  html+=`<tr><td><b>ИТОГО</b></td><td style="text-align:center"><b>${tC}</b></td><td><b>${fmt(tR)}</b></td><td style="color:#27ae60"><b>${fmt(tP)}</b></td><td style="color:#e74c3c"><b>${fmt(expenses.reduce((s,e)=>s+(e.sum||0),0))}</b></td><td style="color:#27ae60"><b>${fmt(tN)}</b></td><td><b>${tR>0?Math.round(tN/tR*100):0}%</b></td></tr>`;
-  document.getElementById('kpi-body').innerHTML=html;
-  renderTasks();
-}
-
-// ── КАНБАН ───────────────────────────────────────────────────
-function renderKanban(){
-  document.getElementById('kanban').innerHTML=STATUSES.map(st=>`
-    <div class="kcol" data-st="${st}" id="kcol-${st.replace(/ /g,'_')}">
-      <div class="kcol-header"><span class="kcol-title">${st}</span><span class="kcol-cnt">${orders.filter(o=>o.status===st).length}</span></div>
-      <div class="kcol-body">${orders.filter(o=>o.status===st).map(kcard).join('')}</div>
-    </div>`).join('');
-  setupKanbanDragAndDrop();
-}
-
-function setupKanbanDragAndDrop(){
-  const kanban = document.getElementById('kanban');
-
-  // Клики по кнопкам внутри карточек. Так надежнее, чем inline onclick,
-  // особенно внутри type=module и после перерисовки канбана.
-  kanban.onclick = (e) => {
-    const btn = e.target.closest('button[data-action]');
-    if(!btn) return;
-    e.preventDefault();
-    e.stopPropagation();
-    const id = Number(btn.dataset.id);
-    if(btn.dataset.action === 'edit') openEditOrder(id);
-    if(btn.dataset.action === 'next') moveNext(id);
-  };
-
-  kanban.onchange = (e) => {
-    const sel = e.target.closest('select[data-action="status"]');
-    if(!sel) return;
-    const id = Number(sel.dataset.id);
-    moveToStatus(id, sel.value);
-  };
-
-  kanban.querySelectorAll('.kcard').forEach(card => {
-    card.draggable = true;
-
-    card.addEventListener('dragstart', (e) => {
-      // Если пользователь нажал кнопку/селект/ссылку — не начинаем перетаскивание.
-      if(e.target.closest('button, select, a, input, textarea')){
-        e.preventDefault();
-        return;
-      }
-      dragId = Number(card.dataset.id);
-      card.classList.add('dragging');
-      e.dataTransfer.effectAllowed = 'move';
-      e.dataTransfer.setData('text/plain', String(dragId));
+    fillSelect($("oSource"), SOURCES);
+    fillSelect($("oOwner"), ["", ...OWNERS]);
+    fillSelect($("oStatus"), STATUSES);
+    fillSelect($("eCat"), EXPENSE_CATS);
+    loadData().catch(err => {
+      $("syncText").textContent = "Ошибка Firebase";
+      alert("Не удалось загрузить Firebase: " + err.message);
     });
-
-    card.addEventListener('dragend', () => {
-      dragId = null;
-      card.classList.remove('dragging');
-      kanban.querySelectorAll('.kcol').forEach(col => col.classList.remove('drop-target'));
-    });
-  });
-
-  kanban.querySelectorAll('.kcol').forEach(col => {
-    col.addEventListener('dragover', (e) => {
-      if(!dragId) return;
-      e.preventDefault();
-      col.classList.add('drop-target');
-      e.dataTransfer.dropEffect = 'move';
-    });
-
-    col.addEventListener('dragleave', (e) => {
-      if(!col.contains(e.relatedTarget)) col.classList.remove('drop-target');
-    });
-
-    col.addEventListener('drop', async (e) => {
-      e.preventDefault();
-      col.classList.remove('drop-target');
-      const id = Number(e.dataTransfer.getData('text/plain') || dragId);
-      const status = col.dataset.st;
-      if(id && status) await moveToStatus(id, status);
-    });
-  });
-}
-function kcard(o){
-  const dl=dLeft(o.deadline);
-  const urg=dl!==null&&dl<=3&&dl>=0;
-  const debt=Math.max(0,(o.price||0)-(o.paid||0));
-  return `<div class="kcard" data-id="${o.id}">
-    <div class="kcard-name">${o.name}</div>
-    <div class="kcard-tg">${o.tg}</div>
-    <div class="kcard-fmt">${o.format||'—'}</div>
-    <div><span class="badge ${srcBadge(o.source)}">${o.source}</span><span class="badge ${ptBadge(o.printType)}">${o.printType||'—'}</span></div>
-    ${o.link?`<a href="${o.link}" target="_blank" style="display:inline-block;font-size:10px;color:#2980b9;margin-top:4px">💬 Открыть</a>`:''}
-    <div class="kcard-money"><span class="kcard-profit">${fmt(profit(o))}</span>${debt>0?`<span class="kcard-debt">долг:${fmt(debt)}</span>`:`<span class="kcard-ok">✓ оплачен</span>`}</div>
-    ${o.deadline?`<div class="kcard-dl ${urg?'urg':''}">${urg?'🔥 ':''}${o.deadline}</div>`:''}
-    ${o.notes?`<div style="font-size:10px;color:#aaa;margin-top:4px;font-style:italic">${o.notes}</div>`:''}
-    <div class="kcard-btns">
-      <button class="kbtn ke" type="button" data-action="edit" data-id="${o.id}">✏️ Редактировать</button>
-      ${STATUSES.indexOf(o.status)<STATUSES.length-1?`<button class="kbtn km" type="button" data-action="next" data-id="${o.id}">→ Далее</button>`:''}
-      <select class="isel" style="font-size:10px;padding:3px 4px;" data-action="status" data-id="${o.id}">
-        ${STATUSES.map(s=>`<option value="${s}" ${s===o.status?'selected':''}>${s}</option>`).join('')}
-      </select>
-    </div>
-  </div>`;
-}
-async function moveNext(id){const o=orders.find(x=>x.id===id);const i=STATUSES.indexOf(o.status);if(i<STATUSES.length-1){o.status=STATUSES[i+1];await saveOneOrder(o);renderKanban();}}
-async function moveToStatus(id,st){const o=orders.find(x=>x.id===id);if(o&&o.status!==st){o.status=st;await saveOneOrder(o);renderKanban();}}
-
-
-// ── ВСЕ ЗАКАЗЫ ───────────────────────────────────────────────
-function populateFilters(){
-  const fm=document.getElementById('f-month');while(fm.options.length>1)fm.remove(1);
-  const months=[...new Set(orders.filter(o=>revDate(o)&&revDate(o).match(/^\d{4}/)).map(o=>getMonth(revDate(o))).filter(Boolean))];
-  months.sort((a,b)=>MORD.indexOf(a)-MORD.indexOf(b));
-  months.forEach(m=>{const op=document.createElement('option');op.value=m;op.text=m;fm.appendChild(op);});
-  const fs=document.getElementById('f-status');while(fs.options.length>1)fs.remove(1);
-  STATUSES.forEach(s=>{const op=document.createElement('option');op.value=s;op.text=s;fs.appendChild(op);});
-  const fsr=document.getElementById('f-source');while(fsr.options.length>1)fsr.remove(1);
-  ['Инстаграм','Телеграм','Сарафан','Реклама'].forEach(s=>{const op=document.createElement('option');op.value=s;op.text=s;fsr.appendChild(op);});
-}
-function renderOrders(){
-  const fm=document.getElementById('f-month').value;
-  const fs=document.getElementById('f-status').value;
-  const fsr=document.getElementById('f-source').value;
-  const fq=(document.getElementById('f-search').value||'').toLowerCase();
-  const filtered=[...orders].reverse().filter(o=>
-    (!fm||getMonth(revDate(o))===fm)&&(!fs||o.status===fs)&&
-    (!fsr||o.source===fsr)&&(!fq||o.name.toLowerCase().includes(fq)||o.tg.toLowerCase().includes(fq))
-  );
-  document.getElementById('orders-body').innerHTML=filtered.map(o=>{
-    const dl=dLeft(o.deadline);const urg=dl!==null&&dl<=3&&dl>=0;
-    const debt=Math.max(0,(o.price||0)-(o.paid||0));
-    return `<tr>
-      <td style="color:#aaa">${o.id}</td>
-      <td><b>${o.name}</b><br><span style="font-size:10px;color:#2980b9">${o.tg}</span></td>
-      <td>${o.tg}</td>
-      <td><select class="isel" onchange="quickEdit(${o.id},'source',this.value)">
-        ${['Инстаграм','Телеграм','Сарафан','Реклама'].map(s=>`<option ${o.source===s?'selected':''}>${s}</option>`).join('')}
-      </select></td>
-      <td>${o.format||'—'}</td>
-      <td style="color:#888">${revDate(o)||'—'}</td>
-      <td>${fmt(o.price)}</td>
-      <td>${fmt(o.paid)}</td>
-      <td style="color:#27ae60;font-weight:700">${fmt(profit(o))}</td>
-      <td style="${debt>0?'color:#e74c3c;font-weight:600':'color:#27ae60'}">${debt>0?fmt(debt):'✓'}</td>
-      <td><select class="isel" onchange="quickEdit(${o.id},'status',this.value)">
-        ${STATUSES.map(s=>`<option ${o.status===s?'selected':''}>${s}</option>`).join('')}
-      </select></td>
-      <td style="${urg?'color:#e74c3c;font-weight:600':''}">${o.deadline||'—'}</td>
-      <td><button class="kbtn ke" onclick="openEditOrder(${o.id})">✏️</button></td>
-    </tr>`;
-  }).join('');
-}
-async function quickEdit(id,field,val){const o=orders.find(x=>x.id===id);if(o){o[field]=val;await saveOneOrder(o);}}
-
-// ── ТРАТЫ ────────────────────────────────────────────────────
-function renderExpenses(){
-  const cats=['Упаковка','Дизайнер','Реклама','Прочее'];
-  const totals={};cats.forEach(c=>{totals[c]=expenses.filter(e=>e.cat===c).reduce((s,e)=>s+(e.sum||0),0);});
-  const grand=Object.values(totals).reduce((s,v)=>s+v,0);
-  document.getElementById('exp-summary').innerHTML=`
-    ${cats.map(c=>`<div class="exp-card"><div class="exp-label">${c}</div><div class="exp-val" style="color:#e74c3c">${fmt(totals[c])}</div></div>`).join('')}
-    <div class="exp-card"><div class="exp-label">Итого трат</div><div class="exp-val" style="color:#e74c3c">${fmt(grand)}</div></div>
-  `;
-  const sorted=[...expenses].sort((a,b)=>b.date.localeCompare(a.date));
-  document.getElementById('expenses-body').innerHTML=sorted.map(e=>`<tr>
-    <td>${e.date}</td>
-    <td><span class="pill" style="background:#fde8e8;color:#c0392b">${e.cat}</span></td>
-    <td>${e.desc}</td>
-    <td style="font-weight:700;color:#e74c3c">${fmt(e.sum)}</td>
-    <td>${getMonth(e.date)||'—'}</td>
-    <td><button class="kbtn ke" onclick="openEditExpense(${e.id})">✏️</button></td>
-  </tr>`).join('');
-}
-
-// ── МОДАЛКА ЗАКАЗ ────────────────────────────────────────────
-function calcProfit(){
-  const p=+document.getElementById('mo-price').value||0;
-  const pc=+document.getElementById('mo-pcost').value||0;
-  const paid=+document.getElementById('mo-paid').value||0;
-  document.getElementById('mo-profit').textContent=fmt(p-pc);
-  document.getElementById('mo-debt').textContent=fmt(Math.max(0,p-paid));
-}
-function calcMonth(){
-  const d=document.getElementById('mo-orderdate').value||document.getElementById('mo-date').value;
-  document.getElementById('mo-month-hint').textContent=d&&d.match(/^\d{4}/)?'📅 Месяц учёта: '+getMonth(d):'';
-}
-function setOrderDateToday(){
-  const t=new Date();
-  const iso=t.getFullYear()+'-'+String(t.getMonth()+1).padStart(2,'0')+'-'+String(t.getDate()).padStart(2,'0');
-  document.getElementById('mo-orderdate').value=iso;
-  calcMonth();
-}
-function calcLink(){
-  const v=document.getElementById('mo-link').value.trim();
-  const lp=document.getElementById('mo-link-prev');
-  if(v&&v.startsWith('http')){lp.href=v;lp.style.display='inline-flex';}
-  else lp.style.display='none';
-}
-function fillOrderForm(o){
-  document.getElementById('mo-name').value=o.name||'';
-  document.getElementById('mo-tg').value=o.tg||'';
-  document.getElementById('mo-link').value=o.link||'';
-  document.getElementById('mo-src').value=o.source||'Инстаграм';
-  document.getElementById('mo-date').value=o.createdAt||'';
-  document.getElementById('mo-orderdate').value=o.orderDate||'';
-  document.getElementById('mo-fmt').value=o.format||'парню на др';
-  document.getElementById('mo-pt').value=o.printType||'стандартная';
-  document.getElementById('mo-price').value=o.price||'';
-  document.getElementById('mo-pcost').value=o.printCost||'';
-  document.getElementById('mo-paid').value=o.paid||'';
-  document.getElementById('mo-anketa').value=o.anketa||'';
-  document.getElementById('mo-sdek').value=o.sdek||'';
-  // show/hide anketa preview
-  const ap=document.getElementById('mo-anketa-prev');
-  if(o.anketa&&o.anketa.startsWith('http')){ap.href=o.anketa;ap.style.display='inline-flex';}else ap.style.display='none';
-  // show/hide sdek preview
-  const sp=document.getElementById('mo-sdek-prev');
-  if(o.sdek&&o.sdek.startsWith('http')){sp.href=o.sdek;sp.style.display='inline-flex';}else sp.style.display='none';
-  document.getElementById('mo-dl').value=o.deadline&&o.deadline.match(/^\d{4}/)?o.deadline:'';
-  document.getElementById('mo-city').value=o.city||'';
-  document.getElementById('mo-status').value=o.status||'Лиды';
-  document.getElementById('mo-notes').value=o.notes||'';
-  calcProfit();calcMonth();calcLink();
-}
-function openNewOrder(){
-  editOid=null;
-  document.getElementById('mo-title').textContent='Новый заказ';
-  document.getElementById('mo-del').style.display='none';
-  fillOrderForm({});
-  document.getElementById('modal-order').classList.add('open');
-}
-function openEditOrder(id){
-  editOid=id;
-  const o=orders.find(x=>x.id===id);
-  document.getElementById('mo-title').textContent='Редактировать заказ #'+id;
-  document.getElementById('mo-del').style.display='inline-flex';
-  fillOrderForm(o);
-  document.getElementById('modal-order').classList.add('open');
-}
-async function saveOrderForm(){
-  const name=document.getElementById('mo-name').value.trim();
-  if(!name){alert('Введи имя клиента');return;}
-  const saveBtn=document.getElementById('mo-save');
-  const saveBtnOldText=saveBtn.textContent;
-  saveBtn.disabled=true;
-  saveBtn.textContent='Сохраняю…';
-  const created=document.getElementById('mo-date').value;
-  const price=+document.getElementById('mo-price').value||0;
-  const paid=+document.getElementById('mo-paid').value||0;
-  const data={
-    name,tg:document.getElementById('mo-tg').value.trim(),
-    link:document.getElementById('mo-link').value.trim(),
-    source:document.getElementById('mo-src').value,
-    createdAt:created,orderDate:document.getElementById('mo-orderdate').value,format:document.getElementById('mo-fmt').value,
-    printType:document.getElementById('mo-pt').value,price,
-    printCost:+document.getElementById('mo-pcost').value||0,
-    paid,
-    deadline:document.getElementById('mo-dl').value,
-    city:document.getElementById('mo-city').value,
-    anketa:document.getElementById('mo-anketa').value.trim(),
-    sdek:document.getElementById('mo-sdek').value.trim(),
-    status:document.getElementById('mo-status').value,
-    notes:document.getElementById('mo-notes').value
-  };
-  try {
-    if(editOid){
-      const i=orders.findIndex(x=>x.id===editOid);
-      orders[i]={...orders[i],...data};
-      await saveOneOrder(orders[i]);
-    } else {
-      const newId=await getNextOrderId();
-      const newO={id:newId,...data};
-      orders.push(newO);
-      await saveOneOrder(newO);
-      nextOid=Math.max(nextOid,newId+1);
-    }
-    closeOrderModal();refreshCurrent();
-  } catch(err) {
-    alert('❌ Ошибка сохранения: ' + err.message);
-    console.error('Firebase save error:', err);
-  } finally {
-    saveBtn.disabled=false;
-    saveBtn.textContent=saveBtnOldText;
-  }
-}
-async function deleteOrderForm(){
-  if(!confirm('Удалить заказ?'))return;
-  await deleteOrder(editOid);
-  orders=orders.filter(x=>x.id!==editOid);
-  closeOrderModal();refreshCurrent();
-}
-function closeOrderModal(){document.getElementById('modal-order').classList.remove('open');}
-
-// ── МОДАЛКА ТРАТА ────────────────────────────────────────────
-function openNewExpense(){
-  editEid=null;
-  document.getElementById('me-title').textContent='Новая трата';
-  document.getElementById('me-del').style.display='none';
-  document.getElementById('me-date').value='';
-  document.getElementById('me-cat').value='Упаковка';
-  document.getElementById('me-desc').value='';
-  document.getElementById('me-sum').value='';
-  document.getElementById('modal-expense').classList.add('open');
-}
-function openEditExpense(id){
-  editEid=id;
-  const e=expenses.find(x=>x.id===id);
-  document.getElementById('me-title').textContent='Редактировать трату';
-  document.getElementById('me-del').style.display='inline-flex';
-  document.getElementById('me-date').value=e.date||'';
-  document.getElementById('me-cat').value=e.cat||'Упаковка';
-  document.getElementById('me-desc').value=e.desc||'';
-  document.getElementById('me-sum').value=e.sum||'';
-  document.getElementById('modal-expense').classList.add('open');
-}
-async function saveExpenseForm(){
-  const sum=+document.getElementById('me-sum').value||0;
-  if(!sum){alert('Введи сумму');return;}
-  const data={
-    date:document.getElementById('me-date').value,
-    cat:document.getElementById('me-cat').value,
-    desc:document.getElementById('me-desc').value,
-    sum
-  };
-  if(editEid){
-    const i=expenses.findIndex(x=>x.id===editEid);
-    expenses[i]={...expenses[i],...data};
-    await saveOneExpense(expenses[i]);
-  } else {
-    const newE={id:nextEid++,...data};
-    expenses.push(newE);
-    await saveOneExpense(newE);
-  }
-  closeExpenseModal();renderExpenses();renderDashboard();
-}
-async function deleteExpenseForm(){
-  if(!confirm('Удалить трату?'))return;
-  await deleteExpense(editEid);
-  expenses=expenses.filter(x=>x.id!==editEid);
-  closeExpenseModal();renderExpenses();
-}
-function closeExpenseModal(){document.getElementById('modal-expense').classList.remove('open');}
-
-function refreshCurrent(){
-  const active=document.querySelector('.tab.active');
-  if(active)showTab(active.dataset.tab);
-}
-
-// ── СОБЫТИЯ ──────────────────────────────────────────────────
-document.getElementById('btn-new-order').addEventListener('click',openNewOrder);
-document.getElementById('btn-new-expense').addEventListener('click',openNewExpense);
-document.getElementById('mo-close').addEventListener('click',closeOrderModal);
-document.getElementById('mo-cancel').addEventListener('click',closeOrderModal);
-document.getElementById('mo-save').addEventListener('click',saveOrderForm);
-document.getElementById('mo-del').addEventListener('click',deleteOrderForm);
-document.getElementById('me-close').addEventListener('click',closeExpenseModal);
-document.getElementById('me-cancel').addEventListener('click',closeExpenseModal);
-document.getElementById('me-save').addEventListener('click',saveExpenseForm);
-document.getElementById('me-del').addEventListener('click',deleteExpenseForm);
-document.getElementById('mo-price').addEventListener('input',calcProfit);
-document.getElementById('mo-pcost').addEventListener('input',calcProfit);
-document.getElementById('mo-paid').addEventListener('input',calcProfit);
-document.getElementById('mo-date').addEventListener('input',calcMonth);
-document.getElementById('mo-orderdate').addEventListener('input',calcMonth);
-document.getElementById('mo-orderdate-today').addEventListener('click',setOrderDateToday);
-document.getElementById('mo-link').addEventListener('input',calcLink);
-document.getElementById('mo-anketa').addEventListener('input',function(){
-  const v=this.value.trim();const p=document.getElementById('mo-anketa-prev');
-  if(v&&v.startsWith('http')){p.href=v;p.style.display='inline-flex';}else p.style.display='none';
-});
-document.getElementById('mo-sdek').addEventListener('input',function(){
-  const v=this.value.trim();const p=document.getElementById('mo-sdek-prev');
-  if(v&&v.startsWith('http')){p.href=v;p.style.display='inline-flex';}else p.style.display='none';
-});
-document.getElementById('f-month').addEventListener('change',renderOrders);
-document.getElementById('f-status').addEventListener('change',renderOrders);
-document.getElementById('f-source').addEventListener('change',renderOrders);
-document.getElementById('f-search').addEventListener('input',renderOrders);
-document.getElementById('modal-order').addEventListener('click',e=>{if(e.target===document.getElementById('modal-order'))closeOrderModal();});
-document.getElementById('modal-expense').addEventListener('click',e=>{if(e.target===document.getElementById('modal-expense'))closeExpenseModal();});
-
-
-document.getElementById('btn-reset').addEventListener('click', async function(){
-  if(!confirm('Загрузить данные из облака? Это обновит CRM актуальными данными из Firebase.')) return;
-  document.getElementById('tinfo').textContent = 'Загрузка...';
-  await loadFromFirebase();
-  alert('Готово! Данные загружены из облака ✅');
-});
-
-
-// Expose functions to global scope for inline HTML handlers
-
-// ── ЗАДАЧИ ───────────────────────────────────────────────────
-let tasks = JSON.parse(localStorage.getItem('pb_tasks')||'[]');
-function saveTasks(){localStorage.setItem('pb_tasks',JSON.stringify(tasks));}
-function renderTasks(){
-  const el=document.getElementById('tasks-list');
-  if(!el)return;
-  if(tasks.length===0){el.innerHTML='<div style="font-size:12px;color:#aaa;padding:4px 0">Задач нет — добавь первую!</div>';return;}
-  el.innerHTML=tasks.map((t,i)=>`
-    <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f5f5f5">
-      <input type="checkbox" ${t.done?'checked':''} onchange="toggleTask(${i})" style="cursor:pointer;width:15px;height:15px">
-      <span style="flex:1;font-size:13px;${t.done?'text-decoration:line-through;color:#aaa':''}">${t.text}</span>
-      <button onclick="deleteTask(${i})" style="background:none;border:none;color:#ccc;cursor:pointer;font-size:14px;padding:0 4px">✕</button>
-    </div>`).join('');
-}
-function addTask(){
-  const inp=document.getElementById('task-input');
-  const text=inp.value.trim();
-  if(!text)return;
-  tasks.push({text,done:false});
-  saveTasks();renderTasks();
-  inp.value='';
-}
-function toggleTask(i){tasks[i].done=!tasks[i].done;saveTasks();renderTasks();}
-function deleteTask(i){tasks.splice(i,1);saveTasks();renderTasks();}
-window.addTask=addTask;
-window.toggleTask=toggleTask;
-window.deleteTask=deleteTask;
-document.getElementById('task-input').addEventListener('keydown',function(e){if(e.key==='Enter')addTask();});
-
-window.openEditOrder = openEditOrder;
-window.openEditExpense = openEditExpense;
-window.moveNext = moveNext;
-window.quickEdit = quickEdit;
-window.saveOrderForm = saveOrderForm;
-window.deleteOrderForm = deleteOrderForm;
-window.saveExpenseForm = saveExpenseForm;
-window.deleteExpenseForm = deleteExpenseForm;
-window.closeOrderModal = closeOrderModal;
-window.closeExpenseModal = closeExpenseModal;
-window.moveToStatus = moveToStatus;
-
-document.addEventListener('DOMContentLoaded', () => { loadFromFirebase(); });
-</script>
+  </script>
 </body>
 </html>
