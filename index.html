@@ -306,7 +306,7 @@ tbody tr:hover td{background:#fafafa}
 <script type="module">
 // ── FIREBASE ─────────────────────────────────────────────────
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, collection, getDocs, setDoc, deleteDoc, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getFirestore, collection, getDocs, setDoc, deleteDoc, doc, onSnapshot, runTransaction } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDRK8Ze7VUtfgaQWf4HKxyeQdgz8ky5HHw",
@@ -358,6 +358,23 @@ async function deleteOrder(id){
 }
 async function deleteExpense(id){
   await deleteDoc(doc(db,'expenses',String(id)));
+}
+
+// Атомарный счётчик ID для новых заказов.
+// Раньше id считался локально в браузере (nextOid++), и если два человека
+// с разных устройств создавали заказ почти одновременно — оба могли
+// получить один и тот же id, и вторая запись стирала первую.
+// runTransaction гарантирует уникальность на стороне самого Firebase,
+// даже при одновременных сохранениях с разных устройств.
+async function getNextOrderId(){
+  const counterRef = doc(db, 'meta', 'counters');
+  const newId = await runTransaction(db, async (tx) => {
+    const snap = await tx.get(counterRef);
+    const current = snap.exists() ? (snap.data().nextOrderId || nextOid) : nextOid;
+    tx.set(counterRef, { nextOrderId: current + 1 }, { merge: true });
+    return current;
+  });
+  return newId;
 }
 
 // Загрузка данных из Firebase при старте
@@ -744,6 +761,10 @@ function openEditOrder(id){
 async function saveOrderForm(){
   const name=document.getElementById('mo-name').value.trim();
   if(!name){alert('Введи имя клиента');return;}
+  const saveBtn=document.getElementById('mo-save');
+  const saveBtnOldText=saveBtn.textContent;
+  saveBtn.disabled=true;
+  saveBtn.textContent='Сохраняю…';
   const created=document.getElementById('mo-date').value;
   const price=+document.getElementById('mo-price').value||0;
   const paid=+document.getElementById('mo-paid').value||0;
@@ -768,14 +789,19 @@ async function saveOrderForm(){
       orders[i]={...orders[i],...data};
       await saveOneOrder(orders[i]);
     } else {
-      const newO={id:nextOid++,...data};
+      const newId=await getNextOrderId();
+      const newO={id:newId,...data};
       orders.push(newO);
       await saveOneOrder(newO);
+      nextOid=Math.max(nextOid,newId+1);
     }
     closeOrderModal();refreshCurrent();
   } catch(err) {
     alert('❌ Ошибка сохранения: ' + err.message);
     console.error('Firebase save error:', err);
+  } finally {
+    saveBtn.disabled=false;
+    saveBtn.textContent=saveBtnOldText;
   }
 }
 async function deleteOrderForm(){
