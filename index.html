@@ -377,6 +377,20 @@ async function getNextOrderId(){
   return newId;
 }
 
+// Заказы могут приходить из трёх мест: ручной ввод в CRM, бот, и просто
+// то, что уже лежит в Firebase. Бот пишет числа как текст, и раньше
+// сумма (price/paid/printCost) от этого превращалась в строку — и вся
+// выручка в отчётах считалась неправильно (сложение строк, а не чисел).
+// Эта функция гарантирует, что деньги — всегда числа, откуда бы заказ ни пришёл.
+function coerceOrderTypes(o){
+  o.price = parseInt(o.price) || 0;
+  o.printCost = parseInt(o.printCost) || 0;
+  o.paid = parseInt(o.paid) || 0;
+  o.prepay = parseInt(o.prepay) || 0;
+  if(o.id !== undefined && o.id !== null) o.id = parseInt(o.id) || o.id;
+  return o;
+}
+
 // Загрузка данных из Firebase при старте
 async function loadFromFirebase(){
   document.getElementById('tinfo').textContent = 'Загрузка...';
@@ -398,7 +412,7 @@ async function loadFromFirebase(){
     for(const e of expenses) await setDoc(doc(db,'expenses',String(e.id)),e);
   } else {
     orders = [];
-    oSnap.forEach(d => orders.push(d.data()));
+    oSnap.forEach(d => orders.push(coerceOrderTypes(d.data())));
     expenses = [];
     eSnap.forEach(d => expenses.push(d.data()));
   }
@@ -441,7 +455,7 @@ async function loadFromFirebase(){
       }
       if(change.type === 'modified'){
         const idx = orders.findIndex(o => String(o.id) === String(data.id || docId));
-        if(idx !== -1){ orders[idx] = {...orders[idx], ...data}; renderDashboard(); }
+        if(idx !== -1){ orders[idx] = coerceOrderTypes({...orders[idx], ...data}); renderDashboard(); }
       }
       if(change.type === 'removed'){
         orders = orders.filter(o => String(o.id) !== String(data.id || docId));
@@ -474,19 +488,25 @@ document.querySelectorAll('.tab').forEach(tab=>{
 
 // ── ДАШБОРД ─────────────────────────────────────────────────
 function renderDashboard(){
-  const total=orders.reduce((s,o)=>s+(o.price||0),0);
-  const totalP=orders.reduce((s,o)=>s+profit(o),0);
+  // "Лиды" — это те, кто просто написал боту и ещё не сделал заказ.
+  // Их не считаем как заказы в метриках и отчётах — иначе выручка
+  // и количество заказов выглядят раздутыми не по делу.
+  const realOrders=orders.filter(o=>o.status!=='Лиды');
+  const leadsCount=orders.filter(o=>o.status==='Лиды').length;
+  const total=realOrders.reduce((s,o)=>s+(o.price||0),0);
+  const totalP=realOrders.reduce((s,o)=>s+profit(o),0);
   const totalExp=expenses.reduce((s,e)=>s+(e.sum||0),0);
   const netProfit=totalP-totalExp;
-  const active=orders.filter(o=>o.status!=='Отправлено').length;
-  const debt=orders.reduce((s,o)=>s+Math.max(0,(o.price||0)-(o.paid||0)),0);
-  const inDesign=orders.filter(o=>o.status==='В работе у дизайнера').length;
-  const inPrint=orders.filter(o=>o.status==='В печати').length;
+  const active=realOrders.filter(o=>o.status!=='Отправлено').length;
+  const debt=realOrders.reduce((s,o)=>s+Math.max(0,(o.price||0)-(o.paid||0)),0);
+  const inDesign=realOrders.filter(o=>o.status==='В работе у дизайнера').length;
+  const inPrint=realOrders.filter(o=>o.status==='В печати').length;
   const nowMonth=MORD[new Date().getMonth()];
-  const thisMonthOrders=orders.filter(o=>getMonth(revDate(o))===nowMonth).length;
-  document.getElementById('tinfo').textContent=`${orders.length} заказов · ${fmt(total)}`;
+  const thisMonthOrders=realOrders.filter(o=>getMonth(revDate(o))===nowMonth).length;
+  document.getElementById('tinfo').textContent=`${realOrders.length} заказов · ${fmt(total)}`;
   document.getElementById('metrics').innerHTML=`
-    <div class="metric"><div class="metric-label">Всего заказов</div><div class="metric-value blue">${orders.length}</div></div>
+    <div class="metric"><div class="metric-label">Всего заказов</div><div class="metric-value blue">${realOrders.length}</div></div>
+    <div class="metric"><div class="metric-label">Лидов (ещё не заказ)</div><div class="metric-value orange">${leadsCount}</div></div>
     <div class="metric"><div class="metric-label">Выручка</div><div class="metric-value">${fmt(total)}</div></div>
     <div class="metric"><div class="metric-label">Прибыль с заказов</div><div class="metric-value green">${fmt(totalP)}</div></div>
     <div class="metric"><div class="metric-label">Все траты</div><div class="metric-value red">${fmt(totalExp)}</div></div>
@@ -497,18 +517,18 @@ function renderDashboard(){
     <div class="metric"><div class="metric-label">Заказов в ${nowMonth}</div><div class="metric-value blue">${thisMonthOrders}</div></div>
     <div class="metric"><div class="metric-label">Долг клиентов</div><div class="metric-value red">${fmt(debt)}</div></div>
   `;
-  const srcs={};orders.forEach(o=>{srcs[o.source]=(srcs[o.source]||0)+1;});
+  const srcs={};realOrders.forEach(o=>{srcs[o.source]=(srcs[o.source]||0)+1;});
   document.getElementById('sources').innerHTML=Object.entries(srcs).sort((a,b)=>b[1]-a[1]).map(([s,c])=>`<div class="src-item"><div class="src-name">${s}</div><div class="src-val">${c} <span style="font-size:11px;color:#aaa">зак.</span></div></div>`).join('');
-  const fmts={};orders.forEach(o=>{if(!fmts[o.format])fmts[o.format]=0;fmts[o.format]+=profit(o);});
+  const fmts={};realOrders.forEach(o=>{if(!fmts[o.format])fmts[o.format]=0;fmts[o.format]+=profit(o);});
   const top=Object.entries(fmts).sort((a,b)=>b[1]-a[1]).slice(0,6);
   const maxP=top[0]?top[0][1]:1;
   document.getElementById('top-formats').innerHTML=top.map(([f,p])=>`<div class="bar"><div class="bar-top"><span>${f}</span><span style="color:#27ae60;font-weight:600">${fmt(p)}</span></div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(p/maxP*100)}%"></div></div></div>`).join('');
   // KPI
-  const months=[...new Set(orders.filter(o=>revDate(o)&&revDate(o).match(/^\d{4}/)).map(o=>getMonth(revDate(o))).filter(Boolean))];
+  const months=[...new Set(realOrders.filter(o=>revDate(o)&&revDate(o).match(/^\d{4}/)).map(o=>getMonth(revDate(o))).filter(Boolean))];
   months.sort((a,b)=>MORD.indexOf(a)-MORD.indexOf(b));
   let html='',tR=0,tP=0,tN=0,tC=0;
   months.forEach(m=>{
-    const mo=orders.filter(o=>getMonth(revDate(o))===m);
+    const mo=realOrders.filter(o=>getMonth(revDate(o))===m);
     const rev=mo.reduce((s,o)=>s+(o.price||0),0);
     const pr=mo.reduce((s,o)=>s+profit(o),0);
     const mDate=new Date(2026,MORD.indexOf(m)+1,0);
