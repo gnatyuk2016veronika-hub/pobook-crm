@@ -1,773 +1,105 @@
 <!doctype html>
 <html lang="ru">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>POBOOK CRM</title>
-  <style>
-    :root{
-      --ink:#17202a;--muted:#6b7280;--line:#e7e2dc;--paper:#fff;--bg:#f7f3ee;
-      --blue:#4f7fcf;--green:#3a9b72;--red:#d25b5b;--orange:#d48a3a;--violet:#8d6cc8;
-      --rose:#f4dce3;--mint:#dcefe5;--sky:#dceafa;--cream:#f7ecd0;--lilac:#e8ddf4;
-      --shadow:0 16px 38px rgba(84,63,45,.10);
-    }
-    *{box-sizing:border-box}
-    body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;background:var(--bg);color:var(--ink)}
-    button,input,select,textarea{font:inherit}
-    button{cursor:pointer}
-    .topbar{position:sticky;top:0;z-index:20;background:#24313d;color:#fff;padding:13px 18px;display:flex;gap:10px;align-items:center;box-shadow:0 8px 24px rgba(36,49,61,.16)}
-    .brand{font-weight:850;font-size:17px;letter-spacing:.2px;flex:1}
-    .sync{font-size:12px;color:#d7e1ea}
-    .btn{border:1px solid var(--line);background:#fff;border-radius:8px;padding:8px 12px;color:var(--ink);display:inline-flex;align-items:center;gap:6px;box-shadow:0 1px 0 rgba(15,23,42,.03)}
-    .btn:hover{background:#fbfaf8}
-    .btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
-    .btn.danger{background:var(--red);border-color:var(--red);color:#fff}
-    .tabs{display:flex;gap:4px;padding:0 18px;background:#fffdfb;border-bottom:1px solid var(--line);overflow:auto}
-    .tab{border:0;background:transparent;padding:13px 14px;color:var(--muted);border-bottom:2px solid transparent;white-space:nowrap}
-    .tab.active{color:var(--ink);border-bottom-color:var(--blue);font-weight:700}
-    main{padding:18px}
-    .metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:14px}
-    .metric{background:#fff;border:1px solid var(--line);border-radius:8px;padding:14px;box-shadow:0 8px 18px rgba(84,63,45,.05)}
-    .label{font-size:11px;color:var(--muted);text-transform:uppercase;font-weight:800;letter-spacing:.35px}
-    .value{font-size:24px;font-weight:850;margin-top:5px}
-    .green{color:var(--green)}.red{color:var(--red)}.blue{color:var(--blue)}.orange{color:var(--orange)}
-    .panel{background:#fff;border:1px solid var(--line);border-radius:8px;padding:14px;margin-bottom:14px;box-shadow:0 8px 18px rgba(84,63,45,.05)}
-    .panel-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px}
-    h2{font-size:15px;margin:0}
-    table{width:100%;border-collapse:collapse;font-size:13px}
-    th,td{padding:9px 10px;border-bottom:1px solid #eef2f7;text-align:left;vertical-align:top}
-    th{font-size:11px;color:var(--muted);text-transform:uppercase;background:#fbf7f2;position:sticky;top:0}
-    .table-wrap{max-height:66vh;overflow:auto;border:1px solid var(--line);border-radius:8px;background:#fff}
-    .filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
-    input,select,textarea{border:1px solid var(--line);border-radius:8px;padding:8px 10px;background:#fff;color:var(--ink)}
-    .filters input{min-width:210px}
-    .pill{display:inline-flex;align-items:center;padding:3px 8px;border-radius:999px;font-size:11px;font-weight:800;background:#edf2ff;color:#31518f}
-    .pill.lead{background:#fff7ed;color:#9a3412}.pill.done{background:#ecfdf5;color:#166534}
-    .kanban{display:flex;gap:12px;overflow:auto;padding-bottom:12px}
-    .col{min-width:260px;width:260px;border-radius:8px;padding:10px;border:1px solid rgba(84,63,45,.08)}
-    .col[data-status="Лиды"]{background:var(--cream)}
-    .col[data-status="Ждём фото"]{background:var(--lilac)}
-    .col[data-status="В работе у дизайнера"]{background:var(--sky)}
-    .col[data-status="В печати"]{background:var(--rose)}
-    .col[data-status="Отправлено"]{background:var(--mint)}
-    .col-head{display:flex;justify-content:space-between;margin-bottom:8px;font-size:12px;font-weight:850;color:#475569;text-transform:uppercase}
-    .card{background:rgba(255,255,255,.92);border:1px solid rgba(255,255,255,.8);border-radius:8px;padding:10px;margin-bottom:8px;box-shadow:0 8px 18px rgba(84,63,45,.08)}
-    .card.dragging{opacity:.55}
-    .col.drop{outline:2px dashed var(--blue);outline-offset:2px}
-    .name{font-weight:800;margin-bottom:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-    .small{font-size:12px;color:var(--muted)}
-    .money{display:flex;justify-content:space-between;gap:8px;margin-top:8px;font-size:12px}
-    .actions{display:flex;gap:6px;margin-top:9px}
-    .iconbtn{border:1px solid var(--line);background:#fff;border-radius:7px;padding:5px 8px;font-size:12px}
-    .modal-back{display:none;position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:50;align-items:center;justify-content:center;padding:16px}
-    .modal-back.open{display:flex}
-    .modal{background:#fff;border-radius:10px;box-shadow:var(--shadow);width:min(720px,100%);max-height:92vh;overflow:auto;padding:18px}
-    .modal-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
-    .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-    .field{display:flex;flex-direction:column;gap:4px;margin-bottom:10px}
-    .field label{font-size:11px;color:var(--muted);font-weight:850;text-transform:uppercase}
-    .full{grid-column:1/-1}
-    .footer{display:flex;justify-content:flex-end;gap:8px;border-top:1px solid var(--line);padding-top:12px;margin-top:8px}
-    .notice{background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;border-radius:8px;padding:10px 12px;font-size:13px;margin-bottom:14px}
-    .empty{color:var(--muted);font-size:13px;padding:14px}
-    .dash-grid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(320px,.75fr);gap:14px}
-    .task-row{display:grid;grid-template-columns:22px minmax(0,1fr) auto;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid #f2ede7}
-    .task-row:last-child{border-bottom:0}
-    .task-text{font-size:13px}
-    .task-text.done{text-decoration:line-through;color:#a3a3a3}
-    .task-form{display:flex;gap:8px;margin-top:10px}
-    .task-form input{flex:1;min-width:0}
-    .team-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
-    .person{background:#fff;border:1px solid var(--line);border-radius:8px;padding:14px;box-shadow:0 8px 18px rgba(84,63,45,.05)}
-    .person h3{font-size:15px;margin:0 0 8px}
-    .person-count{font-size:12px;color:var(--muted);margin-bottom:10px}
-    .person-orders{display:flex;flex-direction:column;gap:7px;margin-bottom:12px}
-    .mini-order{border:1px solid #efe8df;background:#fffaf5;border-radius:8px;padding:8px}
-    .owner-chip{display:inline-flex;align-items:center;margin-top:6px;padding:3px 8px;border-radius:999px;background:#f3ecff;color:#65459a;font-size:11px;font-weight:800}
-    .section-title{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
-    @media(max-width:980px){.dash-grid{grid-template-columns:1fr}}
-    @media(max-width:720px){.topbar{flex-wrap:wrap}.sync{width:100%}.grid{grid-template-columns:1fr}.value{font-size:20px}main{padding:12px}}
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>POBOOK CRM</title>
+<style>
+:root{--bg:#f7f3ee;--paper:#fff;--ink:#17202a;--muted:#6b7280;--line:#e7e2dc;--blue:#4f7fcf;--green:#3a9b72;--red:#d25b5b;--orange:#d48a3a;--cream:#f7ecd0;--lilac:#e8ddf4;--sky:#dceafa;--rose:#f4dce3;--mint:#dcefe5;--shadow:0 16px 38px rgba(84,63,45,.10)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}
+button,input,select,textarea{font:inherit}button{cursor:pointer}
+.topbar{position:sticky;top:0;z-index:20;background:#24313d;color:#fff;padding:13px 18px;display:flex;gap:10px;align-items:center;box-shadow:0 8px 24px rgba(36,49,61,.16)}
+.brand{font-size:17px;font-weight:850;flex:1}.sync{font-size:12px;color:#d7e1ea}
+.btn,.iconbtn{border:1px solid var(--line);background:#fff;border-radius:8px;padding:8px 12px;color:var(--ink);display:inline-flex;align-items:center;gap:6px}
+.iconbtn{font-size:12px;padding:5px 8px}.btn:hover,.iconbtn:hover{background:#fbfaf8}.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}.btn.danger{background:var(--red);border-color:var(--red);color:#fff}
+.tabs{display:flex;gap:4px;padding:0 18px;background:#fffdfb;border-bottom:1px solid var(--line);overflow:auto}.tab{border:0;background:transparent;padding:13px 14px;color:var(--muted);border-bottom:2px solid transparent;white-space:nowrap}.tab.active{color:var(--ink);border-bottom-color:var(--blue);font-weight:800}
+main{padding:18px}.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:14px}.metric,.panel,.person{background:#fff;border:1px solid var(--line);border-radius:8px;padding:14px;box-shadow:0 8px 18px rgba(84,63,45,.05)}
+.label{font-size:11px;color:var(--muted);text-transform:uppercase;font-weight:800;letter-spacing:.35px}.value{font-size:24px;font-weight:850;margin-top:5px}.green{color:var(--green)}.red{color:var(--red)}.blue{color:var(--blue)}.orange{color:var(--orange)}
+.panel{margin-bottom:14px}.panel-head,.section-title{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px}h2{font-size:15px;margin:0}h3{font-size:15px;margin:0 0 8px}
+table{width:100%;border-collapse:collapse;font-size:13px}th,td{padding:9px 10px;border-bottom:1px solid #eef2f7;text-align:left;vertical-align:top}th{font-size:11px;color:var(--muted);text-transform:uppercase;background:#fbf7f2;position:sticky;top:0}.table-wrap{max-height:66vh;overflow:auto;border:1px solid var(--line);border-radius:8px;background:#fff}
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}input,select,textarea{border:1px solid var(--line);border-radius:8px;padding:8px 10px;background:#fff;color:var(--ink);min-width:0}.filters input{min-width:210px}.pill{display:inline-flex;align-items:center;padding:3px 8px;border-radius:999px;font-size:11px;font-weight:800;background:#edf2ff;color:#31518f}.pill.lead{background:#fff7ed;color:#9a3412}.pill.done{background:#ecfdf5;color:#166534}
+.kanban{display:flex;gap:12px;overflow:auto;padding-bottom:12px}.col{min-width:260px;width:260px;border-radius:8px;padding:10px;border:1px solid rgba(84,63,45,.08)}.col[data-status="Лиды"]{background:var(--cream)}.col[data-status="Ждём фото"]{background:var(--lilac)}.col[data-status="В работе у дизайнера"]{background:var(--sky)}.col[data-status="В печати"]{background:var(--rose)}.col[data-status="Отправлено"]{background:var(--mint)}.col-head{display:flex;justify-content:space-between;margin-bottom:8px;font-size:12px;font-weight:850;color:#475569;text-transform:uppercase}.col.drop{outline:2px dashed var(--blue);outline-offset:2px}
+.card{background:rgba(255,255,255,.92);border:1px solid rgba(255,255,255,.8);border-radius:8px;padding:10px;margin-bottom:8px;box-shadow:0 8px 18px rgba(84,63,45,.08)}.card.dragging{opacity:.55}.name{font-weight:800;margin-bottom:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.small{font-size:12px;color:var(--muted)}.money{display:flex;justify-content:space-between;gap:8px;margin-top:8px;font-size:12px}.actions{display:flex;gap:6px;margin-top:9px;flex-wrap:wrap}.owner-chip{display:inline-flex;align-items:center;margin-top:6px;padding:3px 8px;border-radius:999px;background:#f3ecff;color:#65459a;font-size:11px;font-weight:800}
+.modal-back{display:none;position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:50;align-items:center;justify-content:center;padding:16px}.modal-back.open{display:flex}.modal{background:#fff;border-radius:10px;box-shadow:var(--shadow);width:min(720px,100%);max-height:92vh;overflow:auto;padding:18px}.modal-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.field{display:flex;flex-direction:column;gap:4px;margin-bottom:10px}.field label{font-size:11px;color:var(--muted);font-weight:850;text-transform:uppercase}.full{grid-column:1/-1}.footer{display:flex;justify-content:flex-end;gap:8px;border-top:1px solid var(--line);padding-top:12px;margin-top:8px}
+.notice{background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;border-radius:8px;padding:10px 12px;font-size:13px;margin-bottom:14px}.empty{color:var(--muted);font-size:13px;padding:14px}.dash-grid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(320px,.75fr);gap:14px}.task-row{display:grid;grid-template-columns:22px minmax(0,1fr) auto;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid #f2ede7}.task-row:last-child{border-bottom:0}.task-text{font-size:13px}.task-text.done{text-decoration:line-through;color:#a3a3a3}.task-form{display:flex;gap:8px;margin-top:10px}.task-form input{flex:1}.team-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}.person-count{font-size:12px;color:var(--muted);margin-bottom:10px}.person-orders{display:flex;flex-direction:column;gap:7px;margin-bottom:12px}.mini-order{border:1px solid #efe8df;background:#fffaf5;border-radius:8px;padding:8px}
+@media(max-width:980px){.dash-grid{grid-template-columns:1fr}}@media(max-width:720px){.topbar{flex-wrap:wrap}.sync{width:100%}.grid{grid-template-columns:1fr}.value{font-size:20px}main{padding:12px}}
+</style>
 </head>
 <body>
-  <header class="topbar">
-    <div class="brand">POBOOK CRM</div>
-    <div class="sync" id="syncText">Подключение...</div>
-    <button class="btn" id="reloadBtn" type="button">Обновить</button>
-    <button class="btn primary" id="newOrderBtn" type="button">Новый заказ</button>
-  </header>
-
-  <nav class="tabs">
-    <button class="tab active" data-tab="dashboard" type="button">Дашборд</button>
-    <button class="tab" data-tab="kanban" type="button">Этапы</button>
-    <button class="tab" data-tab="orders" type="button">Заказы</button>
-    <button class="tab" data-tab="team" type="button">Команда</button>
-    <button class="tab" data-tab="expenses" type="button">Траты</button>
-  </nav>
-
-  <main>
-    <section id="dashboardTab">
-      <div class="notice" id="dateNotice" hidden></div>
-      <div class="metrics" id="metrics"></div>
-      <div class="dash-grid">
-        <div>
-          <div class="panel">
-            <div class="panel-head"><h2>KPI по месяцам</h2></div>
-            <div class="table-wrap"><table><thead><tr><th>Месяц</th><th>Заказы</th><th>Сумма сделок</th><th>Выручка оплачено</th><th>Прибыль</th><th>Траты</th><th>Чистая</th></tr></thead><tbody id="kpiBody"></tbody></table></div>
-          </div>
-          <div class="panel">
-            <div class="panel-head"><h2>Источники клиентов</h2></div>
-            <div id="sources"></div>
-          </div>
-        </div>
-        <div class="panel">
-          <div class="section-title"><h2>Задачи на сегодня</h2></div>
-          <div id="dashboardTasks"></div>
-          <div class="task-form">
-            <input id="dashboardTaskInput" placeholder="Добавить задачу">
-            <button class="btn primary" id="addDashboardTaskBtn" type="button">Добавить</button>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section id="kanbanTab" hidden>
-      <div class="kanban" id="kanban"></div>
-    </section>
-
-    <section id="ordersTab" hidden>
-      <div class="filters">
-        <select id="monthFilter"><option value="">Все месяцы</option></select>
-        <select id="statusFilter"><option value="">Все статусы</option></select>
-        <select id="sourceFilter"><option value="">Все источники</option></select>
-        <input id="searchFilter" placeholder="Поиск по имени, TG, телефону">
-      </div>
-      <div class="table-wrap"><table><thead><tr><th>#</th><th>Клиент</th><th>Источник</th><th>Ответственный</th><th>Дата учета</th><th>Формат</th><th>Сумма</th><th>Оплачено</th><th>Долг</th><th>Статус</th><th></th></tr></thead><tbody id="ordersBody"></tbody></table></div>
-    </section>
-
-    <section id="teamTab" hidden>
-      <div class="panel-head">
-        <h2>Ответственные</h2>
-      </div>
-      <div class="team-grid" id="teamGrid"></div>
-    </section>
-
-    <section id="expensesTab" hidden>
-      <div class="panel-head">
-        <h2>Траты</h2>
-        <button class="btn primary" id="newExpenseBtn" type="button">Добавить трату</button>
-      </div>
-      <div class="metrics" id="expenseMetrics"></div>
-      <div class="table-wrap"><table><thead><tr><th>Дата</th><th>Категория</th><th>Описание</th><th>Сумма</th><th></th></tr></thead><tbody id="expensesBody"></tbody></table></div>
-    </section>
-  </main>
-
-  <div class="modal-back" id="orderModal">
-    <div class="modal">
-      <div class="modal-title"><h2 id="orderTitle">Новый заказ</h2><button class="iconbtn" id="closeOrderBtn" type="button">Закрыть</button></div>
-      <div class="grid">
-        <div class="field"><label>Имя клиента</label><input id="oName"></div>
-        <div class="field"><label>TG / телефон</label><input id="oTg"></div>
-        <div class="field full"><label>Ссылка на переписку</label><input id="oLink" placeholder="https://t.me/username"></div>
-        <div class="field"><label>Источник</label><select id="oSource"></select></div>
-        <div class="field"><label>Дата учета оплаты</label><input id="oDate" type="date"></div>
-        <div class="field"><label>Ответственный</label><select id="oOwner"></select></div>
-        <div class="field"><label>Статус</label><select id="oStatus"></select></div>
-        <div class="field"><label>Формат</label><input id="oFormat" placeholder="парню на др"></div>
-        <div class="field"><label>Тип печати</label><input id="oPrintType" placeholder="стандартная"></div>
-        <div class="field"><label>Сумма сделки</label><input id="oPrice" type="number" min="0"></div>
-        <div class="field"><label>Оплачено</label><input id="oPaid" type="number" min="0"></div>
-        <div class="field"><label>Стоимость печати</label><input id="oPrintCost" type="number" min="0"></div>
-        <div class="field"><label>Дедлайн</label><input id="oDeadline" type="date"></div>
-        <div class="field"><label>Город</label><input id="oCity"></div>
-        <div class="field full"><label>Заметки</label><textarea id="oNotes" rows="3"></textarea></div>
-      </div>
-      <div class="footer">
-        <button class="btn danger" id="deleteOrderBtn" type="button">Удалить</button>
-        <button class="btn" id="cancelOrderBtn" type="button">Отмена</button>
-        <button class="btn primary" id="saveOrderBtn" type="button">Сохранить</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="modal-back" id="expenseModal">
-    <div class="modal" style="width:min(460px,100%)">
-      <div class="modal-title"><h2 id="expenseTitle">Новая трата</h2><button class="iconbtn" id="closeExpenseBtn" type="button">Закрыть</button></div>
-      <div class="field"><label>Дата</label><input id="eDate" type="date"></div>
-      <div class="field"><label>Категория</label><select id="eCat"></select></div>
-      <div class="field"><label>Описание</label><input id="eDesc"></div>
-      <div class="field"><label>Сумма</label><input id="eSum" type="number" min="0"></div>
-      <div class="footer">
-        <button class="btn danger" id="deleteExpenseBtn" type="button">Удалить</button>
-        <button class="btn" id="cancelExpenseBtn" type="button">Отмена</button>
-        <button class="btn primary" id="saveExpenseBtn" type="button">Сохранить</button>
-      </div>
-    </div>
-  </div>
-
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getFirestore, collection, doc, getDocs, setDoc, deleteDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyDRK8Ze7VUtfgaQWf4HKxyeQdgz8ky5HHw",
-      authDomain: "pobookcrm.firebaseapp.com",
-      projectId: "pobookcrm",
-      storageBucket: "pobookcrm.firebasestorage.app",
-      messagingSenderId: "191229001674",
-      appId: "1:191229001674:web:8226011df102e7d4c91933"
-    };
-
-    const STATUSES = ["Лиды","Ждём фото","В работе у дизайнера","В печати","Отправлено"];
-    const SOURCES = ["Инстаграм","Телеграм","ТГ Бот","Сарафан","Реклама","Другое"];
-    const OWNERS = ["Дизайнер Юля","Дизайнер Сима","Дизайнер Аня","Менеджер Ирина"];
-    const EXPENSE_CATS = ["Упаковка","Дизайнер","Реклама","Прочее"];
-    const MONTHS = ["Январь","Февраль","Март","Апрель","Май","Июнь","Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"];
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    let orders = [];
-    let expenses = [];
-    let editOrderDocId = null;
-    let editExpenseDocId = null;
-    let currentTab = "dashboard";
-    let unsubOrders = null;
-    let unsubExpenses = null;
-    let dragDocId = null;
-    let dashboardTasks = JSON.parse(localStorage.getItem("pobook_dashboard_tasks") || "[]");
-    let teamTasks = JSON.parse(localStorage.getItem("pobook_team_tasks") || "{}");
-
-    const $ = id => document.getElementById(id);
-    const rub = n => Number(n || 0).toLocaleString("ru-RU") + "₽";
-    const num = v => {
-      if (typeof v === "number") return Number.isFinite(v) ? v : 0;
-      if (v === null || v === undefined) return 0;
-      return Number(String(v).replace(/\s/g,"").replace(",", ".")) || 0;
-    };
-    const todayIso = () => {
-      const d = new Date();
-      return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
-    };
-    const validDate = v => typeof v === "string" && /^\d{4}-\d{2}-\d{2}$/.test(v);
-    const monthKey = d => validDate(d) ? d.slice(0,7) : "";
-    const monthName = key => {
-      if (!/^\d{4}-\d{2}$/.test(key)) return "Без даты";
-      return MONTHS[Number(key.slice(5,7))-1] + " " + key.slice(0,4);
-    };
-    const escapeHtml = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
-
-    function accountingDate(o){
-      return o.orderDate || o.createdAt || o.created_at || o.date || "";
-    }
-
-    function normalizeOrder(raw, docId){
-      const displayId = raw.displayId || raw.number || raw.id || docId;
-      const tgRaw = raw.tg || raw.telegram || raw.username || raw.phone || "";
-      const tg = tgRaw && raw.username && !String(tgRaw).startsWith("@") ? "@" + tgRaw : String(tgRaw || "");
-      const link = raw.link || raw.chatLink || raw.telegramLink || (tg.startsWith("@") ? "https://t.me/" + tg.slice(1) : "");
-      return {
-        _docId: docId,
-        id: displayId,
-        name: raw.name || raw.clientName || raw.username || raw.tg || "Без имени",
-        tg,
-        link,
-        source: raw.source || (raw.username ? "ТГ Бот" : "Инстаграм"),
-        owner: raw.owner || raw.responsible || raw.assignee || "",
-        orderDate: raw.orderDate || raw.createdAt || raw.created_at || raw.date || "",
-        createdAt: raw.createdAt || raw.created_at || raw.orderDate || "",
-        format: raw.format || "",
-        printType: raw.printType || raw.print_type || "",
-        price: num(raw.price || raw.amount || raw.sum),
-        paid: num(raw.paid || raw.prepay || raw.prepayment),
-        printCost: num(raw.printCost || raw.print_cost),
-        deadline: raw.deadline || "",
-        city: raw.city || "",
-        status: STATUSES.includes(raw.status) ? raw.status : "Лиды",
-        notes: raw.notes || "",
-        anketa: raw.anketa || "",
-        sdek: raw.sdek || ""
-      };
-    }
-
-    function normalizeExpense(raw, docId){
-      return {
-        _docId: docId,
-        id: raw.id || docId,
-        date: raw.date || "",
-        cat: raw.cat || raw.category || "Прочее",
-        desc: raw.desc || raw.description || "",
-        sum: num(raw.sum || raw.amount)
-      };
-    }
-
-    function cleanOrderForSave(o){
-      const { _docId, ...data } = o;
-      return data;
-    }
-
-    function cleanExpenseForSave(e){
-      const { _docId, ...data } = e;
-      return data;
-    }
-
-    function realOrders(){
-      return orders.filter(o => o.status !== "Лиды");
-    }
-
-    function dealProfit(o){
-      return num(o.price) - num(o.printCost);
-    }
-
-    function debt(o){
-      return Math.max(0, num(o.price) - num(o.paid));
-    }
-
-    function render(){
-      renderMetrics();
-      if (currentTab === "dashboard") renderDashboard();
-      if (currentTab === "kanban") renderKanban();
-      if (currentTab === "orders") renderOrders();
-      if (currentTab === "team") renderTeam();
-      if (currentTab === "expenses") renderExpenses();
-      $("syncText").textContent = orders.length + " клиентов в Firebase";
-    }
-
-    function renderMetrics(){
-      const active = realOrders();
-      const dealSum = active.reduce((s,o)=>s+num(o.price),0);
-      const revenue = active.reduce((s,o)=>s+num(o.paid),0);
-      const profit = active.reduce((s,o)=>s+dealProfit(o),0);
-      const totalDebt = active.reduce((s,o)=>s+debt(o),0);
-      const exp = expenses.reduce((s,e)=>s+num(e.sum),0);
-      const leads = orders.length - active.length;
-      $("metrics").innerHTML = [
-        ["Клиенты в работе", active.length, "blue"],
-        ["Лиды без заказа", leads, "orange"],
-        ["Сумма сделок", rub(dealSum), ""],
-        ["Выручка оплачено", rub(revenue), "green"],
-        ["Прибыль", rub(profit), "green"],
-        ["Долг клиентов", rub(totalDebt), "red"],
-        ["Траты", rub(exp), "red"],
-        ["Чистая", rub(profit-exp), profit-exp >= 0 ? "green" : "red"]
-      ].map(([label,value,cls]) => `<div class="metric"><div class="label">${label}</div><div class="value ${cls}">${value}</div></div>`).join("");
-    }
-
-    function renderDashboard(){
-      const undated = realOrders().filter(o => !validDate(accountingDate(o))).length;
-      $("dateNotice").hidden = undated === 0;
-      $("dateNotice").textContent = undated ? `${undated} заказ(ов) без даты учета. Они не потеряны, но попали в строку "Без даты". Откройте заказ и поставьте дату оплаты.` : "";
-
-      const byMonth = new Map();
-      for (const o of realOrders()) {
-        const key = monthKey(accountingDate(o)) || "undated";
-        if (!byMonth.has(key)) byMonth.set(key, { count:0, deal:0, paid:0, profit:0, expenses:0 });
-        const row = byMonth.get(key);
-        row.count += 1;
-        row.deal += num(o.price);
-        row.paid += num(o.paid);
-        row.profit += dealProfit(o);
-      }
-      for (const e of expenses) {
-        const key = monthKey(e.date) || "undated";
-        if (!byMonth.has(key)) byMonth.set(key, { count:0, deal:0, paid:0, profit:0, expenses:0 });
-        byMonth.get(key).expenses += num(e.sum);
-      }
-      const keys = [...byMonth.keys()].sort((a,b) => a === "undated" ? 1 : b === "undated" ? -1 : a.localeCompare(b));
-      let totals = { count:0, deal:0, paid:0, profit:0, expenses:0 };
-      $("kpiBody").innerHTML = keys.map(key => {
-        const r = byMonth.get(key);
-        totals.count += r.count; totals.deal += r.deal; totals.paid += r.paid; totals.profit += r.profit; totals.expenses += r.expenses;
-        return `<tr><td><b>${monthName(key)}</b></td><td>${r.count}</td><td>${rub(r.deal)}</td><td class="green">${rub(r.paid)}</td><td class="green">${rub(r.profit)}</td><td class="red">${rub(r.expenses)}</td><td>${rub(r.profit-r.expenses)}</td></tr>`;
-      }).join("") + `<tr><td><b>Итого</b></td><td><b>${totals.count}</b></td><td><b>${rub(totals.deal)}</b></td><td class="green"><b>${rub(totals.paid)}</b></td><td class="green"><b>${rub(totals.profit)}</b></td><td class="red"><b>${rub(totals.expenses)}</b></td><td><b>${rub(totals.profit-totals.expenses)}</b></td></tr>`;
-
-      const sources = {};
-      for (const o of orders) sources[o.source] = (sources[o.source] || 0) + 1;
-      $("sources").innerHTML = Object.entries(sources).sort((a,b)=>b[1]-a[1]).map(([s,c]) => `<span class="pill" style="margin:0 6px 6px 0">${escapeHtml(s)}: ${c}</span>`).join("") || "<div class='empty'>Пока нет данных</div>";
-      renderDashboardTasks();
-    }
-
-    function renderKanban(){
-      $("kanban").innerHTML = STATUSES.map(st => {
-        const list = orders.filter(o => o.status === st).sort((a,b)=>String(accountingDate(b)).localeCompare(String(accountingDate(a))));
-        return `<div class="col" data-status="${escapeHtml(st)}">
-          <div class="col-head"><span>${escapeHtml(st)}</span><span>${list.length}</span></div>
-          ${list.map(orderCard).join("") || "<div class='empty'>Пусто</div>"}
-        </div>`;
-      }).join("");
-      setupDrag();
-    }
-
-    function orderCard(o){
-      return `<div class="card" draggable="true" data-doc="${escapeHtml(o._docId)}">
-        <div class="name">${escapeHtml(o.name)}</div>
-        <div class="small">${escapeHtml(o.tg || "без контакта")}</div>
-        <div class="small">${escapeHtml(o.format || "формат не указан")}</div>
-        ${o.owner ? `<div class="owner-chip">${escapeHtml(o.owner)}</div>` : ""}
-        ${o.link ? `<a class="small" href="${escapeHtml(o.link)}" target="_blank" rel="noopener">Открыть переписку</a>` : ""}
-        <div class="money"><span class="green">${rub(dealProfit(o))}</span><span class="${debt(o)>0 ? "red" : "green"}">${debt(o)>0 ? "долг " + rub(debt(o)) : "оплачен"}</span></div>
-        <div class="actions"><button class="iconbtn" type="button" data-edit="${escapeHtml(o._docId)}">Изменить</button>${STATUSES.indexOf(o.status)<STATUSES.length-1 ? `<button class="iconbtn" type="button" data-next="${escapeHtml(o._docId)}">Далее</button>` : ""}</div>
-      </div>`;
-    }
-
-    function renderOrders(){
-      fillFilterOptions();
-      const m = $("monthFilter").value;
-      const st = $("statusFilter").value;
-      const src = $("sourceFilter").value;
-      const q = $("searchFilter").value.trim().toLowerCase();
-      const filtered = [...orders].sort((a,b)=>String(accountingDate(b)).localeCompare(String(accountingDate(a)))).filter(o => {
-        const text = [o.name,o.tg,o.city,o.format,o.notes].join(" ").toLowerCase();
-        return (!m || monthKey(accountingDate(o)) === m) && (!st || o.status === st) && (!src || o.source === src) && (!q || text.includes(q));
-      });
-      $("ordersBody").innerHTML = filtered.map(o => `<tr>
-        <td>${escapeHtml(o.id)}</td>
-        <td><b>${escapeHtml(o.name)}</b><br><span class="small">${escapeHtml(o.tg)}</span>${o.link ? `<br><a class="small" href="${escapeHtml(o.link)}" target="_blank" rel="noopener">переписка</a>` : ""}</td>
-        <td>${escapeHtml(o.source)}</td>
-        <td>${o.owner ? `<span class="owner-chip" style="margin-top:0">${escapeHtml(o.owner)}</span>` : "—"}</td>
-        <td>${escapeHtml(accountingDate(o) || "без даты")}</td>
-        <td>${escapeHtml(o.format || "—")}</td>
-        <td>${rub(o.price)}</td>
-        <td class="green">${rub(o.paid)}</td>
-        <td class="${debt(o)>0 ? "red" : "green"}">${debt(o)>0 ? rub(debt(o)) : "нет"}</td>
-        <td><span class="pill ${o.status==="Лиды" ? "lead" : o.status==="Отправлено" ? "done" : ""}">${escapeHtml(o.status)}</span></td>
-        <td><button class="iconbtn" type="button" data-edit="${escapeHtml(o._docId)}">Изменить</button></td>
-      </tr>`).join("") || "<tr><td colspan='11' class='empty'>Ничего не найдено</td></tr>";
-    }
-
-    function saveDashboardTasks(){
-      localStorage.setItem("pobook_dashboard_tasks", JSON.stringify(dashboardTasks));
-    }
-
-    function saveTeamTasks(){
-      localStorage.setItem("pobook_team_tasks", JSON.stringify(teamTasks));
-    }
-
-    function taskRow(task, index, scope, owner = ""){
-      const checked = task.done ? "checked" : "";
-      const cls = task.done ? "task-text done" : "task-text";
-      const ownerAttr = escapeHtml(owner);
-      return `<div class="task-row">
-        <input type="checkbox" ${checked} data-task-toggle="${scope}" data-owner="${ownerAttr}" data-index="${index}">
-        <div class="${cls}">${escapeHtml(task.text)}</div>
-        <button class="iconbtn" type="button" data-task-delete="${scope}" data-owner="${ownerAttr}" data-index="${index}">Удалить</button>
-      </div>`;
-    }
-
-    function renderDashboardTasks(){
-      $("dashboardTasks").innerHTML = dashboardTasks.length
-        ? dashboardTasks.map((task,index) => taskRow(task, index, "dashboard")).join("")
-        : "<div class='empty'>Задач пока нет</div>";
-    }
-
-    function addDashboardTask(){
-      const input = $("dashboardTaskInput");
-      const text = input.value.trim();
-      if (!text) return;
-      dashboardTasks.push({ text, done:false });
-      input.value = "";
-      saveDashboardTasks();
-      renderDashboardTasks();
-    }
-
-    function ownerTasks(owner){
-      if (!Array.isArray(teamTasks[owner])) teamTasks[owner] = [];
-      return teamTasks[owner];
-    }
-
-    function renderTeam(){
-      $("teamGrid").innerHTML = OWNERS.map(owner => {
-        const assigned = orders.filter(o => o.owner === owner && o.status !== "Отправлено");
-        const tasks = ownerTasks(owner);
-        return `<div class="person">
-          <h3>${escapeHtml(owner)}</h3>
-          <div class="person-count">${assigned.length} заказ(ов) сейчас у этого человека</div>
-          <div class="person-orders">
-            ${assigned.slice(0,5).map(o => `<div class="mini-order"><b>${escapeHtml(o.name)}</b><br><span class="small">${escapeHtml(o.status)} · ${escapeHtml(o.format || "формат не указан")}</span></div>`).join("") || "<div class='empty'>Заказов нет</div>"}
-          </div>
-          <div class="section-title"><h2 style="font-size:13px">Задачи</h2></div>
-          <div>${tasks.length ? tasks.map((task,index) => taskRow(task, index, "team", owner)).join("") : "<div class='empty'>Задач пока нет</div>"}</div>
-          <div class="task-form">
-            <input placeholder="Задача для сотрудника" data-team-task-input="${escapeHtml(owner)}">
-            <button class="btn primary" type="button" data-team-task-add="${escapeHtml(owner)}">Добавить</button>
-          </div>
-        </div>`;
-      }).join("");
-    }
-
-    function renderExpenses(){
-      const totals = {};
-      for (const cat of EXPENSE_CATS) totals[cat] = 0;
-      for (const e of expenses) totals[e.cat] = (totals[e.cat] || 0) + num(e.sum);
-      $("expenseMetrics").innerHTML = Object.entries(totals).map(([cat,sum]) => `<div class="metric"><div class="label">${escapeHtml(cat)}</div><div class="value red">${rub(sum)}</div></div>`).join("");
-      $("expensesBody").innerHTML = [...expenses].sort((a,b)=>String(b.date).localeCompare(String(a.date))).map(e => `<tr><td>${escapeHtml(e.date || "без даты")}</td><td>${escapeHtml(e.cat)}</td><td>${escapeHtml(e.desc)}</td><td class="red"><b>${rub(e.sum)}</b></td><td><button class="iconbtn" type="button" data-edit-expense="${escapeHtml(e._docId)}">Изменить</button></td></tr>`).join("") || "<tr><td colspan='5' class='empty'>Трат пока нет</td></tr>";
-    }
-
-    function fillSelect(el, values){
-      el.innerHTML = values.map(v => `<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`).join("");
-    }
-
-    function fillFilterOptions(){
-      const oldM = $("monthFilter").value, oldS = $("statusFilter").value, oldSrc = $("sourceFilter").value;
-      const months = [...new Set(orders.map(o => monthKey(accountingDate(o))).filter(Boolean))].sort();
-      $("monthFilter").innerHTML = `<option value="">Все месяцы</option>` + months.map(m=>`<option value="${m}">${monthName(m)}</option>`).join("");
-      $("statusFilter").innerHTML = `<option value="">Все статусы</option>` + STATUSES.map(s=>`<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join("");
-      const sources = [...new Set([...SOURCES, ...orders.map(o=>o.source).filter(Boolean)])];
-      $("sourceFilter").innerHTML = `<option value="">Все источники</option>` + sources.map(s=>`<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join("");
-      $("monthFilter").value = oldM;
-      $("statusFilter").value = oldS;
-      $("sourceFilter").value = oldSrc;
-    }
-
-    function showTab(tab){
-      currentTab = tab;
-      for (const id of ["dashboard","kanban","orders","team","expenses"]) $(id+"Tab").hidden = id !== tab;
-      document.querySelectorAll(".tab").forEach(b => b.classList.toggle("active", b.dataset.tab === tab));
-      render();
-    }
-
-    function openOrder(docId){
-      editOrderDocId = docId;
-      const o = docId ? orders.find(x => x._docId === docId) : null;
-      $("orderTitle").textContent = o ? "Редактировать заказ" : "Новый заказ";
-      $("deleteOrderBtn").style.display = o ? "" : "none";
-      $("oName").value = o?.name || "";
-      $("oTg").value = o?.tg || "";
-      $("oLink").value = o?.link || "";
-      $("oSource").value = o?.source || "Инстаграм";
-      $("oDate").value = validDate(o?.orderDate) ? o.orderDate : todayIso();
-      $("oOwner").value = o?.owner || "";
-      $("oStatus").value = o?.status || "Ждём фото";
-      $("oFormat").value = o?.format || "";
-      $("oPrintType").value = o?.printType || "стандартная";
-      $("oPrice").value = o?.price || "";
-      $("oPaid").value = o?.paid || "";
-      $("oPrintCost").value = o?.printCost || "";
-      $("oDeadline").value = validDate(o?.deadline) ? o.deadline : "";
-      $("oCity").value = o?.city || "";
-      $("oNotes").value = o?.notes || "";
-      $("orderModal").classList.add("open");
-    }
-
-    async function saveOrder(){
-      const name = $("oName").value.trim();
-      if (!name) return alert("Введите имя клиента");
-      $("saveOrderBtn").disabled = true;
-      try {
-        const base = editOrderDocId ? orders.find(o => o._docId === editOrderDocId) : null;
-        const ref = editOrderDocId ? doc(db, "orders", editOrderDocId) : doc(collection(db, "orders"));
-        const data = {
-          ...(base ? cleanOrderForSave(base) : {}),
-          id: base?.id || ref.id,
-          name,
-          tg: $("oTg").value.trim(),
-          link: $("oLink").value.trim(),
-          source: $("oSource").value,
-          owner: $("oOwner").value,
-          orderDate: $("oDate").value,
-          createdAt: base?.createdAt || $("oDate").value || todayIso(),
-          format: $("oFormat").value.trim(),
-          printType: $("oPrintType").value.trim(),
-          price: num($("oPrice").value),
-          paid: num($("oPaid").value),
-          printCost: num($("oPrintCost").value),
-          deadline: $("oDeadline").value,
-          city: $("oCity").value.trim(),
-          status: $("oStatus").value,
-          notes: $("oNotes").value.trim(),
-          updatedAt: serverTimestamp()
-        };
-        await setDoc(ref, data, { merge: true });
-        closeOrder();
-      } catch (err) {
-        alert("Ошибка сохранения: " + err.message);
-      } finally {
-        $("saveOrderBtn").disabled = false;
-      }
-    }
-
-    async function removeOrder(){
-      if (!editOrderDocId || !confirm("Удалить заказ?")) return;
-      await deleteDoc(doc(db, "orders", editOrderDocId));
-      closeOrder();
-    }
-
-    function closeOrder(){
-      $("orderModal").classList.remove("open");
-      editOrderDocId = null;
-    }
-
-    function openExpense(docId){
-      editExpenseDocId = docId;
-      const e = docId ? expenses.find(x => x._docId === docId) : null;
-      $("expenseTitle").textContent = e ? "Редактировать трату" : "Новая трата";
-      $("deleteExpenseBtn").style.display = e ? "" : "none";
-      $("eDate").value = validDate(e?.date) ? e.date : todayIso();
-      $("eCat").value = e?.cat || "Упаковка";
-      $("eDesc").value = e?.desc || "";
-      $("eSum").value = e?.sum || "";
-      $("expenseModal").classList.add("open");
-    }
-
-    async function saveExpense(){
-      const sum = num($("eSum").value);
-      if (!sum) return alert("Введите сумму");
-      const base = editExpenseDocId ? expenses.find(e => e._docId === editExpenseDocId) : null;
-      const ref = editExpenseDocId ? doc(db, "expenses", editExpenseDocId) : doc(collection(db, "expenses"));
-      await setDoc(ref, {
-        ...(base ? cleanExpenseForSave(base) : {}),
-        id: base?.id || ref.id,
-        date: $("eDate").value,
-        cat: $("eCat").value,
-        desc: $("eDesc").value.trim(),
-        sum,
-        updatedAt: serverTimestamp()
-      }, { merge: true });
-      closeExpense();
-    }
-
-    async function removeExpense(){
-      if (!editExpenseDocId || !confirm("Удалить трату?")) return;
-      await deleteDoc(doc(db, "expenses", editExpenseDocId));
-      closeExpense();
-    }
-
-    function closeExpense(){
-      $("expenseModal").classList.remove("open");
-      editExpenseDocId = null;
-    }
-
-    async function moveTo(docId, status){
-      const o = orders.find(x => x._docId === docId);
-      if (!o) return;
-      o.status = status;
-      await setDoc(doc(db, "orders", docId), { status, updatedAt: serverTimestamp() }, { merge: true });
-    }
-
-    async function moveNext(docId){
-      const o = orders.find(x => x._docId === docId);
-      if (!o) return;
-      const i = STATUSES.indexOf(o.status);
-      if (i >= 0 && i < STATUSES.length - 1) await moveTo(docId, STATUSES[i+1]);
-    }
-
-    function setupDrag(){
-      document.querySelectorAll(".card").forEach(card => {
-        card.addEventListener("dragstart", e => {
-          if (e.target.closest("button,a")) return e.preventDefault();
-          dragDocId = card.dataset.doc;
-          card.classList.add("dragging");
-          e.dataTransfer.setData("text/plain", dragDocId);
-        });
-        card.addEventListener("dragend", () => {
-          dragDocId = null;
-          card.classList.remove("dragging");
-          document.querySelectorAll(".col").forEach(c => c.classList.remove("drop"));
-        });
-      });
-      document.querySelectorAll(".col").forEach(col => {
-        col.addEventListener("dragover", e => { e.preventDefault(); col.classList.add("drop"); });
-        col.addEventListener("dragleave", e => { if (!col.contains(e.relatedTarget)) col.classList.remove("drop"); });
-        col.addEventListener("drop", async e => {
-          e.preventDefault();
-          col.classList.remove("drop");
-          const docId = e.dataTransfer.getData("text/plain") || dragDocId;
-          if (docId) await moveTo(docId, col.dataset.status);
-        });
-      });
-    }
-
-    async function loadData(){
-      $("syncText").textContent = "Загрузка...";
-      const [orderSnap, expenseSnap] = await Promise.all([getDocs(collection(db, "orders")), getDocs(collection(db, "expenses"))]);
-      orders = orderSnap.docs.map(d => normalizeOrder(d.data(), d.id));
-      expenses = expenseSnap.docs.map(d => normalizeExpense(d.data(), d.id));
-      if (unsubOrders) unsubOrders();
-      if (unsubExpenses) unsubExpenses();
-      unsubOrders = onSnapshot(collection(db, "orders"), snap => {
-        orders = snap.docs.map(d => normalizeOrder(d.data(), d.id));
-        render();
-      }, err => $("syncText").textContent = "Ошибка Firebase: " + err.message);
-      unsubExpenses = onSnapshot(collection(db, "expenses"), snap => {
-        expenses = snap.docs.map(d => normalizeExpense(d.data(), d.id));
-        render();
-      });
-      render();
-    }
-
-    document.querySelectorAll(".tab").forEach(b => b.addEventListener("click", () => showTab(b.dataset.tab)));
-    $("reloadBtn").addEventListener("click", loadData);
-    $("newOrderBtn").addEventListener("click", () => openOrder(null));
-    $("newExpenseBtn").addEventListener("click", () => openExpense(null));
-    $("saveOrderBtn").addEventListener("click", saveOrder);
-    $("deleteOrderBtn").addEventListener("click", removeOrder);
-    $("closeOrderBtn").addEventListener("click", closeOrder);
-    $("cancelOrderBtn").addEventListener("click", closeOrder);
-    $("saveExpenseBtn").addEventListener("click", saveExpense);
-    $("deleteExpenseBtn").addEventListener("click", removeExpense);
-    $("closeExpenseBtn").addEventListener("click", closeExpense);
-    $("cancelExpenseBtn").addEventListener("click", closeExpense);
-    $("orderModal").addEventListener("click", e => { if (e.target === $("orderModal")) closeOrder(); });
-    $("expenseModal").addEventListener("click", e => { if (e.target === $("expenseModal")) closeExpense(); });
-    for (const id of ["monthFilter","statusFilter","sourceFilter","searchFilter"]) $(id).addEventListener("input", renderOrders);
-    $("addDashboardTaskBtn").addEventListener("click", addDashboardTask);
-    $("dashboardTaskInput").addEventListener("keydown", e => { if (e.key === "Enter") addDashboardTask(); });
-    document.body.addEventListener("click", e => {
-      const edit = e.target.closest("[data-edit]");
-      const next = e.target.closest("[data-next]");
-      const editExpense = e.target.closest("[data-edit-expense]");
-      const taskDelete = e.target.closest("[data-task-delete]");
-      const teamAdd = e.target.closest("[data-team-task-add]");
-      if (edit) openOrder(edit.dataset.edit);
-      if (next) moveNext(next.dataset.next);
-      if (editExpense) openExpense(editExpense.dataset.editExpense);
-      if (taskDelete) {
-        const index = Number(taskDelete.dataset.index);
-        if (taskDelete.dataset.taskDelete === "dashboard") {
-          dashboardTasks.splice(index, 1);
-          saveDashboardTasks();
-          renderDashboardTasks();
-        } else {
-          ownerTasks(taskDelete.dataset.owner).splice(index, 1);
-          saveTeamTasks();
-          renderTeam();
-        }
-      }
-      if (teamAdd) {
-        const owner = teamAdd.dataset.teamTaskAdd;
-        const input = [...document.querySelectorAll("[data-team-task-input]")].find(el => el.dataset.teamTaskInput === owner);
-        const text = input?.value.trim();
-        if (!text) return;
-        ownerTasks(owner).push({ text, done:false });
-        input.value = "";
-        saveTeamTasks();
-        renderTeam();
-      }
-    });
-    document.body.addEventListener("change", e => {
-      const toggle = e.target.closest("[data-task-toggle]");
-      if (!toggle) return;
-      const index = Number(toggle.dataset.index);
-      if (toggle.dataset.taskToggle === "dashboard") {
-        if (dashboardTasks[index]) dashboardTasks[index].done = toggle.checked;
-        saveDashboardTasks();
-        renderDashboardTasks();
-      } else {
-        const tasks = ownerTasks(toggle.dataset.owner);
-        if (tasks[index]) tasks[index].done = toggle.checked;
-        saveTeamTasks();
-        renderTeam();
-      }
-    });
-
-    fillSelect($("oSource"), SOURCES);
-    fillSelect($("oOwner"), ["", ...OWNERS]);
-    fillSelect($("oStatus"), STATUSES);
-    fillSelect($("eCat"), EXPENSE_CATS);
-    loadData().catch(err => {
-      $("syncText").textContent = "Ошибка Firebase";
-      alert("Не удалось загрузить Firebase: " + err.message);
-    });
-  </script>
+<header class="topbar"><div class="brand">POBOOK CRM</div><div class="sync" id="syncText">Подключение...</div><button class="btn" id="reloadBtn" type="button">Обновить</button><button class="btn primary" id="newOrderBtn" type="button">Новый заказ</button></header>
+<nav class="tabs"><button class="tab active" data-tab="dashboard" type="button">Дашборд</button><button class="tab" data-tab="kanban" type="button">Этапы</button><button class="tab" data-tab="orders" type="button">Заказы</button><button class="tab" data-tab="team" type="button">Команда</button><button class="tab" data-tab="expenses" type="button">Траты</button></nav>
+<main>
+<section id="dashboardTab"><div class="notice" id="dateNotice" hidden></div><div class="metrics" id="metrics"></div><div class="dash-grid"><div><div class="panel"><div class="panel-head"><h2>KPI по месяцам</h2></div><div class="table-wrap"><table><thead><tr><th>Месяц</th><th>Заказы</th><th>Сумма сделок</th><th>Выручка оплачено</th><th>Прибыль</th><th>Траты</th><th>Чистая</th></tr></thead><tbody id="kpiBody"></tbody></table></div></div><div class="panel"><div class="panel-head"><h2>Источники клиентов</h2></div><div id="sources"></div></div></div><div class="panel"><div class="section-title"><h2>Задачи на сегодня</h2></div><div id="dashboardTasks"></div><div class="task-form"><input id="dashboardTaskInput" placeholder="Добавить задачу"><button class="btn primary" id="addDashboardTaskBtn" type="button">Добавить</button></div></div></div></section>
+<section id="kanbanTab" hidden><div class="kanban" id="kanban"></div></section>
+<section id="ordersTab" hidden><div class="filters"><select id="monthFilter"><option value="">Все месяцы</option></select><select id="statusFilter"><option value="">Все статусы</option></select><select id="sourceFilter"><option value="">Все источники</option></select><input id="searchFilter" placeholder="Поиск по имени, TG, телефону"></div><div class="table-wrap"><table><thead><tr><th>#</th><th>Клиент</th><th>Источник</th><th>Ответственный</th><th>Дата учета</th><th>Формат</th><th>Сумма</th><th>Оплачено</th><th>Долг</th><th>Статус</th><th></th></tr></thead><tbody id="ordersBody"></tbody></table></div></section>
+<section id="teamTab" hidden><div class="panel-head"><h2>Ответственные</h2></div><div class="team-grid" id="teamGrid"></div></section>
+<section id="expensesTab" hidden><div class="panel-head"><h2>Траты</h2><button class="btn primary" id="newExpenseBtn" type="button">Добавить трату</button></div><div class="metrics" id="expenseMetrics"></div><div class="table-wrap"><table><thead><tr><th>Дата</th><th>Категория</th><th>Описание</th><th>Сумма</th><th></th></tr></thead><tbody id="expensesBody"></tbody></table></div></section>
+</main>
+<div class="modal-back" id="orderModal"><div class="modal"><div class="modal-title"><h2 id="orderTitle">Новый заказ</h2><button class="iconbtn" id="closeOrderBtn" type="button">Закрыть</button></div><div class="grid">
+<div class="field"><label>Имя клиента</label><input id="oName"></div><div class="field"><label>TG / телефон</label><input id="oTg"></div><div class="field full"><label>Ссылка на переписку</label><input id="oLink" placeholder="https://t.me/username"></div>
+<div class="field"><label>Источник</label><select id="oSource"></select></div><div class="field"><label>Дата учета оплаты</label><input id="oDate" type="date"></div><div class="field"><label>Ответственный</label><select id="oOwner"></select></div><div class="field"><label>Статус</label><select id="oStatus"></select></div>
+<div class="field"><label>Формат книги</label><select id="oFormat"></select></div><div class="field"><label>Формат печати</label><select id="oPrintType"></select></div><div class="field"><label>Сумма сделки</label><input id="oPrice" type="number" min="0"></div><div class="field"><label>Оплачено</label><input id="oPaid" type="number" min="0"></div><div class="field"><label>Стоимость печати</label><input id="oPrintCost" type="number" min="0"></div><div class="field"><label>Дедлайн</label><input id="oDeadline" type="date"></div><div class="field"><label>Город</label><input id="oCity"></div><div class="field full"><label>Заметки</label><textarea id="oNotes" rows="3"></textarea></div>
+</div><div class="footer"><button class="btn danger" id="deleteOrderBtn" type="button">Удалить</button><button class="btn" id="cancelOrderBtn" type="button">Отмена</button><button class="btn primary" id="saveOrderBtn" type="button">Сохранить</button></div></div></div>
+<div class="modal-back" id="expenseModal"><div class="modal" style="width:min(460px,100%)"><div class="modal-title"><h2 id="expenseTitle">Новая трата</h2><button class="iconbtn" id="closeExpenseBtn" type="button">Закрыть</button></div><div class="field"><label>Дата</label><input id="eDate" type="date"></div><div class="field"><label>Категория</label><select id="eCat"></select></div><div class="field"><label>Описание</label><input id="eDesc"></div><div class="field"><label>Сумма</label><input id="eSum" type="number" min="0"></div><div class="footer"><button class="btn danger" id="deleteExpenseBtn" type="button">Удалить</button><button class="btn" id="cancelExpenseBtn" type="button">Отмена</button><button class="btn primary" id="saveExpenseBtn" type="button">Сохранить</button></div></div></div>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, collection, doc, getDocs, setDoc, deleteDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+const firebaseConfig={apiKey:"AIzaSyDRK8Ze7VUtfgaQWf4HKxyeQdgz8ky5HHw",authDomain:"pobookcrm.firebaseapp.com",projectId:"pobookcrm",storageBucket:"pobookcrm.firebasestorage.app",messagingSenderId:"191229001674",appId:"1:191229001674:web:8226011df102e7d4c91933"};
+const STATUSES=["Лиды","Ждём фото","В работе у дизайнера","В печати","Отправлено"];
+const SOURCES=["Инстаграм","Телеграм","ТГ Бот","Сарафан","Реклама","Другое"];
+const OWNERS=["Дизайнер Юля","Дизайнер Сима","Дизайнер Аня","Менеджер Ирина"];
+const BOOK_FORMATS=["годовщина","парню/сыну на др","сестре/подруге на др","другое"];
+const PRINT_FORMATS=["стандартный","премиальный","срочный"];
+const EXPENSE_CATS=["Упаковка","Дизайнер","Реклама","Прочее"];
+const MONTHS=["Январь","Февраль","Март","Апрель","Май","Июнь","Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"];
+const app=initializeApp(firebaseConfig),db=getFirestore(app);
+let orders=[],expenses=[],editOrderDocId=null,editExpenseDocId=null,currentTab="dashboard",unsubOrders=null,unsubExpenses=null,dragDocId=null;
+let dashboardTasks=JSON.parse(localStorage.getItem("pobook_dashboard_tasks")||"[]");
+let teamTasks=JSON.parse(localStorage.getItem("pobook_team_tasks")||"{}");
+const $=id=>document.getElementById(id);
+const rub=n=>Number(n||0).toLocaleString("ru-RU")+"₽";
+const num=v=>typeof v==="number"&&Number.isFinite(v)?v:Number(String(v??"").replace(/\s/g,"").replace(",", "."))||0;
+const todayIso=()=>{const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")};
+const validDate=v=>typeof v==="string"&&/^\d{4}-\d{2}-\d{2}$/.test(v);
+const monthKey=d=>validDate(d)?d.slice(0,7):"";
+const monthName=k=>/^\d{4}-\d{2}$/.test(k)?MONTHS[Number(k.slice(5,7))-1]+" "+k.slice(0,4):"Без даты";
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+function accountingDate(o){return o.orderDate||o.createdAt||o.created_at||o.date||""}
+function normalizeOrder(raw,docId){const displayId=raw.displayId||raw.number||raw.id||docId;const tgRaw=raw.tg||raw.telegram||raw.username||raw.phone||"";const tg=tgRaw&&raw.username&&!String(tgRaw).startsWith("@")?"@"+tgRaw:String(tgRaw||"");return{_docId:docId,id:displayId,name:raw.name||raw.clientName||raw.username||raw.tg||"Без имени",tg,link:raw.link||raw.chatLink||raw.telegramLink||(tg.startsWith("@")?"https://t.me/"+tg.slice(1):""),source:raw.source||(raw.username?"ТГ Бот":"Инстаграм"),owner:raw.owner||raw.responsible||raw.assignee||"",orderDate:raw.orderDate||raw.createdAt||raw.created_at||raw.date||"",createdAt:raw.createdAt||raw.created_at||raw.orderDate||"",format:raw.format||"",printType:raw.printType||raw.print_type||"",price:num(raw.price||raw.amount||raw.sum),paid:num(raw.paid||raw.prepay||raw.prepayment),printCost:num(raw.printCost||raw.print_cost),deadline:raw.deadline||"",city:raw.city||"",status:STATUSES.includes(raw.status)?raw.status:"Лиды",notes:raw.notes||"",anketa:raw.anketa||"",sdek:raw.sdek||""}}
+function normalizeExpense(raw,docId){return{_docId:docId,id:raw.id||docId,date:raw.date||"",cat:raw.cat||raw.category||"Прочее",desc:raw.desc||raw.description||"",sum:num(raw.sum||raw.amount)}}
+function cleanOrderForSave(o){const{_docId,...data}=o;return data}function cleanExpenseForSave(e){const{_docId,...data}=e;return data}
+const realOrders=()=>orders.filter(o=>o.status!=="Лиды");const dealProfit=o=>num(o.price)-num(o.printCost);const debt=o=>Math.max(0,num(o.price)-num(o.paid));
+function render(){renderMetrics();if(currentTab==="dashboard")renderDashboard();if(currentTab==="kanban")renderKanban();if(currentTab==="orders")renderOrders();if(currentTab==="team")renderTeam();if(currentTab==="expenses")renderExpenses();$("syncText").textContent=orders.length+" клиентов в Firebase"}
+function renderMetrics(){const active=realOrders(),dealSum=active.reduce((s,o)=>s+num(o.price),0),revenue=active.reduce((s,o)=>s+num(o.paid),0),profit=active.reduce((s,o)=>s+dealProfit(o),0),totalDebt=active.reduce((s,o)=>s+debt(o),0),exp=expenses.reduce((s,e)=>s+num(e.sum),0),leads=orders.length-active.length;$("metrics").innerHTML=[["Клиенты в работе",active.length,"blue"],["Лиды без заказа",leads,"orange"],["Сумма сделок",rub(dealSum),""],["Выручка оплачено",rub(revenue),"green"],["Прибыль",rub(profit),"green"],["Долг клиентов",rub(totalDebt),"red"],["Траты",rub(exp),"red"],["Чистая",rub(profit-exp),profit-exp>=0?"green":"red"]].map(([l,v,c])=>`<div class="metric"><div class="label">${l}</div><div class="value ${c}">${v}</div></div>`).join("")}
+function renderDashboard(){const undated=realOrders().filter(o=>!validDate(accountingDate(o))).length;$("dateNotice").hidden=undated===0;$("dateNotice").textContent=undated?`${undated} заказ(ов) без даты учета. Они не потеряны, но попали в строку "Без даты". Откройте заказ и поставьте дату оплаты.`:"";const byMonth=new Map();for(const o of realOrders()){const key=monthKey(accountingDate(o))||"undated";if(!byMonth.has(key))byMonth.set(key,{count:0,deal:0,paid:0,profit:0,expenses:0});const r=byMonth.get(key);r.count++;r.deal+=num(o.price);r.paid+=num(o.paid);r.profit+=dealProfit(o)}for(const e of expenses){const key=monthKey(e.date)||"undated";if(!byMonth.has(key))byMonth.set(key,{count:0,deal:0,paid:0,profit:0,expenses:0});byMonth.get(key).expenses+=num(e.sum)}const keys=[...byMonth.keys()].sort((a,b)=>a==="undated"?1:b==="undated"?-1:a.localeCompare(b));let t={count:0,deal:0,paid:0,profit:0,expenses:0};$("kpiBody").innerHTML=keys.map(key=>{const r=byMonth.get(key);t.count+=r.count;t.deal+=r.deal;t.paid+=r.paid;t.profit+=r.profit;t.expenses+=r.expenses;return`<tr><td><b>${monthName(key)}</b></td><td>${r.count}</td><td>${rub(r.deal)}</td><td class="green">${rub(r.paid)}</td><td class="green">${rub(r.profit)}</td><td class="red">${rub(r.expenses)}</td><td>${rub(r.profit-r.expenses)}</td></tr>`}).join("")+`<tr><td><b>Итого</b></td><td><b>${t.count}</b></td><td><b>${rub(t.deal)}</b></td><td class="green"><b>${rub(t.paid)}</b></td><td class="green"><b>${rub(t.profit)}</b></td><td class="red"><b>${rub(t.expenses)}</b></td><td><b>${rub(t.profit-t.expenses)}</b></td></tr>`;const sources={};for(const o of orders)sources[o.source]=(sources[o.source]||0)+1;$("sources").innerHTML=Object.entries(sources).sort((a,b)=>b[1]-a[1]).map(([s,c])=>`<span class="pill" style="margin:0 6px 6px 0">${esc(s)}: ${c}</span>`).join("")||"<div class='empty'>Пока нет данных</div>";renderDashboardTasks()}
+function renderKanban(){$("kanban").innerHTML=STATUSES.map(st=>{const list=orders.filter(o=>o.status===st).sort((a,b)=>String(accountingDate(b)).localeCompare(String(accountingDate(a))));return`<div class="col" data-status="${esc(st)}"><div class="col-head"><span>${esc(st)}</span><span>${list.length}</span></div>${list.map(orderCard).join("")||"<div class='empty'>Пусто</div>"}</div>`}).join("");setupDrag()}
+function orderCard(o){return`<div class="card" draggable="true" data-doc="${esc(o._docId)}"><div class="name">${esc(o.name)}</div><div class="small">${esc(o.tg||"без контакта")}</div><div class="small">${esc(o.format||"формат не указан")}</div>${o.owner?`<div class="owner-chip">${esc(o.owner)}</div>`:""}${o.link?`<a class="small" href="${esc(o.link)}" target="_blank" rel="noopener">Открыть переписку</a>`:""}<div class="money"><span class="green">${rub(dealProfit(o))}</span><span class="${debt(o)>0?"red":"green"}">${debt(o)>0?"долг "+rub(debt(o)):"оплачен"}</span></div><div class="actions"><button class="iconbtn" type="button" data-edit="${esc(o._docId)}">Изменить</button>${STATUSES.indexOf(o.status)<STATUSES.length-1?`<button class="iconbtn" type="button" data-next="${esc(o._docId)}">Далее</button>`:""}</div></div>`}
+function renderOrders(){fillFilterOptions();const m=$("monthFilter").value,st=$("statusFilter").value,src=$("sourceFilter").value,q=$("searchFilter").value.trim().toLowerCase();const filtered=[...orders].sort((a,b)=>String(accountingDate(b)).localeCompare(String(accountingDate(a)))).filter(o=>{const text=[o.name,o.tg,o.city,o.format,o.notes,o.owner].join(" ").toLowerCase();return(!m||monthKey(accountingDate(o))===m)&&(!st||o.status===st)&&(!src||o.source===src)&&(!q||text.includes(q))});$("ordersBody").innerHTML=filtered.map(o=>`<tr><td>${esc(o.id)}</td><td><b>${esc(o.name)}</b><br><span class="small">${esc(o.tg)}</span>${o.link?`<br><a class="small" href="${esc(o.link)}" target="_blank" rel="noopener">переписка</a>`:""}</td><td>${esc(o.source)}</td><td>${o.owner?`<span class="owner-chip" style="margin-top:0">${esc(o.owner)}</span>`:"—"}</td><td>${esc(accountingDate(o)||"без даты")}</td><td>${esc(o.format||"—")}</td><td>${rub(o.price)}</td><td class="green">${rub(o.paid)}</td><td class="${debt(o)>0?"red":"green"}">${debt(o)>0?rub(debt(o)):"нет"}</td><td><span class="pill ${o.status==="Лиды"?"lead":o.status==="Отправлено"?"done":""}">${esc(o.status)}</span></td><td><button class="iconbtn" type="button" data-edit="${esc(o._docId)}">Изменить</button></td></tr>`).join("")||"<tr><td colspan='11' class='empty'>Ничего не найдено</td></tr>"}
+function saveDashboardTasks(){localStorage.setItem("pobook_dashboard_tasks",JSON.stringify(dashboardTasks))}function saveTeamTasks(){localStorage.setItem("pobook_team_tasks",JSON.stringify(teamTasks))}
+function taskRow(task,index,scope,owner=""){return`<div class="task-row"><input type="checkbox" ${task.done?"checked":""} data-task-toggle="${scope}" data-owner="${esc(owner)}" data-index="${index}"><div class="task-text ${task.done?"done":""}">${esc(task.text)}</div><button class="iconbtn" type="button" data-task-delete="${scope}" data-owner="${esc(owner)}" data-index="${index}">Удалить</button></div>`}
+function renderDashboardTasks(){$("dashboardTasks").innerHTML=dashboardTasks.length?dashboardTasks.map((t,i)=>taskRow(t,i,"dashboard")).join(""):"<div class='empty'>Задач пока нет</div>"}function addDashboardTask(){const input=$("dashboardTaskInput"),text=input.value.trim();if(!text)return;dashboardTasks.push({text,done:false});input.value="";saveDashboardTasks();renderDashboardTasks()}
+function ownerTasks(owner){if(!Array.isArray(teamTasks[owner]))teamTasks[owner]=[];return teamTasks[owner]}
+function renderTeam(){$("teamGrid").innerHTML=OWNERS.map(owner=>{const assigned=orders.filter(o=>o.owner===owner&&o.status!=="Отправлено"),tasks=ownerTasks(owner);return`<div class="person"><h3>${esc(owner)}</h3><div class="person-count">${assigned.length} заказ(ов) сейчас у этого человека</div><div class="person-orders">${assigned.slice(0,5).map(o=>`<div class="mini-order"><b>${esc(o.name)}</b><br><span class="small">${esc(o.status)} · ${esc(o.format||"формат не указан")}</span></div>`).join("")||"<div class='empty'>Заказов нет</div>"}</div><div class="section-title"><h2 style="font-size:13px">Задачи</h2></div><div>${tasks.length?tasks.map((t,i)=>taskRow(t,i,"team",owner)).join(""):"<div class='empty'>Задач пока нет</div>"}</div><div class="task-form"><input placeholder="Задача для сотрудника" data-team-task-input="${esc(owner)}"><button class="btn primary" type="button" data-team-task-add="${esc(owner)}">Добавить</button></div></div>`}).join("")}
+function renderExpenses(){const totals={};for(const c of EXPENSE_CATS)totals[c]=0;for(const e of expenses)totals[e.cat]=(totals[e.cat]||0)+num(e.sum);$("expenseMetrics").innerHTML=Object.entries(totals).map(([c,s])=>`<div class="metric"><div class="label">${esc(c)}</div><div class="value red">${rub(s)}</div></div>`).join("");$("expensesBody").innerHTML=[...expenses].sort((a,b)=>String(b.date).localeCompare(String(a.date))).map(e=>`<tr><td>${esc(e.date||"без даты")}</td><td>${esc(e.cat)}</td><td>${esc(e.desc)}</td><td class="red"><b>${rub(e.sum)}</b></td><td><button class="iconbtn" type="button" data-edit-expense="${esc(e._docId)}">Изменить</button></td></tr>`).join("")||"<tr><td colspan='5' class='empty'>Трат пока нет</td></tr>"}
+function fillSelect(el,values){el.innerHTML=values.map(v=>`<option value="${esc(v)}">${v?esc(v):"—"}</option>`).join("")}
+function fillFilterOptions(){const oldM=$("monthFilter").value,oldS=$("statusFilter").value,oldSrc=$("sourceFilter").value;const months=[...new Set(orders.map(o=>monthKey(accountingDate(o))).filter(Boolean))].sort();$("monthFilter").innerHTML=`<option value="">Все месяцы</option>`+months.map(m=>`<option value="${m}">${monthName(m)}</option>`).join("");$("statusFilter").innerHTML=`<option value="">Все статусы</option>`+STATUSES.map(s=>`<option value="${esc(s)}">${esc(s)}</option>`).join("");const sources=[...new Set([...SOURCES,...orders.map(o=>o.source).filter(Boolean)])];$("sourceFilter").innerHTML=`<option value="">Все источники</option>`+sources.map(s=>`<option value="${esc(s)}">${esc(s)}</option>`).join("");$("monthFilter").value=oldM;$("statusFilter").value=oldS;$("sourceFilter").value=oldSrc}
+function showTab(tab){currentTab=tab;for(const id of["dashboard","kanban","orders","team","expenses"])$(id+"Tab").hidden=id!==tab;document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("active",b.dataset.tab===tab));render()}
+function ensureSelectValue(id,value,fallback){const el=$(id);el.value=value||fallback||"";if(value&&el.value!==value){const op=document.createElement("option");op.value=value;op.textContent=value;el.appendChild(op);el.value=value}}
+function openOrder(docId){editOrderDocId=docId;const o=docId?orders.find(x=>x._docId===docId):null;$("orderTitle").textContent=o?"Редактировать заказ":"Новый заказ";$("deleteOrderBtn").style.display=o?"":"none";$("oName").value=o?.name||"";$("oTg").value=o?.tg||"";$("oLink").value=o?.link||"";ensureSelectValue("oSource",o?.source,"Инстаграм");$("oDate").value=validDate(o?.orderDate)?o.orderDate:todayIso();ensureSelectValue("oOwner",o?.owner,"");ensureSelectValue("oStatus",o?.status,"Ждём фото");ensureSelectValue("oFormat",o?.format,"годовщина");ensureSelectValue("oPrintType",o?.printType,"стандартный");$("oPrice").value=o?.price||"";$("oPaid").value=o?.paid||"";$("oPrintCost").value=o?.printCost||"";$("oDeadline").value=validDate(o?.deadline)?o.deadline:"";$("oCity").value=o?.city||"";$("oNotes").value=o?.notes||"";$("orderModal").classList.add("open")}
+async function saveOrder(){const name=$("oName").value.trim();if(!name)return alert("Введите имя клиента");$("saveOrderBtn").disabled=true;try{const base=editOrderDocId?orders.find(o=>o._docId===editOrderDocId):null,ref=editOrderDocId?doc(db,"orders",editOrderDocId):doc(collection(db,"orders"));const data={...(base?cleanOrderForSave(base):{}),id:base?.id||ref.id,name,tg:$("oTg").value.trim(),link:$("oLink").value.trim(),source:$("oSource").value,owner:$("oOwner").value,orderDate:$("oDate").value,createdAt:base?.createdAt||$("oDate").value||todayIso(),format:$("oFormat").value,printType:$("oPrintType").value,price:num($("oPrice").value),paid:num($("oPaid").value),printCost:num($("oPrintCost").value),deadline:$("oDeadline").value,city:$("oCity").value.trim(),status:$("oStatus").value,notes:$("oNotes").value.trim(),updatedAt:serverTimestamp()};await setDoc(ref,data,{merge:true});closeOrder()}catch(err){alert("Ошибка сохранения: "+err.message)}finally{$("saveOrderBtn").disabled=false}}
+async function removeOrder(){if(!editOrderDocId||!confirm("Удалить заказ?"))return;await deleteDoc(doc(db,"orders",editOrderDocId));closeOrder()}function closeOrder(){$("orderModal").classList.remove("open");editOrderDocId=null}
+function openExpense(docId){editExpenseDocId=docId;const e=docId?expenses.find(x=>x._docId===docId):null;$("expenseTitle").textContent=e?"Редактировать трату":"Новая трата";$("deleteExpenseBtn").style.display=e?"":"none";$("eDate").value=validDate(e?.date)?e.date:todayIso();ensureSelectValue("eCat",e?.cat,"Упаковка");$("eDesc").value=e?.desc||"";$("eSum").value=e?.sum||"";$("expenseModal").classList.add("open")}
+async function saveExpense(){const sum=num($("eSum").value);if(!sum)return alert("Введите сумму");const base=editExpenseDocId?expenses.find(e=>e._docId===editExpenseDocId):null,ref=editExpenseDocId?doc(db,"expenses",editExpenseDocId):doc(collection(db,"expenses"));await setDoc(ref,{...(base?cleanExpenseForSave(base):{}),id:base?.id||ref.id,date:$("eDate").value,cat:$("eCat").value,desc:$("eDesc").value.trim(),sum,updatedAt:serverTimestamp()},{merge:true});closeExpense()}
+async function removeExpense(){if(!editExpenseDocId||!confirm("Удалить трату?"))return;await deleteDoc(doc(db,"expenses",editExpenseDocId));closeExpense()}function closeExpense(){$("expenseModal").classList.remove("open");editExpenseDocId=null}
+async function moveTo(docId,status){const o=orders.find(x=>x._docId===docId);if(!o)return;o.status=status;await setDoc(doc(db,"orders",docId),{status,updatedAt:serverTimestamp()},{merge:true})}async function moveNext(docId){const o=orders.find(x=>x._docId===docId);if(!o)return;const i=STATUSES.indexOf(o.status);if(i>=0&&i<STATUSES.length-1)await moveTo(docId,STATUSES[i+1])}
+function setupDrag(){document.querySelectorAll(".card").forEach(card=>{card.addEventListener("dragstart",e=>{if(e.target.closest("button,a"))return e.preventDefault();dragDocId=card.dataset.doc;card.classList.add("dragging");e.dataTransfer.setData("text/plain",dragDocId)});card.addEventListener("dragend",()=>{dragDocId=null;card.classList.remove("dragging");document.querySelectorAll(".col").forEach(c=>c.classList.remove("drop"))})});document.querySelectorAll(".col").forEach(col=>{col.addEventListener("dragover",e=>{e.preventDefault();col.classList.add("drop")});col.addEventListener("dragleave",e=>{if(!col.contains(e.relatedTarget))col.classList.remove("drop")});col.addEventListener("drop",async e=>{e.preventDefault();col.classList.remove("drop");const docId=e.dataTransfer.getData("text/plain")||dragDocId;if(docId)await moveTo(docId,col.dataset.status)})})}
+async function loadData(){$("syncText").textContent="Загрузка...";const[orderSnap,expenseSnap]=await Promise.all([getDocs(collection(db,"orders")),getDocs(collection(db,"expenses"))]);orders=orderSnap.docs.map(d=>normalizeOrder(d.data(),d.id));expenses=expenseSnap.docs.map(d=>normalizeExpense(d.data(),d.id));if(unsubOrders)unsubOrders();if(unsubExpenses)unsubExpenses();unsubOrders=onSnapshot(collection(db,"orders"),snap=>{orders=snap.docs.map(d=>normalizeOrder(d.data(),d.id));render()},err=>$("syncText").textContent="Ошибка Firebase: "+err.message);unsubExpenses=onSnapshot(collection(db,"expenses"),snap=>{expenses=snap.docs.map(d=>normalizeExpense(d.data(),d.id));render()});render()}
+document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>showTab(b.dataset.tab)));$("reloadBtn").addEventListener("click",loadData);$("newOrderBtn").addEventListener("click",()=>openOrder(null));$("newExpenseBtn").addEventListener("click",()=>openExpense(null));$("saveOrderBtn").addEventListener("click",saveOrder);$("deleteOrderBtn").addEventListener("click",removeOrder);$("closeOrderBtn").addEventListener("click",closeOrder);$("cancelOrderBtn").addEventListener("click",closeOrder);$("saveExpenseBtn").addEventListener("click",saveExpense);$("deleteExpenseBtn").addEventListener("click",removeExpense);$("closeExpenseBtn").addEventListener("click",closeExpense);$("cancelExpenseBtn").addEventListener("click",closeExpense);$("orderModal").addEventListener("click",e=>{if(e.target===$("orderModal"))closeOrder()});$("expenseModal").addEventListener("click",e=>{if(e.target===$("expenseModal"))closeExpense()});for(const id of["monthFilter","statusFilter","sourceFilter","searchFilter"])$(id).addEventListener("input",renderOrders);$("addDashboardTaskBtn").addEventListener("click",addDashboardTask);$("dashboardTaskInput").addEventListener("keydown",e=>{if(e.key==="Enter")addDashboardTask()});
+document.body.addEventListener("click",e=>{const edit=e.target.closest("[data-edit]"),next=e.target.closest("[data-next]"),editExpense=e.target.closest("[data-edit-expense]"),taskDelete=e.target.closest("[data-task-delete]"),teamAdd=e.target.closest("[data-team-task-add]");if(edit)openOrder(edit.dataset.edit);if(next)moveNext(next.dataset.next);if(editExpense)openExpense(editExpense.dataset.editExpense);if(taskDelete){const i=Number(taskDelete.dataset.index);if(taskDelete.dataset.taskDelete==="dashboard"){dashboardTasks.splice(i,1);saveDashboardTasks();renderDashboardTasks()}else{ownerTasks(taskDelete.dataset.owner).splice(i,1);saveTeamTasks();renderTeam()}}if(teamAdd){const owner=teamAdd.dataset.teamTaskAdd,input=[...document.querySelectorAll("[data-team-task-input]")].find(el=>el.dataset.teamTaskInput===owner),text=input?.value.trim();if(!text)return;ownerTasks(owner).push({text,done:false});input.value="";saveTeamTasks();renderTeam()}});
+document.body.addEventListener("change",e=>{const t=e.target.closest("[data-task-toggle]");if(!t)return;const i=Number(t.dataset.index);if(t.dataset.taskToggle==="dashboard"){if(dashboardTasks[i])dashboardTasks[i].done=t.checked;saveDashboardTasks();renderDashboardTasks()}else{const tasks=ownerTasks(t.dataset.owner);if(tasks[i])tasks[i].done=t.checked;saveTeamTasks();renderTeam()}});
+fillSelect($("oSource"),SOURCES);fillSelect($("oOwner"),["",...OWNERS]);fillSelect($("oStatus"),STATUSES);fillSelect($("oFormat"),BOOK_FORMATS);fillSelect($("oPrintType"),PRINT_FORMATS);fillSelect($("eCat"),EXPENSE_CATS);
+loadData().catch(err=>{$("syncText").textContent="Ошибка Firebase";alert("Не удалось загрузить Firebase: "+err.message)});
+</script>
 </body>
 </html>
