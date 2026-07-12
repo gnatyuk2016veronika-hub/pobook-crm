@@ -54,7 +54,7 @@ const PRINT_FORMATS=["стандартный","премиальный","сроч
 const EXPENSE_CATS=["Упаковка","Дизайнер","Реклама","Прочее"];
 const MONTHS=["Январь","Февраль","Март","Апрель","Май","Июнь","Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"];
 const app=initializeApp(firebaseConfig),db=getFirestore(app);
-const PRODUCTION_URL="https://pobook-design.web.app/index.html";
+const PRODUCTION_URL="https://pobook-design.web.app/";
 let orders=[],expenses=[],editOrderDocId=null,editExpenseDocId=null,currentTab="dashboard",unsubOrders=null,unsubExpenses=null,dragDocId=null;
 let dashboardTasks=JSON.parse(localStorage.getItem("pobook_dashboard_tasks")||"[]");
 let teamTasks=JSON.parse(localStorage.getItem("pobook_team_tasks")||"{}");
