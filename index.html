@@ -1,325 +1,3054 @@
 <!doctype html>
-<html lang="ru"><head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>POBOOK CRM</title>
-<style>
-:root{--bg:#f7f3ee;--paper:#fff;--ink:#17202a;--muted:#6b7280;--line:#e7e2dc;--blue:#4f7fcf;--green:#3a9b72;--red:#d25b5b;--orange:#d48a3a;--cream:#f7ecd0;--lilac:#e8ddf4;--sky:#dceafa;--rose:#f4dce3;--mint:#dcefe5;--shadow:0 16px 38px rgba(84,63,45,.10)}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}
-button,input,select,textarea{font:inherit}button{cursor:pointer}
-.topbar{position:sticky;top:0;z-index:20;background:#24313d;color:#fff;padding:13px 18px;display:flex;gap:10px;align-items:center;box-shadow:0 8px 24px rgba(36,49,61,.16)}
-.brand{font-size:17px;font-weight:850;flex:1}.sync{font-size:12px;color:#d7e1ea}
-.btn,.iconbtn{border:1px solid var(--line);background:#fff;border-radius:8px;padding:8px 12px;color:var(--ink);display:inline-flex;align-items:center;gap:6px}
-.iconbtn{font-size:12px;padding:5px 8px}.btn:hover,.iconbtn:hover{background:#fbfaf8}.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}.btn.danger{background:var(--red);border-color:var(--red);color:#fff}.iconbtn.production{background:#24313d;border-color:#24313d;color:#fff;text-decoration:none}.iconbtn.production:hover{background:#344657}
-.tabs{display:flex;gap:4px;padding:0 18px;background:#fffdfb;border-bottom:1px solid var(--line);overflow:auto}.tab{border:0;background:transparent;padding:13px 14px;color:var(--muted);border-bottom:2px solid transparent;white-space:nowrap}.tab.active{color:var(--ink);border-bottom-color:var(--blue);font-weight:800}
-main{padding:18px}.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:14px}.metric,.panel,.person{background:#fff;border:1px solid var(--line);border-radius:8px;padding:14px;box-shadow:0 8px 18px rgba(84,63,45,.05)}
-.label{font-size:11px;color:var(--muted);text-transform:uppercase;font-weight:800;letter-spacing:.35px}.value{font-size:24px;font-weight:850;margin-top:5px}.green{color:var(--green)}.red{color:var(--red)}.blue{color:var(--blue)}.orange{color:var(--orange)}
-.panel{margin-bottom:14px}.panel-head,.section-title{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px}h2{font-size:15px;margin:0}h3{font-size:15px;margin:0 0 8px}
-table{width:100%;border-collapse:collapse;font-size:13px}th,td{padding:9px 10px;border-bottom:1px solid #eef2f7;text-align:left;vertical-align:top}th{font-size:11px;color:var(--muted);text-transform:uppercase;background:#fbf7f2;position:sticky;top:0}.table-wrap{max-height:66vh;overflow:auto;border:1px solid var(--line);border-radius:8px;background:#fff}
-.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}input,select,textarea{border:1px solid var(--line);border-radius:8px;padding:8px 10px;background:#fff;color:var(--ink);min-width:0}.filters input{min-width:210px}.pill{display:inline-flex;align-items:center;padding:3px 8px;border-radius:999px;font-size:11px;font-weight:800;background:#edf2ff;color:#31518f}.pill.lead{background:#fff7ed;color:#9a3412}.pill.done{background:#ecfdf5;color:#166534}
-.kanban{display:flex;gap:12px;overflow:auto;padding-bottom:12px}.col{min-width:260px;width:260px;border-radius:8px;padding:10px;border:1px solid rgba(84,63,45,.08)}.col[data-status="Лиды"]{background:var(--cream)}.col[data-status="Ждём фото"]{background:var(--lilac)}.col[data-status="В работе у дизайнера"]{background:var(--sky)}.col[data-status="Книга готова"]{background:#e5f0dc}.col[data-status="В печати"]{background:var(--rose)}.col[data-status="Отправлено"]{background:var(--mint)}.col-head{display:flex;justify-content:space-between;margin-bottom:8px;font-size:12px;font-weight:850;color:#475569;text-transform:uppercase}.col.drop{outline:2px dashed var(--blue);outline-offset:2px}
-.card{background:rgba(255,255,255,.92);border:1px solid rgba(255,255,255,.8);border-left:6px solid #eab308;border-radius:8px;padding:10px;margin-bottom:8px;box-shadow:0 8px 18px rgba(84,63,45,.08)}.card[data-health="red"]{border-left-color:#dc2626}.card[data-health="yellow"]{border-left-color:#eab308}.card[data-health="green"]{border-left-color:#16a34a}.card.dragging{opacity:.55}.name{font-weight:800;margin-bottom:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.small{font-size:12px;color:var(--muted)}.money{display:flex;justify-content:space-between;gap:8px;margin-top:8px;font-size:12px}.actions{display:flex;gap:6px;margin-top:9px;flex-wrap:wrap}.owner-chip{display:inline-flex;align-items:center;margin-top:6px;padding:3px 8px;border-radius:999px;background:#f3ecff;color:#65459a;font-size:11px;font-weight:800}.client-light{display:inline-flex;align-items:center;gap:5px;margin:0 0 7px;padding:3px 8px;border-radius:999px;font-size:11px;font-weight:850}.client-light::before{content:"";width:8px;height:8px;border-radius:50%;background:currentColor}.client-light.red{background:#fee2e2;color:#b91c1c}.client-light.yellow{background:#fef9c3;color:#a16207}.client-light.green{background:#dcfce7;color:#15803d}
-.modal-back{display:none;position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:50;align-items:center;justify-content:center;padding:16px}.modal-back.open{display:flex}.modal{background:#fff;border-radius:10px;box-shadow:var(--shadow);width:min(720px,100%);max-height:92vh;overflow:auto;padding:18px}.modal-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.field{display:flex;flex-direction:column;gap:4px;margin-bottom:10px}.field label{font-size:11px;color:var(--muted);font-weight:850;text-transform:uppercase}.full{grid-column:1/-1}.footer{display:flex;justify-content:flex-end;gap:8px;border-top:1px solid var(--line);padding-top:12px;margin-top:8px}
-.notice{background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;border-radius:8px;padding:10px 12px;font-size:13px;margin-bottom:14px}.empty{color:var(--muted);font-size:13px;padding:14px}.dash-grid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(320px,.75fr);gap:14px}.task-row{display:grid;grid-template-columns:22px minmax(0,1fr) auto;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid #f2ede7}.task-row:last-child{border-bottom:0}.task-text{font-size:13px}.task-text.done{text-decoration:line-through;color:#a3a3a3}.task-form{display:flex;gap:8px;margin-top:10px}.task-form input{flex:1}.team-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}.person-count{font-size:12px;color:var(--muted);margin-bottom:10px}.person-orders{display:flex;flex-direction:column;gap:7px;margin-bottom:12px}.mini-order{border:1px solid #efe8df;background:#fffaf5;border-radius:8px;padding:8px}
-.card.designer-overdue{border-left-color:#dc2626;background:#fff7f7;box-shadow:0 0 0 2px rgba(220,38,38,.12),0 8px 18px rgba(84,63,45,.08)}.overdue-badge{display:inline-flex;margin:0 0 7px;padding:4px 8px;border-radius:999px;background:#fee2e2;color:#b91c1c;font-size:11px;font-weight:850}.blogger-badge{display:inline-flex;margin:0 0 7px;padding:4px 8px;border-radius:999px;background:#ede9fe;color:#6d28d9;font-size:11px;font-weight:850}
-@media(max-width:980px){.dash-grid{grid-template-columns:1fr}}@media(max-width:720px){.topbar{flex-wrap:wrap}.sync{width:100%}.grid{grid-template-columns:1fr}.value{font-size:20px}main{padding:12px}}
-</style>
-</head>
-<body>
-<div id="loginGate" style="position:fixed;inset:0;z-index:9999;background:#f7f2ec;display:flex;align-items:center;justify-content:center;padding:20px"><form id="loginForm" style="width:min(420px,100%);background:#fffdfa;border:1px solid #e6d9cf;border-radius:14px;padding:25px;box-shadow:0 18px 45px rgba(70,48,35,.13)"><h2 style="margin:0 0 6px">Вход в POBOOK CRM</h2><p class="small" style="margin:0 0 18px">Рабочая CRM компании POBOOK.</p><div class="field full"><label>Email</label><input id="loginEmail" type="email" autocomplete="username" required></div><div class="field full"><label>Пароль</label><input id="loginPassword" type="password" autocomplete="current-password" required></div><div id="loginError" class="small" style="color:#b91c1c;min-height:20px;margin:8px 0"></div><button class="btn primary" style="width:100%" type="submit">Войти</button></form></div>
-	<header class="topbar"><div class="brand">POBOOK CRM</div><div class="sync" id="syncText">Ожидание входа</div><span class="pill" id="userRoleText" style="display:none"></span><button class="btn" id="logoutBtn" type="button" style="display:none">Выйти</button><button class="btn" id="reloadBtn" type="button">Обновить</button><button class="btn primary" id="newOrderBtn" type="button">Новый заказ</button></header>
-<nav class="tabs"><button class="tab active" data-tab="dashboard" type="button">Дашборд</button><button class="tab" data-tab="kanban" type="button">Этапы</button><button class="tab" data-tab="bloggers" type="button">Блогеры</button><button class="tab" data-tab="communication" type="button">Коммуникации</button><button class="tab" data-tab="managerTasks" type="button">Задачи менеджера</button><button class="tab" data-tab="orders" type="button">Заказы</button><button class="tab" data-tab="archive" type="button">Архив</button><button class="tab" data-tab="team" type="button">Команда</button><button class="tab" data-tab="expenses" type="button">Траты</button></nav>
-<main>
-<section id="dashboardTab"><div class="notice" id="dateNotice" hidden=""></div><div class="metrics" id="metrics"><div class="metric"><div class="label">Клиенты в работе</div><div class="value blue">107</div></div><div class="metric"><div class="label">Лиды без заказа</div><div class="value orange">4</div></div><div class="metric"><div class="label">Сумма сделок</div><div class="value ">895&nbsp;490₽</div></div><div class="metric"><div class="label">Выручка оплачено</div><div class="value green">800&nbsp;485₽</div></div><div class="metric"><div class="label">Прибыль</div><div class="value green">689&nbsp;537₽</div></div><div class="metric"><div class="label">Долг клиентов</div><div class="value red">99&nbsp;005₽</div></div><div class="metric"><div class="label">Траты</div><div class="value red">93&nbsp;769₽</div></div><div class="metric"><div class="label">Чистая</div><div class="value green">595&nbsp;768₽</div></div></div><div class="dash-grid"><div><div class="panel"><div class="panel-head"><h2>KPI по месяцам</h2></div><div class="table-wrap"><table><thead><tr><th>Месяц</th><th>Заказы</th><th>Сумма сделок</th><th>Выручка оплачено</th><th>Прибыль</th><th>Траты</th><th>Чистая</th></tr></thead><tbody id="kpiBody"><tr><td><b>Февраль 2026</b></td><td>6</td><td>38&nbsp;900₽</td><td class="green">39&nbsp;900₽</td><td class="green">28&nbsp;283₽</td><td class="red">2&nbsp;227₽</td><td>26&nbsp;056₽</td></tr><tr><td><b>Март 2026</b></td><td>17</td><td>136&nbsp;370₽</td><td class="green">136&nbsp;370₽</td><td class="green">96&nbsp;534₽</td><td class="red">8&nbsp;330₽</td><td>88&nbsp;204₽</td></tr><tr><td><b>Апрель 2026</b></td><td>26</td><td>239&nbsp;820₽</td><td class="green">241&nbsp;820₽</td><td class="green">169&nbsp;142₽</td><td class="red">16&nbsp;200₽</td><td>152&nbsp;942₽</td></tr><tr><td><b>Май 2026</b></td><td>18</td><td>150&nbsp;420₽</td><td class="green">138&nbsp;170₽</td><td class="green">112&nbsp;625₽</td><td class="red">36&nbsp;400₽</td><td>76&nbsp;225₽</td></tr><tr><td><b>Июнь 2026</b></td><td>26</td><td>208&nbsp;980₽</td><td class="green">173&nbsp;225₽</td><td class="green">167&nbsp;450₽</td><td class="red">18&nbsp;400₽</td><td>149&nbsp;050₽</td></tr><tr><td><b>Июль 2026</b></td><td>14</td><td>121&nbsp;000₽</td><td class="green">71&nbsp;000₽</td><td class="green">115&nbsp;503₽</td><td class="red">12&nbsp;212₽</td><td>103&nbsp;291₽</td></tr><tr><td><b>Итого</b></td><td><b>107</b></td><td><b>895&nbsp;490₽</b></td><td class="green"><b>800&nbsp;485₽</b></td><td class="green"><b>689&nbsp;537₽</b></td><td class="red"><b>93&nbsp;769₽</b></td><td><b>595&nbsp;768₽</b></td></tr></tbody></table></div></div><div class="panel"><div class="panel-head"><h2>Источники клиентов</h2></div><div id="sources"><span class="pill" style="margin:0 6px 6px 0">Инстаграм: 100</span><span class="pill" style="margin:0 6px 6px 0">Telegram бот: 6</span><span class="pill" style="margin:0 6px 6px 0">Телеграм бот: 4</span><span class="pill" style="margin:0 6px 6px 0">Сарафан: 1</span></div></div></div><div class="panel"><div class="section-title"><h2>Задачи на сегодня</h2></div><div id="dashboardTasks"><div class="empty">Задач пока нет</div></div><div class="task-form"><input id="dashboardTaskInput" placeholder="Добавить задачу"><button class="btn primary" id="addDashboardTaskBtn" type="button">Добавить</button></div></div></div></section>
-<section id="kanbanTab" hidden=""><div class="kanban" id="kanban"></div></section>
-<section id="bloggersTab" hidden=""><div class="notice">Блогеры не учитываются как продажи, выручка или долг. Стоимость печати автоматически учитывается как расход.</div><div class="kanban" id="bloggersKanban"></div></section>
-<section id="communicationTab" hidden=""><div class="notice">Одна карточка клиента отображается и в производстве, и в общении. Дубликаты не создаются. Сообщения автоматически не отправляются.</div><div class="kanban" id="communicationKanban"></div></section>
-<section id="managerTasksTab" hidden=""><div class="dash-grid"><div class="panel"><div class="section-title"><h2>Сегодня и просрочено</h2><span class="pill" id="managerTaskCount">0</span></div><div id="managerTaskList"></div></div><div class="panel"><h2>Безопасная автоматизация</h2><p class="small" style="line-height:1.6">CRM подбирает текст, открывает переписку и рассчитывает следующее касание. После отправки менеджер нажимает «Сообщение отправлено» — только тогда меняется этап.</p><div class="notice" style="margin:12px 0">Автоотправка клиентам выключена</div><div class="small" style="line-height:1.7"><b>Автопереходы:</b><br>Первое сообщение → Ждём ответа<br>Условия оплаты → Ждём предоплату<br>Анкета отправлена → Анкета и фото<br>Макет отправлен → Согласование<br>Трек отправлен → Ждём вручения<br>Отзыв запрошен → Разрешение на публикацию</div></div></div></section>
-<section id="archiveTab" hidden=""><div class="panel"><div class="section-title"><h2>Архив карточек</h2><span class="pill" id="archiveCount">0</span></div><div class="notice">Карточки здесь не удаляются. Их можно восстановить одним нажатием.</div><div id="archiveList" style="margin-top:14px"></div></div></section>
-<section id="ordersTab" hidden=""><div class="filters"><select id="monthFilter"><option value="">Все месяцы</option></select><select id="statusFilter"><option value="">Все статусы</option></select><select id="sourceFilter"><option value="">Все источники</option></select><input id="searchFilter" placeholder="Поиск по имени, TG, телефону"></div><div class="table-wrap"><table><thead><tr><th>#</th><th>Клиент</th><th>Цвет</th><th>Источник</th><th>Ответственный</th><th>Дата учета</th><th>Формат</th><th>Сумма</th><th>Оплачено</th><th>Долг</th><th>Статус</th><th></th></tr></thead><tbody id="ordersBody"></tbody></table></div></section>
-<section id="teamTab" hidden=""><div class="panel-head"><h2>Ответственные</h2><span class="pill" id="teamSyncText">Задачи хранятся локально</span></div><div class="notice" style="margin-bottom:14px">Доступ сотрудников защищён персональными аккаунтами.</div><div class="team-grid" id="teamGrid"></div></section>
-<section id="expensesTab" hidden=""><div class="panel-head"><h2>Траты</h2><button class="btn primary" id="newExpenseBtn" type="button">Добавить трату</button></div><div class="metrics" id="expenseMetrics"></div><div class="table-wrap"><table><thead><tr><th>Дата</th><th>Категория</th><th>Описание</th><th>Сумма</th><th></th></tr></thead><tbody id="expensesBody"></tbody></table></div></section>
-</main>
-<div class="modal-back" id="orderModal"><div class="modal"><div class="modal-title"><h2 id="orderTitle">Новый заказ</h2><button class="iconbtn" id="closeOrderBtn" type="button">Закрыть</button></div><div class="grid">
-<div class="field"><label>Тип карточки</label><select id="oCardType"><option value="client">Клиент</option><option value="blogger">Блогер</option></select></div><div class="field"><label>Имя клиента / блогера</label><input id="oName"></div><div class="field"><label>TG / телефон</label><input id="oTg"></div><div class="field full"><label>Ссылка на переписку</label><input id="oLink" placeholder="https://t.me/username"></div>
-<div class="field"><label>Источник</label><select id="oSource"><option value="Инстаграм">Инстаграм</option><option value="Телеграм бот">Телеграм бот</option><option value="Сарафан">Сарафан</option><option value="Реклама">Реклама</option><option value="Другое">Другое</option></select></div><div class="field"><label>Дата учета оплаты</label><input id="oDate" type="date"></div><div class="field"><label>Ответственный</label><select id="oOwner"><option value="">—</option><option value="Вероника">Вероника</option><option value="Дизайнер Юля">Дизайнер Юля</option><option value="Дизайнер Сима">Дизайнер Сима</option><option value="Дизайнер Аня">Дизайнер Аня</option><option value="Менеджер Ирина">Менеджер Ирина</option></select></div><div class="field"><label>Статус</label><select id="oStatus"><option value="Лиды">Лиды</option><option value="Ждём фото">Ждём фото</option><option value="В работе у дизайнера">В работе у дизайнера</option><option value="В печати">В печати</option><option value="Книга готова">Книга готова</option><option value="Отправлено">Отправлено</option></select></div><div class="field"><label>Цвет клиента</label><select id="oHealth"><option value="red">🔴 Горит</option><option value="yellow">🟡 Нормально</option><option value="green">🟢 Всё хорошо</option></select></div>
-<div class="field"><label>Формат книги</label><select id="oFormat"><option value="годовщина">годовщина</option><option value="парню/сыну на др">парню/сыну на др</option><option value="сестре/подруге на др">сестре/подруге на др</option><option value="другое">другое</option></select></div><div class="field"><label>Формат печати</label><select id="oPrintType"><option value="стандартный">стандартный</option><option value="премиальный">премиальный</option><option value="срочный">срочный</option></select></div><div class="field"><label>Сумма сделки</label><input id="oPrice" type="number" min="0"></div><div class="field"><label>Дополнительные страницы (+1 000 ₽)</label><select id="oExtraPages"><option value="false">Нет</option><option value="true">Да</option></select></div><div class="field"><label>Оплачено</label><input id="oPaid" type="number" min="0"></div>
-<div class="field"><label>Дата предоплаты</label><input id="oPrepaymentDate" type="date"></div>
-<div class="field"><label>Дата полной оплаты</label><input id="oFullPaymentDate" type="date"></div><div class="field"><label>Стоимость печати</label><input id="oPrintCost" type="number" min="0"></div><div class="field"><label>Дедлайн</label><input id="oDeadline" type="date"></div><div class="field"><label>Город</label><input id="oCity"></div><div class="field full"><label>Заметки</label><textarea id="oNotes" rows="3"></textarea></div>
-<div class="field"><label>Поступило в работу</label><input id="oWorkStarted" type="date"></div><div class="field"><label>Передано дизайнеру</label><input id="oDesignerStarted" type="date"></div>
-<div class="field blogger-only"><label>Аккаунт блогера</label><input id="oBloggerAccount" placeholder="@username"></div><div class="field blogger-only"><label>Дата публикации</label><input id="oBloggerPublishDate" type="date"></div><div class="field full blogger-only"><label>Что должен опубликовать блогер</label><input id="oBloggerDeliverables" placeholder="Сторис, Reels, публикация"></div><div class="field full blogger-only"><label>Ссылка на публикацию / результат</label><input id="oBloggerResult"></div>
-<div class="field"><label>Этап общения</label><select id="oCommStatus"></select></div><div class="field"><label>Следующее касание</label><input id="oNextContact" type="date"></div>
-<div class="field"><label>Передано в печать</label><input id="oPrintStarted" type="date"></div><div class="field"><label>Плановая готовность (10 рабочих дней)</label><input id="oPrintReady" type="date"></div>
-<div class="field"><label>Трек-номер / СДЭК</label><input id="oSdek"></div><div class="field"><label>Стоимость доставки отдельно</label><input id="oDeliveryCost" type="number" min="0"></div>
-<div class="field"><label>Ожидаемая доставка</label><input id="oDeliveryExpected" type="date"></div><div class="field"><label>Фактически доставлено</label><input id="oDeliveredAt" type="date"></div>
-<div class="field"><label>Дата вручения подарка</label><input id="oGiftDate" type="date"></div><div class="field"><label>Отзыв получен</label><select id="oReviewReceived"><option value="false">Нет</option><option value="true">Да</option></select></div>
-	<div class="field full"><label>Разрешение на публикацию</label><select id="oPublication"></select></div>
-	<div class="field full"><label>История действий</label><div id="oActivity" class="small" style="max-height:180px;overflow:auto;padding:10px;background:#f7f2ec;border-radius:8px;line-height:1.6">История появится после сохранения</div></div>
-</div><div class="footer"><a class="btn" id="productionOrderBtn" href="#" target="_blank" rel="noopener" hidden="">Открыть в производстве</a><button class="btn danger" id="deleteOrderBtn" type="button">В архив</button><button class="btn" id="cancelOrderBtn" type="button">Отмена</button><button class="btn primary" id="saveOrderBtn" type="button">Сохранить</button></div></div></div>
-<div class="modal-back" id="expenseModal"><div class="modal" style="width:min(460px,100%)"><div class="modal-title"><h2 id="expenseTitle">Новая трата</h2><button class="iconbtn" id="closeExpenseBtn" type="button">Закрыть</button></div><div class="field"><label>Дата</label><input id="eDate" type="date"></div><div class="field"><label>Категория</label><select id="eCat"><option value="Упаковка">Упаковка</option><option value="Дизайнер">Дизайнер</option><option value="Реклама">Реклама</option><option value="Прочее">Прочее</option></select></div><div class="field"><label>Описание</label><input id="eDesc"></div><div class="field"><label>Сумма</label><input id="eSum" type="number" min="0"></div><div class="footer"><button class="btn danger" id="deleteExpenseBtn" type="button">Удалить</button><button class="btn" id="cancelExpenseBtn" type="button">Отмена</button><button class="btn primary" id="saveExpenseBtn" type="button">Сохранить</button></div></div></div>
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, collection, doc, getDoc, getDocs, setDoc, deleteDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-const firebaseConfig={apiKey:"AIzaSyDRK8Ze7VUtfgaQWf4HKxyeQdgz8ky5HHw",authDomain:"pobookcrm.firebaseapp.com",projectId:"pobookcrm",storageBucket:"pobookcrm.firebasestorage.app",messagingSenderId:"191229001674",appId:"1:191229001674:web:8226011df102e7d4c91933"};
-const STATUSES=["Лиды","Ждём фото","Поступило в работу","Находится у дизайнера","В печати","Книга готова","Отправлено"];
-const SOURCES=["Инстаграм","Telegram-бот","Сарафан","Реклама","Другое"];
-const OWNERS=["Вероника","Дизайнер Юля","Дизайнер Сима","Дизайнер Аня","Менеджер Ирина"];
-const BOOK_FORMATS=["годовщина","парню/сыну на др","сестре/подруге на др","другое"];
-const PRINT_FORMATS=["стандартный","премиальный","срочный"];
-const CLIENT_HEALTH=["red","yellow","green"];
-const HEALTH_LABELS={red:"Горит",yellow:"Нормально",green:"Всё хорошо"};
-const HEALTH_VISIBLE_STATUSES=["Ждём фото","Поступило в работу","Находится у дизайнера","В печати"];
-const EXPENSE_CATS=["Упаковка","Дизайнер","Реклама","Прочее"];
-const MANAGER_UID="6p7kIIPF8PScZK2kQGkC1fbg4193";
-const COMM_STATUSES=["Новое обращение","Ждём ответа","Нужно напомнить","Формат выбран","Ждём предоплату","Предоплата получена","Анкета и фото","Макет отправлен","Согласование","Книга отправлена","Ждём вручения","Запросить отзыв","Разрешение на публикацию","Завершено","Игнор"];
-const AUTOMATION_NEXT={"Новое обращение":"Ждём ответа","Нужно напомнить":"Ждём ответа","Формат выбран":"Ждём предоплату","Предоплата получена":"Анкета и фото","Макет отправлен":"Согласование","Книга отправлена":"Ждём вручения","Запросить отзыв":"Разрешение на публикацию"};
-const PUBLICATION_STATUSES=["Не спрашивали","Разрешение запрошено","Не ответил","Разрешено полностью","Разрешено без личных фото","Только сторис","Разрешено после вручения","Запрещено публиковать"];
-const MONTHS=["Январь","Февраль","Март","Апрель","Май","Июнь","Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"];
-const app=initializeApp(firebaseConfig),db=getFirestore(app),auth=getAuth(app);
-const PRODUCTION_URL="https://pobook-design.web.app/";
-let orders=[],archivedOrders=[],expenses=[],editOrderDocId=null,editExpenseDocId=null,currentTab="dashboard",unsubOrders=null,unsubExpenses=null,dragDocId=null,linkedOrderHandled=false;
-let dashboardTasks=JSON.parse(localStorage.getItem("pobook_dashboard_tasks")||"[]");
-let teamTasks=JSON.parse(localStorage.getItem("pobook_team_tasks")||"{}");
-let currentProfile={name:"",role:"Владелец · тест"},tasksCloudReady=false,unsubWorkspace=null;
-const $=id=>document.getElementById(id);
-const rub=n=>Number(n||0).toLocaleString("ru-RU")+"₽";
-const num=v=>typeof v==="number"&&Number.isFinite(v)?v:Number(String(v??"").replace(/\s/g,"").replace(",", "."))||0;
-const todayIso=()=>{const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")};
-const validDate=v=>typeof v==="string"&&/^\d{4}-\d{2}-\d{2}$/.test(v);
-const monthKey=d=>validDate(d)?d.slice(0,7):"";
-const monthName=k=>/^\d{4}-\d{2}$/.test(k)?MONTHS[Number(k.slice(5,7))-1]+" "+k.slice(0,4):"Без даты";
-const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-function accountingDate(o){return o.orderDate||o.createdAt||o.created_at||o.date||""}
-const normalizeSource=value=>["ТГ Бот","Телеграм","Телеграм Бот","Телеграм бот","Telegram bot","Telegram бот","Telegram-бот"].includes(value)?"Telegram-бот":value||"Инстаграм";
-function normalizeOrder(raw,docId){const displayId=raw.displayId||raw.number||raw.id||docId;const tgRaw=raw.tg||raw.telegram||raw.username||raw.phone||"";const tg=tgRaw&&raw.username&&!String(tgRaw).startsWith("@")?"@"+tgRaw:String(tgRaw||"");const mappedStatus=raw.status==="В работе у дизайнера"?"Находится у дизайнера":(STATUSES.includes(raw.status)?raw.status:"Лиды");const inferredComm=mappedStatus==="Отправлено"?"Книга отправлена":mappedStatus==="Книга готова"?"Согласование":mappedStatus==="В печати"?"Согласование":mappedStatus==="Находится у дизайнера"?"Анкета и фото":mappedStatus!=="Лиды"?"Предоплата получена":normalizeSource(raw.source||(raw.username?"Телеграм бот":"Инстаграм"))==="Telegram-бот"?"Новое обращение":"Ждём ответа";return{_docId:docId,id:displayId,productionOrderId:raw.productionOrderId||docId,name:raw.name||raw.clientName||raw.username||raw.tg||"Без имени",tg,link:raw.link||raw.chatLink||raw.telegramLink||(tg.startsWith("@")?"https://t.me/"+tg.slice(1):""),source:normalizeSource(raw.source||(raw.username?"Телеграм бот":"Инстаграм")),owner:raw.owner||raw.responsible||raw.assignee||"",orderDate:raw.orderDate||raw.createdAt||raw.created_at||raw.date||"",createdAt:raw.createdAt||raw.created_at||raw.orderDate||"",format:raw.format||"",printType:raw.printType||raw.print_type||"",price:num(raw.price||raw.amount||raw.sum),paid:num(raw.paid||raw.prepay||raw.prepayment),printCost:num(raw.printCost||raw.print_cost),deadline:raw.deadline||"",city:raw.city||"",status:mappedStatus,health:CLIENT_HEALTH.includes(raw.health)?raw.health:"yellow",notes:raw.notes||"",anketa:raw.anketa||"",sdek:raw.sdek||"",extraPages:Boolean(raw.extraPages),prepaymentDate:raw.prepaymentDate||"",fullPaymentDate:raw.fullPaymentDate||"",commStatus:COMM_STATUSES.includes(raw.commStatus)?raw.commStatus:inferredComm,nextContact:raw.nextContact||"",taskDone:Boolean(raw.taskDone),taskCompletedAt:raw.taskCompletedAt||"",lastMessageAt:raw.lastMessageAt||"",lastMessageTemplate:raw.lastMessageTemplate||"",printStarted:raw.printStarted||"",printReady:raw.printReady||"",deliveryCost:num(raw.deliveryCost),deliveryExpected:raw.deliveryExpected||"",deliveredAt:raw.deliveredAt||"",giftDate:raw.giftDate||"",reviewReceived:Boolean(raw.reviewReceived),publication:PUBLICATION_STATUSES.includes(raw.publication)?raw.publication:"Не спрашивали",activity:Array.isArray(raw.activity)?raw.activity:[],archived:Boolean(raw.archived),archivedAt:raw.archivedAt||"",cardType:raw.cardType==="blogger"?"blogger":"client",workStarted:raw.workStarted||"",designerStarted:raw.designerStarted||"",followUpCount:num(raw.followUpCount),bloggerAccount:raw.bloggerAccount||"",bloggerPublishDate:raw.bloggerPublishDate||"",bloggerDeliverables:raw.bloggerDeliverables||"",bloggerResult:raw.bloggerResult||""}}
-function productionUrl(o){const p=new URLSearchParams({order:o.productionOrderId||o._docId,crmOrderId:o._docId,orderNumber:String(o.id||o._docId),create:"1",recipient:o.name||"",bookType:o.format||"",deadline:o.deadline||"",notes:o.notes||""});return `${PRODUCTION_URL}?${p}`}
-function openLinkedOrder(){if(linkedOrderHandled)return;const id=new URLSearchParams(location.search).get("order");if(!id)return;linkedOrderHandled=true;const order=orders.find(o=>o._docId===id||o.productionOrderId===id||String(o.id)===id);if(order){showTab("orders");openOrder(order._docId)}}
-function normalizeExpense(raw,docId){return{_docId:docId,id:raw.id||docId,date:raw.date||"",cat:raw.cat||raw.category||"Прочее",desc:raw.desc||raw.description||"",sum:num(raw.sum||raw.amount)}}
-function cleanOrderForSave(o){const{_docId,...data}=o;return data}function cleanExpenseForSave(e){const{_docId,...data}=e;return data}
-const realOrders=()=>orders.filter(o=>o.cardType!=="blogger"&&o.status!=="Лиды");const dealProfit=o=>num(o.price)-num(o.printCost);const debt=o=>Math.max(0,num(o.price)-num(o.paid));const bloggerPrintExpenses=()=>orders.filter(o=>o.cardType==="blogger").reduce((s,o)=>s+num(o.printCost),0);
-function render(){renderMetrics();if(currentTab==="dashboard")renderDashboard();if(currentTab==="kanban")renderKanban();if(currentTab==="bloggers")renderBloggers();if(currentTab==="orders")renderOrders();if(currentTab==="team")renderTeam();if(currentTab==="expenses")renderExpenses();if(currentTab==="communication")renderCommunication();if(currentTab==="managerTasks")renderManagerTasks();if(currentTab==="archive")renderArchive();$("syncText").textContent="Рабочая база · "+orders.length+" карточек"}
-function renderMetrics(){const active=realOrders(),dealSum=active.reduce((s,o)=>s+num(o.price),0),revenue=active.reduce((s,o)=>s+num(o.paid),0),profit=active.reduce((s,o)=>s+dealProfit(o),0),totalDebt=active.reduce((s,o)=>s+debt(o),0),exp=expenses.reduce((s,e)=>s+num(e.sum),0)+bloggerPrintExpenses(),leads=orders.filter(o=>o.cardType!=="blogger"&&o.status==="Лиды").length,bloggers=orders.filter(o=>o.cardType==="blogger").length;$("metrics").innerHTML=[["Клиенты в работе",active.length,"blue"],["Новые лиды",leads,"orange"],["Блогеры",bloggers,""],["Сумма сделок",rub(dealSum),""],["Выручка оплачено",rub(revenue),"green"],["Прибыль",rub(profit),"green"],["Долг клиентов",rub(totalDebt),"red"],["Траты с блогерами",rub(exp),"red"],["Чистая",rub(profit-exp),profit-exp>=0?"green":"red"]].map(([l,v,c])=>`<div class="metric"><div class="label">${l}</div><div class="value ${c}">${v}</div></div>`).join("")}
-function renderDashboard(){const undated=realOrders().filter(o=>!validDate(accountingDate(o))).length;$("dateNotice").hidden=undated===0;$("dateNotice").textContent=undated?`${undated} заказ(ов) без даты учета. Они не потеряны, но попали в строку "Без даты". Откройте заказ и поставьте дату оплаты.`:"";const byMonth=new Map();for(const o of realOrders()){const key=monthKey(accountingDate(o))||"undated";if(!byMonth.has(key))byMonth.set(key,{count:0,deal:0,paid:0,profit:0,expenses:0});const r=byMonth.get(key);r.count++;r.deal+=num(o.price);r.paid+=num(o.paid);r.profit+=dealProfit(o)}for(const e of expenses){const key=monthKey(e.date)||"undated";if(!byMonth.has(key))byMonth.set(key,{count:0,deal:0,paid:0,profit:0,expenses:0});byMonth.get(key).expenses+=num(e.sum)}const keys=[...byMonth.keys()].sort((a,b)=>a==="undated"?1:b==="undated"?-1:a.localeCompare(b));let t={count:0,deal:0,paid:0,profit:0,expenses:0};$("kpiBody").innerHTML=keys.map(key=>{const r=byMonth.get(key);t.count+=r.count;t.deal+=r.deal;t.paid+=r.paid;t.profit+=r.profit;t.expenses+=r.expenses;return`<tr><td><b>${monthName(key)}</b></td><td>${r.count}</td><td>${rub(r.deal)}</td><td class="green">${rub(r.paid)}</td><td class="green">${rub(r.profit)}</td><td class="red">${rub(r.expenses)}</td><td>${rub(r.profit-r.expenses)}</td></tr>`}).join("")+`<tr><td><b>Итого</b></td><td><b>${t.count}</b></td><td><b>${rub(t.deal)}</b></td><td class="green"><b>${rub(t.paid)}</b></td><td class="green"><b>${rub(t.profit)}</b></td><td class="red"><b>${rub(t.expenses)}</b></td><td><b>${rub(t.profit-t.expenses)}</b></td></tr>`;const sources={};for(const o of orders)sources[o.source]=(sources[o.source]||0)+1;$("sources").innerHTML=Object.entries(sources).sort((a,b)=>b[1]-a[1]).map(([s,c])=>`<span class="pill" style="margin:0 6px 6px 0">${esc(s)}: ${c}</span>`).join("")||"<div class='empty'>Пока нет данных</div>";renderDashboardTasks()}
-function renderKanban(){$("kanban").innerHTML=STATUSES.map(st=>{const list=orders.filter(o=>o.cardType!=="blogger"&&o.status===st).sort((a,b)=>String(accountingDate(b)).localeCompare(String(accountingDate(a))));return`<div class="col" data-status="${esc(st)}"><div class="col-head"><span>${esc(st)}</span><span>${list.length}</span></div>${list.map(orderCard).join("")||"<div class='empty'>Пусто</div>"}</div>`}).join("");setupDrag()}
-function renderBloggers(){$("bloggersKanban").innerHTML=STATUSES.filter(st=>st!=="Лиды").map(st=>{const list=orders.filter(o=>o.cardType==="blogger"&&o.status===st);return`<div class="col" data-status="${esc(st)}"><div class="col-head"><span>${esc(st)}</span><span>${list.length}</span></div>${list.map(orderCard).join("")||"<div class='empty'>Пусто</div>"}</div>`}).join("");setupDrag()}
-function daysSince(value){if(!validDate(value))return 0;return Math.max(0,Math.floor((new Date(todayIso()+"T12:00:00")-new Date(value+"T12:00:00"))/86400000))}
-function orderCard(o){const designerDays=o.status==="Находится у дизайнера"?daysSince(o.designerStarted):0,overdue=designerDays>5,showHealth=HEALTH_VISIBLE_STATUSES.includes(o.status);return`<div class="card ${overdue?"designer-overdue":""}" draggable="true" data-doc="${esc(o._docId)}" data-health="${overdue?"red":showHealth?esc(o.health):""}">${o.cardType==="blogger"?`<div class="blogger-badge">Блогер · расход печати ${rub(o.printCost)}</div>`:""}${overdue?`<div class="overdue-badge">🔴 Горит · у дизайнера ${designerDays} дн.</div>`:showHealth?`<div class="client-light ${esc(o.health)}">${esc(HEALTH_LABELS[o.health])}</div>`:""}<div class="name">${esc(o.name)}</div><div class="small">${esc(o.tg||"без контакта")}</div><div class="small">${esc(o.format||"формат не указан")}</div>${o.owner?`<div class="owner-chip">${esc(o.owner)}</div>`:""}${o.printReady?`<div class="small" style="margin-top:6px"><b>Печать до:</b> ${esc(o.printReady)}</div>`:""}${o.link?`<a class="small" href="${esc(o.link)}" target="_blank" rel="noopener">Открыть переписку</a>`:""}${o.cardType!=="blogger"?`<div class="money"><span class="green">${rub(dealProfit(o))}</span><span class="${debt(o)>0?"red":"green"}">${debt(o)>0?"долг "+rub(debt(o)):"оплачен"}</span></div>`:""}<div class="actions"><button class="iconbtn" type="button" data-edit="${esc(o._docId)}">Изменить</button><a class="iconbtn production" href="${esc(productionUrl(o))}" target="_blank" rel="noopener">Производство</a>${STATUSES.indexOf(o.status)<STATUSES.length-1?`<button class="iconbtn" type="button" data-next="${esc(o._docId)}">Далее</button>`:""}</div></div>`}
-function renderCommunication(){
-  $("communicationKanban").innerHTML=COMM_STATUSES.map(st=>{
-    const list=orders.filter(o=>o.cardType!=="blogger"&&o.commStatus===st&&(st!=="Новое обращение"||(o.status==="Лиды"&&o.source==="Telegram-бот"&&!o.sdek&&!o.deliveredAt)));
-		    return `<div class="col" style="background:#f3efe9" data-comm="${esc(st)}"><div class="col-head"><span>${esc(st)}</span><span>${list.length}</span></div>${list.map(o=>`<div class="card" draggable="true" data-doc="${esc(o._docId)}" data-health="${esc(o.health)}"><div class="name">${esc(o.name)}</div><div class="small">${esc(o.tg||"без контакта")}</div><div class="small" style="margin-top:7px"><b>${esc(taskFor(o))}</b></div><div class="small">${esc(o.nextContact||"дата не назначена")}</div>${o.lastMessageAt?`<div class="small">Последнее сообщение: ${esc(o.lastMessageAt.slice(0,10))}</div>`:""}${st==="Разрешение на публикацию"?`<div class="small" style="margin-top:7px"><b>Статус:</b> ${esc(o.publication)}</div>`:""}${messageFor(o)?`<details style="margin-top:8px"><summary class="small" style="cursor:pointer;font-weight:800">Показать текст</summary><div class="small" style="white-space:pre-wrap;margin-top:7px;padding:8px;background:#fff;border-radius:7px">${esc(messageFor(o))}</div></details>`:""}<div class="actions"><button class="iconbtn" type="button" data-edit="${esc(o._docId)}">Карточка</button>${messageFor(o)?`<button class="iconbtn" type="button" data-copy-message="${esc(o._docId)}">Скопировать</button><button class="iconbtn" type="button" data-message-sent="${esc(o._docId)}">Сообщение отправлено ✓</button>`:""}${telegramLinkFor(o)?`<a class="iconbtn" href="${esc(telegramLinkFor(o))}" target="_blank" rel="noopener">Telegram</a>`:""}</div></div>`).join("")||"<div class='empty'>Пусто</div>"}</div>`;
-	  }).join("");
-	  setupCommDrag();
-	}
-	function activityEntry(type,detail){return{at:new Date().toISOString(),type,detail,by:auth.currentUser?.email||"сотрудник"}}
-	function appendActivity(o,entry){return[...((o?.activity||[]).slice(-49)),entry]}
-	function renderArchive(){
-	  $("archiveCount").textContent=archivedOrders.length;
-	  $("archiveList").innerHTML=archivedOrders.map(o=>`<div class="task-row"><div style="flex:1"><b>${esc(o.name)}</b><div class="small">${esc(o.tg||"без контакта")} · ${esc(o.archivedAt||"дата не указана")}</div></div><button class="iconbtn" type="button" data-restore-order="${esc(o._docId)}">Восстановить</button></div>`).join("")||"<div class='empty'>Архив пуст</div>";
-	}
-function taskFor(o){
-  const map={"Новое обращение":"Ответить новому лиду","Ждём ответа":"Клиент молчит 3 дня — отправить повторное сообщение","Нужно напомнить":"Отправить повторное сообщение","Формат выбран":"Отправить условия оплаты","Ждём предоплату":"Предоплата не получена 3 дня — напомнить","Предоплата получена":"Отправить анкету и инструкцию по фото","Анкета и фото":"Анкета или фото не получены 3 дня — напомнить","Макет отправлен":"Макет не просмотрен 2 дня — напомнить","Согласование":"Проверить согласование","Книга отправлена":"Проверить доставку","Ждём вручения":"Уточнить, вручён ли подарок","Запросить отзыв":"Запросить отзыв","Разрешение на публикацию":"Уточнить разрешение на публикацию","Завершено":"Завершено","Игнор":"Без напоминаний"};
-  return map[o.commStatus]||"Следующее действие";
-}
-function telegramLinkFor(o){
-  if(/^https?:\/\//i.test(o.link||""))return o.link;
-  const username=(o.tg||"").trim().replace(/^@/,"");
-  return /^[A-Za-z0-9_]{5,}$/.test(username)?"https://t.me/"+username:"";
-}
-function messageFor(o){
-  const price=o.price||({"премиальный":11500,"стандартный":7490}[o.printType]||7490);
-  const prepayment=Math.round(price/2);
-  const payment="Стоимость книги — "+rub(price)+".\nДля запуска в работу необходимо внести предоплату 50% — "+rub(prepayment)+".\n\nОплату можно перевести по номеру телефона:\n8 (922) 768-00-62 · Т-Банк\nВероника Александровна К.\n\nПосле оплаты, пожалуйста, отправьте чек в этот чат 🤍";
-  const questionnaire=o.format==="годовщина"
-    ?{title:"ГОДОВЩИНА",url:"https://docs.google.com/forms/d/e/1FAIpQLSdkKsDSXBdKTqlNeY25upB_kcqkms0OUxzA5yE930HIUAmzdQ/viewform?usp=header",folders:"Начало отношений; Совместные поездки; Нынешнее время"}
-    :o.format==="сестре/подруге на др"
-      ?{title:"ДЛЯ ПОДРУГИ/СЕСТРЫ",url:"https://docs.google.com/forms/d/1MB_kfKZr7BBF-LVM9sFkQsUGSynQ4WVL2cWPMdedghc/viewform",folders:"Семья; Друзья; Детство"}
-      :{title:"ДЛЯ НЕГО",url:"https://forms.gle/jZtzE7264CuMiPw56",folders:"Семья; Друзья; Детство; Отношения"};
-  const questionnaireText="Спасибо, предоплату получили 🤍\n\nОтправляю анкету — это самая важная часть будущей книги. Найдите удобное время и просто погрузитесь в воспоминания. Не нужно писать идеально: рассказывайте так, будто мы сидим за чашечкой кофе ☕️\n\n"+questionnaire.title+"\n"+questionnaire.url+"\n\nТакже создайте одну общую папку на Яндекс Диске и откройте к ней доступ. Внутри сделайте подпапки: "+questionnaire.folders+". Добавьте 40–80 фотографий и распределите их по разделам 🙏🏼";
-  const map={
-    "Новое обращение":"Здравствуйте! 🤍\n\nУ нас есть два формата книг:\n• стандартный — 7 490 ₽;\n• премиальный — 11 500 ₽.\n\nНаполнение одинаковое. Премиальная книга плотнее и раскрывается на 180 градусов. Подскажите, для кого и к какой дате вы планируете подарок?",
-    "Ждём ответа":o.followUpCount>=2?"Здравствуйте! 🤍 Не буду больше отвлекать вас сообщениями. Если идея книги снова станет актуальна, просто напишите нам — мы сохраним информацию и с удовольствием продолжим.":o.followUpCount===1?"Здравствуйте! 🤍 Подскажите, пожалуйста, что сейчас больше всего останавливает: стоимость, сроки или заполнение анкеты? Я постараюсь предложить удобный вариант.":"Здравствуйте! 🤍 Решила аккуратно напомнить о себе. Возможно, у вас остались вопросы по стоимости, срокам или наполнению книги. Могу показать разницу форматов и примеры разворотов. Подскажите, для кого и к какой дате нужен подарок?",
-    "Нужно напомнить":"Здравствуйте! 🤍 Недавно вы интересовались книгой POBOOK. Если у вас остались вопросы по срокам, стоимости или оформлению, я с удовольствием помогу.",
-    "Формат выбран":payment,
-    "Ждём предоплату":"Здравствуйте! 🤍 Подскажите, пожалуйста, получилось внести предоплату? Если появились вопросы по оплате или оформлению, я помогу.",
-    "Предоплата получена":questionnaireText,
-    "Анкета и фото":"Здравствуйте! 🤍 Подскажите, пожалуйста, получилось заполнить анкету и подготовить фотографии? Если появились вопросы, я помогу.",
-    "Макет отправлен":"Здравствуйте! 🤍 Получилось посмотреть макет книги? Пожалуйста, соберите все пожелания и правки в одном сообщении.",
-    "Согласование":"Здравствуйте! 🤍 Макет книги готов к согласованию. Пожалуйста, внимательно посмотрите его и отправьте все правки одним сообщением.",
-    "Книга отправлена":"Здравствуйте! 🤍 Ваша книга отправлена."+((o.sdek||"")?"\n\nТрек-номер: "+o.sdek:"")+"\n\nДоставка оплачивается отдельно. Будем следить за отправлением вместе с вами.",
-    "Ждём вручения":"Здравствуйте 🤍 Подскажите, пожалуйста, получилось уже вручить книгу?",
-    "Запросить отзыв":"Здравствуйте 🤍 Получилось уже подарить книгу? Очень интересно, как всё прошло и понравилась ли она получателю. Будем рады вашим впечатлениям, фото или видео и отметке нашего аккаунта в сторис.",
-    "Разрешение на публикацию":"Спасибо, что поделились впечатлениями 🤍 Подскажите, пожалуйста, можем ли мы показать вашу книгу или полученные фото и видео в наших соцсетях? Без вашего разрешения ничего публиковать не будем."
-  };
-  return map[o.commStatus]||"";
-}
-function renderManagerTasks(){
-  const today=todayIso(),communication=orders.filter(o=>o.cardType!=="blogger"&&!["Завершено","Игнор"].includes(o.commStatus)&&!o.taskDone&&o.nextContact&&o.nextContact<=today).map(o=>({o,type:"communication"})),designer=orders.filter(o=>o.status==="Находится у дизайнера"&&daysSince(o.designerStarted)>5).map(o=>({o,type:"designer"})),list=[...designer,...communication];
-  $("managerTaskCount").textContent=list.length;
-	  $("managerTaskList").innerHTML=list.map(({o,type})=>`<div class="task-row" style="align-items:flex-start">${type==="communication"?`<input type="checkbox" data-manager-task-toggle="${esc(o._docId)}" title="Отметить выполненной">`:`<span class="overdue-badge">!</span>`}<div style="min-width:180px;flex:1"><div class="task-text"><b>${esc(type==="designer"?"Уточнить у дизайнера готовность макета":taskFor(o))}</b></div><div class="small">${esc(o.name)} · ${type==="designer"?`у дизайнера ${daysSince(o.designerStarted)} дней`:esc(o.commStatus)+" · "+esc(o.nextContact)}</div>${type==="communication"&&messageFor(o)?`<details style="margin-top:8px"><summary class="small" style="cursor:pointer;font-weight:800">Показать готовый текст</summary><div class="small" style="white-space:pre-wrap;margin-top:7px;padding:9px;background:#f7f2ec;border-radius:7px">${esc(messageFor(o))}</div></details>`:""}</div>${type==="communication"&&messageFor(o)?`<button class="iconbtn" type="button" data-copy-message="${esc(o._docId)}">Скопировать</button><button class="iconbtn" type="button" data-message-sent="${esc(o._docId)}">Сообщение отправлено ✓</button>`:""}${telegramLinkFor(o)?`<a class="iconbtn" href="${esc(telegramLinkFor(o))}" target="_blank" rel="noopener">Перейти в Telegram</a>`:""}<button class="iconbtn" type="button" data-edit="${esc(o._docId)}">Карточка</button></div>`).join("")||"<div class='empty'>На сегодня задач нет</div>";
-}
-function addBusinessDays(value,count=10){
-  if(!validDate(value))return"";
-  const d=new Date(value+"T12:00:00");let added=0;
-  while(added<count){d.setDate(d.getDate()+1);const day=d.getDay();if(day!==0&&day!==6)added++}
-  return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
-}
-function addCalendarDays(value,count){
-  if(!validDate(value))return"";
-  const d=new Date(value+"T12:00:00");d.setDate(d.getDate()+count);
-  return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
-}
-	function nextContactFor(status,o={}){
-	  const today=todayIso();
-  if(status==="Новое обращение"||status==="Нужно напомнить"||status==="Формат выбран"||status==="Предоплата получена"||status==="Разрешение на публикацию")return today;
-  if(status==="Ждём ответа"||status==="Ждём предоплату"||status==="Анкета и фото")return addCalendarDays(today,3);
-  if(status==="Согласование"||status==="Макет отправлен")return addCalendarDays(today,2);
-	  if(status==="Книга отправлена")return o.deliveryExpected||addCalendarDays(today,3);
-	  if(status==="Ждём вручения")return o.giftDate||(o.deliveredAt?addCalendarDays(o.deliveredAt,1):addCalendarDays(today,1));
-	  if(status==="Запросить отзыв")return o.giftDate?addCalendarDays(o.giftDate,1):today;
-	  return"";
-	}
-		function suggestedNextContact(status){return nextContactFor(status,{deliveryExpected:$("oDeliveryExpected").value,deliveredAt:$("oDeliveredAt").value,giftDate:$("oGiftDate").value})}
-	async function confirmMessageSent(docId){
-	  const o=orders.find(x=>x._docId===docId);if(!o)return;
-	  if(!confirm("Подтвердить, что сообщение клиенту уже отправлено? CRM сохранит дату и подготовит следующий этап."))return;
-	  let nextStatus=AUTOMATION_NEXT[o.commStatus]||o.commStatus;
-	  if(o.commStatus==="Разрешение на публикацию"&&!["Не спрашивали","Разрешение запрошено","Не ответил"].includes(o.publication))nextStatus="Завершено";
-	  const nextContact=["Завершено","Игнор"].includes(nextStatus)?"":(nextContactFor(nextStatus,o)||addCalendarDays(todayIso(),1));
-	  await setDoc(doc(db,"orders",docId),{lastMessageAt:new Date().toISOString(),lastMessageTemplate:o.commStatus,commStatus:nextStatus,nextContact,followUpCount:o.commStatus==="Ждём ответа"?num(o.followUpCount)+1:num(o.followUpCount),taskDone:false,taskCompletedAt:null,activity:appendActivity(o,activityEntry("Сообщение клиенту","Подтверждена отправка · "+o.commStatus+(nextStatus!==o.commStatus?" → "+nextStatus:""))),updatedAt:serverTimestamp()},{merge:true});
-	}
-	async function moveCommunication(docId,status){
-	  const o=orders.find(x=>x._docId===docId);if(!o||o.commStatus===status)return;
-	  await setDoc(doc(db,"orders",docId),{commStatus:status,nextContact:nextContactFor(status,o),taskDone:false,taskCompletedAt:null,activity:appendActivity(o,activityEntry("Этап общения",o.commStatus+" → "+status)),updatedAt:serverTimestamp()},{merge:true});
-	}
-	function setupCommDrag(){
-	  document.querySelectorAll("#communicationKanban .card").forEach(card=>{
-	    card.addEventListener("dragstart",e=>{if(e.target.closest("button,a,details"))return e.preventDefault();dragDocId=card.dataset.doc;card.classList.add("dragging");e.dataTransfer.setData("text/plain",dragDocId)});
-	    card.addEventListener("dragend",()=>{dragDocId=null;card.classList.remove("dragging");document.querySelectorAll("#communicationKanban .col").forEach(c=>c.classList.remove("drop"))});
-	  });
-	  document.querySelectorAll("#communicationKanban .col").forEach(col=>{
-	    col.addEventListener("dragover",e=>{e.preventDefault();col.classList.add("drop")});
-	    col.addEventListener("dragleave",()=>col.classList.remove("drop"));
-	    col.addEventListener("drop",async e=>{e.preventDefault();col.classList.remove("drop");const id=e.dataTransfer.getData("text/plain")||dragDocId;if(id)await moveCommunication(id,col.dataset.comm)});
-	  });
-	}
-	function renderOrders(){fillFilterOptions();const m=$("monthFilter").value,st=$("statusFilter").value,src=$("sourceFilter").value,q=$("searchFilter").value.trim().toLowerCase();const filtered=[...orders].sort((a,b)=>String(accountingDate(b)).localeCompare(String(accountingDate(a)))).filter(o=>{const text=[o.name,o.tg,o.city,o.format,o.notes,o.owner].join(" ").toLowerCase();return(!m||monthKey(accountingDate(o))===m)&&(!st||o.status===st)&&(!src||o.source===src)&&(!q||text.includes(q))});$("ordersBody").innerHTML=filtered.map(o=>`<tr><td>${esc(o.id)}</td><td><b>${esc(o.name)}</b><br><span class="small">${esc(o.tg)}</span>${o.link?`<br><a class="small" href="${esc(o.link)}" target="_blank" rel="noopener">переписка</a>`:""}</td><td>${HEALTH_VISIBLE_STATUSES.includes(o.status)?`<span class="client-light ${esc(o.health)}">${esc(HEALTH_LABELS[o.health])}</span>`:"—"}</td><td>${esc(o.source)}</td><td>${o.owner?`<span class="owner-chip" style="margin-top:0">${esc(o.owner)}</span>`:"—"}</td><td>${esc(accountingDate(o)||"без даты")}</td><td>${esc(o.format||"—")}</td><td>${rub(o.price)}</td><td class="green">${rub(o.paid)}</td><td class="${debt(o)>0?"red":"green"}">${debt(o)>0?rub(debt(o)):"нет"}</td><td><span class="pill ${o.status==="Лиды"?"lead":o.status==="Отправлено"?"done":""}">${esc(o.status)}</span></td><td><button class="iconbtn" type="button" data-edit="${esc(o._docId)}">Изменить</button><br><a class="iconbtn production" style="margin-top:6px" href="${esc(productionUrl(o))}" target="_blank" rel="noopener">Производство</a></td></tr>`).join("")||"<tr><td colspan='12' class='empty'>Ничего не найдено</td></tr>"}
-async function saveWorkspaceTasks(){
-  localStorage.setItem("pobook_dashboard_tasks",JSON.stringify(dashboardTasks));localStorage.setItem("pobook_team_tasks",JSON.stringify(teamTasks));
-  if(!auth.currentUser)return;
-  try{await setDoc(doc(db,"workspace","tasks"),{dashboardTasks,teamTasks,updatedAt:serverTimestamp(),lastEditedBy:auth.currentUser.email||auth.currentUser.uid},{merge:true});tasksCloudReady=true;if($("teamSyncText"))$("teamSyncText").textContent="Задачи сохранены в рабочей Firebase"}
-  catch(err){tasksCloudReady=false;if($("teamSyncText"))$("teamSyncText").textContent="Локальный режим · нужны новые правила Firebase"}
-}
-function saveDashboardTasks(){saveWorkspaceTasks()}function saveTeamTasks(){saveWorkspaceTasks()}
-async function connectEmployeeData(user){
-  currentProfile={name:user.email||"Сотрудник",role:user.uid===MANAGER_UID?"Менеджер":"Владелец"};
-  try{const profileSnap=await getDoc(doc(db,"profiles",user.uid));if(profileSnap.exists()){const p=profileSnap.data();currentProfile={name:p.name||user.email||"Сотрудник",role:p.role==="manager"?"Менеджер":"Владелец"}}}catch(err){}
-  $("userRoleText").textContent=(currentProfile.name?currentProfile.name+" · ":"")+currentProfile.role;$("userRoleText").style.display="";
-  document.body.dataset.userRole=currentProfile.role==="Менеджер"?"manager":"owner";
-  if($("deleteExpenseBtn"))$("deleteExpenseBtn").style.display=currentProfile.role==="Менеджер"?"none":"";
-  if(unsubWorkspace)unsubWorkspace();
-  unsubWorkspace=onSnapshot(doc(db,"workspace","tasks"),snap=>{
-    if(snap.exists()){const data=snap.data();dashboardTasks=Array.isArray(data.dashboardTasks)?data.dashboardTasks:[];teamTasks=data.teamTasks&&typeof data.teamTasks==="object"?data.teamTasks:{};localStorage.setItem("pobook_dashboard_tasks",JSON.stringify(dashboardTasks));localStorage.setItem("pobook_team_tasks",JSON.stringify(teamTasks));tasksCloudReady=true;if($("teamSyncText"))$("teamSyncText").textContent="Задачи синхронизированы · рабочая Firebase";renderDashboardTasks();if(currentTab==="team")renderTeam()}
-    else saveWorkspaceTasks();
-  },()=>{tasksCloudReady=false;if($("teamSyncText"))$("teamSyncText").textContent="Локальный режим · нужны новые правила Firebase"});
-}
-function taskRow(task,index,scope,owner=""){return`<div class="task-row"><input type="checkbox" ${task.done?"checked":""} data-task-toggle="${scope}" data-owner="${esc(owner)}" data-index="${index}"><div class="task-text ${task.done?"done":""}">${esc(task.text)}</div><button class="iconbtn" type="button" data-task-delete="${scope}" data-owner="${esc(owner)}" data-index="${index}">Удалить</button></div>`}
-function renderDashboardTasks(){$("dashboardTasks").innerHTML=dashboardTasks.length?dashboardTasks.map((t,i)=>taskRow(t,i,"dashboard")).join(""):"<div class='empty'>Задач пока нет</div>"}function addDashboardTask(){const input=$("dashboardTaskInput"),text=input.value.trim();if(!text)return;dashboardTasks.push({text,done:false});input.value="";saveDashboardTasks();renderDashboardTasks()}
-function ownerTasks(owner){if(!Array.isArray(teamTasks[owner]))teamTasks[owner]=[];return teamTasks[owner]}
-function renderTeam(){$("teamGrid").innerHTML=OWNERS.map(owner=>{const assigned=orders.filter(o=>o.owner===owner&&o.status!=="Отправлено"),tasks=ownerTasks(owner);return`<div class="person"><h3>${esc(owner)}</h3><div class="person-count">${assigned.length} заказ(ов) сейчас у этого человека</div><div class="person-orders">${assigned.slice(0,5).map(o=>`<div class="mini-order"><b>${esc(o.name)}</b><br><span class="small">${esc(o.status)} · ${esc(o.format||"формат не указан")}</span></div>`).join("")||"<div class='empty'>Заказов нет</div>"}</div><div class="section-title"><h2 style="font-size:13px">Задачи</h2></div><div>${tasks.length?tasks.map((t,i)=>taskRow(t,i,"team",owner)).join(""):"<div class='empty'>Задач пока нет</div>"}</div><div class="task-form"><input placeholder="Задача для сотрудника" data-team-task-input="${esc(owner)}"><button class="btn primary" type="button" data-team-task-add="${esc(owner)}">Добавить</button></div></div>`}).join("")}
-function renderExpenses(){const bloggerRows=orders.filter(o=>o.cardType==="blogger"&&num(o.printCost)>0).map(o=>({_docId:"",date:o.printStarted||o.orderDate||"",cat:"Печать блогера",desc:"Печать книги для "+o.name,sum:o.printCost,virtual:true})),all=[...expenses,...bloggerRows],totals={};for(const c of [...EXPENSE_CATS,"Печать блогеров"])totals[c]=0;for(const e of expenses)totals[e.cat]=(totals[e.cat]||0)+num(e.sum);totals["Печать блогеров"]=bloggerRows.reduce((s,e)=>s+num(e.sum),0);$("expenseMetrics").innerHTML=Object.entries(totals).map(([c,s])=>`<div class="metric"><div class="label">${esc(c)}</div><div class="value red">${rub(s)}</div></div>`).join("");$("expensesBody").innerHTML=all.sort((a,b)=>String(b.date).localeCompare(String(a.date))).map(e=>`<tr><td>${esc(e.date||"без даты")}</td><td>${esc(e.cat)}</td><td>${esc(e.desc)}</td><td class="red"><b>${rub(e.sum)}</b></td><td>${e.virtual?'<span class="pill">автоматически</span>':`<button class="iconbtn" type="button" data-edit-expense="${esc(e._docId)}">Изменить</button>`}</td></tr>`).join("")||"<tr><td colspan='5' class='empty'>Трат пока нет</td></tr>"}
-function fillSelect(el,values){el.innerHTML=values.map(v=>`<option value="${esc(v)}">${v?esc(v):"—"}</option>`).join("")}
-function fillFilterOptions(){const oldM=$("monthFilter").value,oldS=$("statusFilter").value,oldSrc=$("sourceFilter").value;const months=[...new Set(orders.map(o=>monthKey(accountingDate(o))).filter(Boolean))].sort();$("monthFilter").innerHTML=`<option value="">Все месяцы</option>`+months.map(m=>`<option value="${m}">${monthName(m)}</option>`).join("");$("statusFilter").innerHTML=`<option value="">Все статусы</option>`+STATUSES.map(s=>`<option value="${esc(s)}">${esc(s)}</option>`).join("");const sources=[...new Set([...SOURCES,...orders.map(o=>o.source).filter(Boolean)])];$("sourceFilter").innerHTML=`<option value="">Все источники</option>`+sources.map(s=>`<option value="${esc(s)}">${esc(s)}</option>`).join("");$("monthFilter").value=oldM;$("statusFilter").value=oldS;$("sourceFilter").value=oldSrc}
-function showTab(tab){currentTab=tab;for(const id of["dashboard","kanban","bloggers","communication","managerTasks","orders","archive","team","expenses"])$(id+"Tab").hidden=id!==tab;document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("active",b.dataset.tab===tab));render()}
-function ensureSelectValue(id,value,fallback){const el=$(id);el.value=value||fallback||"";if(value&&el.value!==value){const op=document.createElement("option");op.value=value;op.textContent=value;el.appendChild(op);el.value=value}}
-function openOrder(docId){editOrderDocId=docId;const o=docId?orders.find(x=>x._docId===docId):null;$("orderTitle").textContent=o?"Редактировать карточку":"Новая карточка";$("deleteOrderBtn").style.display=o?"":"none";$("productionOrderBtn").hidden=!o;if(o)$("productionOrderBtn").href=productionUrl(o);$("oCardType").value=o?.cardType||"client";$("oName").value=o?.name||"";$("oTg").value=o?.tg||"";$("oLink").value=o?.link||"";ensureSelectValue("oSource",o?.source,"Инстаграм");$("oDate").value=validDate(o?.orderDate)?o.orderDate:todayIso();ensureSelectValue("oOwner",o?.owner,"");ensureSelectValue("oStatus",o?.status,o?.cardType==="blogger"?"Ждём фото":"Лиды");ensureSelectValue("oHealth",o?.health,"yellow");ensureSelectValue("oFormat",o?.format,"годовщина");ensureSelectValue("oPrintType",o?.printType,"стандартный");$("oPrice").value=o?.price||"";$("oPaid").value=o?.paid||"";$("oPrintCost").value=o?.printCost||"";$("oDeadline").value=validDate(o?.deadline)?o.deadline:"";$("oCity").value=o?.city||"";$("oNotes").value=o?.notes||"";$("oExtraPages").value=String(Boolean(o?.extraPages));$("oPrepaymentDate").value=validDate(o?.prepaymentDate)?o.prepaymentDate:"";$("oFullPaymentDate").value=validDate(o?.fullPaymentDate)?o.fullPaymentDate:"";ensureSelectValue("oCommStatus",o?.commStatus,"Новое обращение");$("oNextContact").value=validDate(o?.nextContact)?o.nextContact:"";$("oWorkStarted").value=validDate(o?.workStarted)?o.workStarted:"";$("oDesignerStarted").value=validDate(o?.designerStarted)?o.designerStarted:"";$("oBloggerAccount").value=o?.bloggerAccount||"";$("oBloggerPublishDate").value=validDate(o?.bloggerPublishDate)?o.bloggerPublishDate:"";$("oBloggerDeliverables").value=o?.bloggerDeliverables||"";$("oBloggerResult").value=o?.bloggerResult||"";$("oPrintStarted").value=validDate(o?.printStarted)?o.printStarted:"";$("oPrintReady").value=validDate(o?.printReady)?o.printReady:"";$("oSdek").value=o?.sdek||"";$("oDeliveryCost").value=o?.deliveryCost||"";$("oDeliveryExpected").value=validDate(o?.deliveryExpected)?o.deliveryExpected:"";$("oDeliveredAt").value=validDate(o?.deliveredAt)?o.deliveredAt:"";$("oGiftDate").value=validDate(o?.giftDate)?o.giftDate:"";$("oReviewReceived").value=String(Boolean(o?.reviewReceived));ensureSelectValue("oPublication",o?.publication,"Не спрашивали");toggleBloggerFields();$("oActivity").innerHTML=o?.activity?.length?o.activity.slice().reverse().map(a=>`<div><b>${esc(a.type||"Изменение")}</b> · ${esc((a.at||"").slice(0,16).replace("T"," "))}<br>${esc(a.detail||"")} <span style="opacity:.65">${esc(a.by||"")}</span></div>`).join("<hr style='border:0;border-top:1px solid #e6d9cf'>"):"История появится после сохранения";$("orderModal").classList.add("open")}
-async function saveOrder(){const name=$("oName").value.trim();if(!name)return alert("Введите имя");$("saveOrderBtn").disabled=true;try{const base=editOrderDocId?orders.find(o=>o._docId===editOrderDocId):null,ref=editOrderDocId?doc(db,"orders",editOrderDocId):doc(collection(db,"orders"));const data={...(base?cleanOrderForSave(base):{}),id:base?.id||ref.id,productionOrderId:base?.productionOrderId||ref.id,cardType:$("oCardType").value,name,tg:$("oTg").value.trim(),link:$("oLink").value.trim(),source:$("oSource").value,owner:$("oOwner").value,orderDate:$("oDate").value,createdAt:base?.createdAt||$("oDate").value||todayIso(),format:$("oFormat").value,printType:$("oPrintType").value,price:$("oCardType").value==="blogger"?0:num($("oPrice").value),paid:$("oCardType").value==="blogger"?0:num($("oPaid").value),printCost:num($("oPrintCost").value),deadline:$("oDeadline").value,city:$("oCity").value.trim(),status:$("oStatus").value,health:$("oHealth").value,notes:$("oNotes").value.trim(),workStarted:$("oWorkStarted").value,designerStarted:$("oDesignerStarted").value,bloggerAccount:$("oBloggerAccount").value.trim(),bloggerPublishDate:$("oBloggerPublishDate").value,bloggerDeliverables:$("oBloggerDeliverables").value.trim(),bloggerResult:$("oBloggerResult").value.trim(),followUpCount:base?.followUpCount||0,extraPages:$("oExtraPages").value==="true",prepaymentDate:$("oPrepaymentDate").value,fullPaymentDate:$("oFullPaymentDate").value,commStatus:$("oCommStatus").value,nextContact:$("oNextContact").value,taskDone:base&&base.commStatus===$("oCommStatus").value&&base.nextContact===$("oNextContact").value?Boolean(base.taskDone):false,taskCompletedAt:base&&base.commStatus===$("oCommStatus").value&&base.nextContact===$("oNextContact").value?base.taskCompletedAt||"":null,printStarted:$("oPrintStarted").value,printReady:$("oPrintReady").value,sdek:$("oSdek").value.trim(),deliveryCost:num($("oDeliveryCost").value),deliveryExpected:$("oDeliveryExpected").value,deliveredAt:$("oDeliveredAt").value,giftDate:$("oGiftDate").value,reviewReceived:$("oReviewReceived").value==="true",publication:$("oPublication").value,activity:appendActivity(base,activityEntry(base?"Карточка обновлена":"Карточка создана",base?"Сохранены изменения":"Создана новая карточка")),archived:false,updatedAt:serverTimestamp()};await setDoc(ref,data,{merge:true});closeOrder()}catch(err){alert("Ошибка сохранения: "+err.message)}finally{$("saveOrderBtn").disabled=false}}
-async function removeOrder(){if(!editOrderDocId||!confirm("Переместить карточку в архив? Её можно будет восстановить."))return;const o=orders.find(x=>x._docId===editOrderDocId);await setDoc(doc(db,"orders",editOrderDocId),{archived:true,archivedAt:new Date().toISOString(),activity:appendActivity(o,activityEntry("Архив","Карточка перемещена в архив")),updatedAt:serverTimestamp()},{merge:true});closeOrder()}function closeOrder(){$("orderModal").classList.remove("open");editOrderDocId=null}
-function openExpense(docId){editExpenseDocId=docId;const e=docId?expenses.find(x=>x._docId===docId):null;$("expenseTitle").textContent=e?"Редактировать трату":"Новая трата";$("deleteExpenseBtn").style.display=e?"":"none";$("eDate").value=validDate(e?.date)?e.date:todayIso();ensureSelectValue("eCat",e?.cat,"Упаковка");$("eDesc").value=e?.desc||"";$("eSum").value=e?.sum||"";$("expenseModal").classList.add("open")}
-async function saveExpense(){const sum=num($("eSum").value);if(!sum)return alert("Введите сумму");const base=editExpenseDocId?expenses.find(e=>e._docId===editExpenseDocId):null,ref=editExpenseDocId?doc(db,"expenses",editExpenseDocId):doc(collection(db,"expenses"));await setDoc(ref,{...(base?cleanExpenseForSave(base):{}),id:base?.id||ref.id,date:$("eDate").value,cat:$("eCat").value,desc:$("eDesc").value.trim(),sum,updatedAt:serverTimestamp()},{merge:true});closeExpense()}
-async function removeExpense(){if(!editExpenseDocId||!confirm("Удалить трату?"))return;await deleteDoc(doc(db,"expenses",editExpenseDocId));closeExpense()}function closeExpense(){$("expenseModal").classList.remove("open");editExpenseDocId=null}
-async function moveTo(docId,status){
-  const o=orders.find(x=>x._docId===docId);if(!o)return;const previous=o.status,updates={status,activity:appendActivity(o,activityEntry("Этап производства",previous+" → "+status)),updatedAt:serverTimestamp()};
-  if(status==="Поступило в работу"&&!o.workStarted)updates.workStarted=todayIso();
-  if(status==="Находится у дизайнера"&&!o.designerStarted)updates.designerStarted=todayIso();
-  if(status==="В печати"&&!o.printStarted){updates.printStarted=todayIso();updates.printReady=addBusinessDays(updates.printStarted,10)}
-  if(status==="Отправлено"){updates.commStatus="Книга отправлена";updates.nextContact=todayIso();updates.taskDone=false;updates.taskCompletedAt=null}
-  o.status=status;await setDoc(doc(db,"orders",docId),updates,{merge:true})
-}async function moveNext(docId){const o=orders.find(x=>x._docId===docId);if(!o)return;const i=STATUSES.indexOf(o.status);if(i>=0&&i<STATUSES.length-1)await moveTo(docId,STATUSES[i+1])}
-function setupDrag(){document.querySelectorAll(".card").forEach(card=>{card.addEventListener("dragstart",e=>{if(e.target.closest("button,a"))return e.preventDefault();dragDocId=card.dataset.doc;card.classList.add("dragging");e.dataTransfer.setData("text/plain",dragDocId)});card.addEventListener("dragend",()=>{dragDocId=null;card.classList.remove("dragging");document.querySelectorAll(".col").forEach(c=>c.classList.remove("drop"))})});document.querySelectorAll(".col").forEach(col=>{col.addEventListener("dragover",e=>{e.preventDefault();col.classList.add("drop")});col.addEventListener("dragleave",e=>{if(!col.contains(e.relatedTarget))col.classList.remove("drop")});col.addEventListener("drop",async e=>{e.preventDefault();col.classList.remove("drop");const docId=e.dataTransfer.getData("text/plain")||dragDocId;if(docId)await moveTo(docId,col.dataset.status)})})}
-async function loadData(){
-  $("syncText").textContent="Загрузка рабочей базы...";
-  const[orderSnap,expenseSnap]=await Promise.all([getDocs(collection(db,"orders")),getDocs(collection(db,"expenses"))]);
-	  {const all=orderSnap.docs.map(d=>normalizeOrder(d.data(),d.id));orders=all.filter(o=>!o.archived);archivedOrders=all.filter(o=>o.archived)}expenses=expenseSnap.docs.map(d=>normalizeExpense(d.data(),d.id));
-  if(unsubOrders)unsubOrders();if(unsubExpenses)unsubExpenses();
-	  unsubOrders=onSnapshot(collection(db,"orders"),snap=>{const all=snap.docs.map(d=>normalizeOrder(d.data(),d.id));orders=all.filter(o=>!o.archived);archivedOrders=all.filter(o=>o.archived);render();openLinkedOrder()},err=>$("syncText").textContent="Ошибка рабочей базы: "+err.message);
-  unsubExpenses=onSnapshot(collection(db,"expenses"),snap=>{expenses=snap.docs.map(d=>normalizeExpense(d.data(),d.id));render()});
-  render();openLinkedOrder();
-}
-function toggleBloggerFields(){const isBlogger=$("oCardType").value==="blogger";document.querySelectorAll(".blogger-only").forEach(el=>el.hidden=!isBlogger);if(isBlogger){$("oPrice").value=0;$("oPaid").value=0;if($("oStatus").value==="Лиды")$("oStatus").value="Ждём фото"}}
-document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>showTab(b.dataset.tab)));$("reloadBtn").addEventListener("click",loadData);$("newOrderBtn").addEventListener("click",()=>openOrder(null));$("newExpenseBtn").addEventListener("click",()=>openExpense(null));$("saveOrderBtn").addEventListener("click",saveOrder);$("deleteOrderBtn").addEventListener("click",removeOrder);$("closeOrderBtn").addEventListener("click",closeOrder);$("cancelOrderBtn").addEventListener("click",closeOrder);$("saveExpenseBtn").addEventListener("click",saveExpense);$("deleteExpenseBtn").addEventListener("click",removeExpense);$("closeExpenseBtn").addEventListener("click",closeExpense);$("cancelExpenseBtn").addEventListener("click",closeExpense);$("orderModal").addEventListener("click",e=>{if(e.target===$("orderModal"))closeOrder()});$("expenseModal").addEventListener("click",e=>{if(e.target===$("expenseModal"))closeExpense()});$("oExtraPages").addEventListener("change",e=>{$("oPrice").value=Math.max(0,num($("oPrice").value)+(e.target.value==="true"?1000:-1000))});
-$("oCardType").addEventListener("change",toggleBloggerFields);
-$("oStatus").addEventListener("change",e=>{if(e.target.value==="Поступило в работу"&&!$("oWorkStarted").value)$("oWorkStarted").value=todayIso();if(e.target.value==="Находится у дизайнера"&&!$("oDesignerStarted").value)$("oDesignerStarted").value=todayIso();if(e.target.value==="В печати"&&!$("oPrintStarted").value){$("oPrintStarted").value=todayIso();$("oPrintReady").value=addBusinessDays($("oPrintStarted").value,10)}if(e.target.value==="Отправлено"){$("oCommStatus").value="Книга отправлена";$("oNextContact").value=todayIso()}});
-$("oCommStatus").addEventListener("change",e=>{$("oNextContact").value=suggestedNextContact(e.target.value)});
-$("oPrintStarted").addEventListener("change",e=>{$("oPrintReady").value=addBusinessDays(e.target.value,10);if($("oStatus").value==="В печати")$("oNextContact").value=$("oPrintReady").value});
-$("oDeliveryExpected").addEventListener("change",e=>{if($("oCommStatus").value==="Книга отправлена")$("oNextContact").value=e.target.value});
-$("oDeliveredAt").addEventListener("change",e=>{if($("oCommStatus").value==="Ждём вручения"&&!$("oGiftDate").value)$("oNextContact").value=addCalendarDays(e.target.value,1)});
-$("oGiftDate").addEventListener("change",e=>{if(["Ждём вручения","Запросить отзыв"].includes($("oCommStatus").value))$("oNextContact").value=addCalendarDays(e.target.value,1)});
-for(const id of["monthFilter","statusFilter","sourceFilter","searchFilter"])$(id).addEventListener("input",renderOrders);$("addDashboardTaskBtn").addEventListener("click",addDashboardTask);$("dashboardTaskInput").addEventListener("keydown",e=>{if(e.key==="Enter")addDashboardTask()});
-document.body.addEventListener("click",e=>{const edit=e.target.closest("[data-edit]"),next=e.target.closest("[data-next]"),editExpense=e.target.closest("[data-edit-expense]"),taskDelete=e.target.closest("[data-task-delete]"),teamAdd=e.target.closest("[data-team-task-add]");if(edit)openOrder(edit.dataset.edit);if(next)moveNext(next.dataset.next);if(editExpense)openExpense(editExpense.dataset.editExpense);if(taskDelete){const i=Number(taskDelete.dataset.index);if(taskDelete.dataset.taskDelete==="dashboard"){dashboardTasks.splice(i,1);saveDashboardTasks();renderDashboardTasks()}else{ownerTasks(taskDelete.dataset.owner).splice(i,1);saveTeamTasks();renderTeam()}}if(teamAdd){const owner=teamAdd.dataset.teamTaskAdd,input=[...document.querySelectorAll("[data-team-task-input]")].find(el=>el.dataset.teamTaskInput===owner),text=input?.value.trim();if(!text)return;ownerTasks(owner).push({text,done:false});input.value="";saveTeamTasks();renderTeam()}});
-document.body.addEventListener("change",e=>{const t=e.target.closest("[data-task-toggle]");if(!t)return;const i=Number(t.dataset.index);if(t.dataset.taskToggle==="dashboard"){if(dashboardTasks[i])dashboardTasks[i].done=t.checked;saveDashboardTasks();renderDashboardTasks()}else{const tasks=ownerTasks(t.dataset.owner);if(tasks[i])tasks[i].done=t.checked;saveTeamTasks();renderTeam()}});
-fillSelect($("oSource"),SOURCES);fillSelect($("oCommStatus"),COMM_STATUSES);fillSelect($("oPublication"),PUBLICATION_STATUSES);fillSelect($("oOwner"),["",...OWNERS]);fillSelect($("oStatus"),STATUSES);fillSelect($("oFormat"),BOOK_FORMATS);fillSelect($("oPrintType"),PRINT_FORMATS);fillSelect($("eCat"),EXPENSE_CATS);
-document.body.addEventListener("click",async e=>{
-  const restore=e.target.closest("[data-restore-order]");
-  if(restore){
-    const o=archivedOrders.find(x=>x._docId===restore.dataset.restoreOrder);restore.disabled=true;
-    try{await setDoc(doc(db,"orders",restore.dataset.restoreOrder),{archived:false,archivedAt:null,activity:appendActivity(o,activityEntry("Восстановление","Карточка восстановлена из архива")),updatedAt:serverTimestamp()},{merge:true})}
-    catch(err){restore.disabled=false;alert("Не удалось восстановить карточку: "+err.message)}
-    return;
-  }
-  const sent=e.target.closest("[data-message-sent]");
-  if(sent){
-    sent.disabled=true;
-    try{await confirmMessageSent(sent.dataset.messageSent)}
-    catch(err){alert("Не удалось сохранить отправку: "+err.message)}
-    finally{sent.disabled=false}
-    return;
-  }
-  const copy=e.target.closest("[data-copy-message]");
-  if(!copy)return;
-  const order=orders.find(o=>o._docId===copy.dataset.copyMessage),text=order?messageFor(order):"";
-  if(!text)return;
-  try{
-    await navigator.clipboard.writeText(text);
-    const old=copy.textContent;copy.textContent="Скопировано ✓";
-    setTimeout(()=>copy.textContent=old,1600);
-  }catch(err){alert("Не удалось скопировать сообщение. Откройте карточку и попробуйте ещё раз.")}
-});
-document.body.addEventListener("change",async e=>{
-  const toggle=e.target.closest("[data-manager-task-toggle]");
-  if(!toggle)return;
-  toggle.disabled=true;
-  try{
-	    const o=orders.find(x=>x._docId===toggle.dataset.managerTaskToggle);
-	    await setDoc(doc(db,"orders",toggle.dataset.managerTaskToggle),{taskDone:toggle.checked,taskCompletedAt:toggle.checked?serverTimestamp():null,activity:appendActivity(o,activityEntry("Задача менеджера",toggle.checked?"Отмечена выполненной":"Возвращена в работу")),updatedAt:serverTimestamp()},{merge:true});
-  }catch(err){
-    toggle.checked=!toggle.checked;toggle.disabled=false;alert("Не удалось сохранить выполнение задачи: "+err.message);
-  }
-});
-$("loginForm").addEventListener("submit",async e=>{
-  e.preventDefault();$("loginError").textContent="";
-  try{await signInWithEmailAndPassword(auth,$("loginEmail").value.trim(),$("loginPassword").value)}
-  catch(err){$("loginError").textContent="Не удалось войти. Проверьте email и пароль."}
-});
-$("logoutBtn").addEventListener("click",()=>signOut(auth));
-onAuthStateChanged(auth,async user=>{
-  $("loginGate").style.display=user?"none":"flex";$("logoutBtn").style.display=user?"":"none";
-	  if(user){$("syncText").textContent="Рабочая Firebase";await connectEmployeeData(user);try{await loadData()}catch(err){$("syncText").textContent="Нет доступа к рабочей базе";$("loginError").textContent=err.message}}
-	  else{if(unsubWorkspace){unsubWorkspace();unsubWorkspace=null}$("userRoleText").style.display="none";$("syncText").textContent="Ожидание входа";orders=[];archivedOrders=[];expenses=[];render()}
-});
-</script>
-
-
-</body></html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>POBOOK CRM</title>
+    <style>
+      :root {
+        --bg: #f7f3ee;
+        --paper: #fff;
+        --ink: #17202a;
+        --muted: #6b7280;
+        --line: #e7e2dc;
+        --blue: #4f7fcf;
+        --green: #3a9b72;
+        --red: #d25b5b;
+        --orange: #d48a3a;
+        --cream: #f7ecd0;
+        --lilac: #e8ddf4;
+        --sky: #dceafa;
+        --rose: #f4dce3;
+        --mint: #dcefe5;
+        --shadow: 0 16px 38px rgba(84, 63, 45, 0.1);
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+      }
+      button,
+      input,
+      select,
+      textarea {
+        font: inherit;
+      }
+      button {
+        cursor: pointer;
+      }
+      .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        background: #24313d;
+        color: #fff;
+        padding: 13px 18px;
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        box-shadow: 0 8px 24px rgba(36, 49, 61, 0.16);
+      }
+      .brand {
+        font-size: 17px;
+        font-weight: 850;
+        flex: 1;
+      }
+      .sync {
+        font-size: 12px;
+        color: #d7e1ea;
+      }
+      .btn,
+      .iconbtn {
+        border: 1px solid var(--line);
+        background: #fff;
+        border-radius: 8px;
+        padding: 8px 12px;
+        color: var(--ink);
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .iconbtn {
+        font-size: 12px;
+        padding: 5px 8px;
+      }
+      .btn:hover,
+      .iconbtn:hover {
+        background: #fbfaf8;
+      }
+      .btn.primary {
+        background: var(--blue);
+        border-color: var(--blue);
+        color: #fff;
+      }
+      .btn.danger {
+        background: var(--red);
+        border-color: var(--red);
+        color: #fff;
+      }
+      .iconbtn.production {
+        background: #24313d;
+        border-color: #24313d;
+        color: #fff;
+        text-decoration: none;
+      }
+      .iconbtn.production:hover {
+        background: #344657;
+      }
+      .tabs {
+        display: flex;
+        gap: 4px;
+        padding: 0 18px;
+        background: #fffdfb;
+        border-bottom: 1px solid var(--line);
+        overflow: auto;
+      }
+      .tab {
+        border: 0;
+        background: transparent;
+        padding: 13px 14px;
+        color: var(--muted);
+        border-bottom: 2px solid transparent;
+        white-space: nowrap;
+      }
+      .tab.active {
+        color: var(--ink);
+        border-bottom-color: var(--blue);
+        font-weight: 800;
+      }
+      main {
+        padding: 18px;
+      }
+      .metrics {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 12px;
+        margin-bottom: 14px;
+      }
+      .metric,
+      .panel,
+      .person {
+        background: #fff;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 14px;
+        box-shadow: 0 8px 18px rgba(84, 63, 45, 0.05);
+      }
+      .label {
+        font-size: 11px;
+        color: var(--muted);
+        text-transform: uppercase;
+        font-weight: 800;
+        letter-spacing: 0.35px;
+      }
+      .value {
+        font-size: 24px;
+        font-weight: 850;
+        margin-top: 5px;
+      }
+      .green {
+        color: var(--green);
+      }
+      .red {
+        color: var(--red);
+      }
+      .blue {
+        color: var(--blue);
+      }
+      .orange {
+        color: var(--orange);
+      }
+      .panel {
+        margin-bottom: 14px;
+      }
+      .panel-head,
+      .section-title {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 10px;
+      }
+      h2 {
+        font-size: 15px;
+        margin: 0;
+      }
+      h3 {
+        font-size: 15px;
+        margin: 0 0 8px;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+      }
+      th,
+      td {
+        padding: 9px 10px;
+        border-bottom: 1px solid #eef2f7;
+        text-align: left;
+        vertical-align: top;
+      }
+      th {
+        font-size: 11px;
+        color: var(--muted);
+        text-transform: uppercase;
+        background: #fbf7f2;
+        position: sticky;
+        top: 0;
+      }
+      .table-wrap {
+        max-height: 66vh;
+        overflow: auto;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fff;
+      }
+      .filters {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-bottom: 12px;
+      }
+      input,
+      select,
+      textarea {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 8px 10px;
+        background: #fff;
+        color: var(--ink);
+        min-width: 0;
+      }
+      .filters input {
+        min-width: 210px;
+      }
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        padding: 3px 8px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 800;
+        background: #edf2ff;
+        color: #31518f;
+      }
+      .pill.lead {
+        background: #fff7ed;
+        color: #9a3412;
+      }
+      .pill.done {
+        background: #ecfdf5;
+        color: #166534;
+      }
+      .kanban {
+        display: flex;
+        gap: 12px;
+        overflow: auto;
+        padding-bottom: 12px;
+      }
+      .col {
+        min-width: 260px;
+        width: 260px;
+        border-radius: 8px;
+        padding: 10px;
+        border: 1px solid rgba(84, 63, 45, 0.08);
+      }
+      .col[data-status="Лиды"],
+      .col[data-status="Новый блогер"] {
+        background: var(--cream);
+      }
+      .col[data-status="Ждём фото"],
+      .col[data-status="Договорились"] {
+        background: var(--lilac);
+      }
+      .col[data-status="В работе у дизайнера"],
+      .col[data-status="Книга в работе"] {
+        background: var(--sky);
+      }
+      .col[data-status="Книга готова"],
+      .col[data-status="Контент получен"] {
+        background: #e5f0dc;
+      }
+      .col[data-status="В печати"],
+      .col[data-status="Ждём контент"] {
+        background: var(--rose);
+      }
+      .col[data-status="Отправлено"],
+      .col[data-status="Книга отправлена"] {
+        background: var(--mint);
+      }
+      .col-head {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 8px;
+        font-size: 12px;
+        font-weight: 850;
+        color: #475569;
+        text-transform: uppercase;
+      }
+      .col.drop {
+        outline: 2px dashed var(--blue);
+        outline-offset: 2px;
+      }
+      .card {
+        background: rgba(255, 255, 255, 0.92);
+        border: 1px solid rgba(255, 255, 255, 0.8);
+        border-left: 6px solid #eab308;
+        border-radius: 8px;
+        padding: 10px;
+        margin-bottom: 8px;
+        box-shadow: 0 8px 18px rgba(84, 63, 45, 0.08);
+      }
+      .card[data-health="red"] {
+        border-left-color: #dc2626;
+      }
+      .card[data-health="yellow"] {
+        border-left-color: #eab308;
+      }
+      .card[data-health="green"] {
+        border-left-color: #16a34a;
+      }
+      .card.dragging {
+        opacity: 0.55;
+      }
+      .name {
+        font-weight: 800;
+        margin-bottom: 3px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .small {
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .money {
+        display: flex;
+        justify-content: space-between;
+        gap: 8px;
+        margin-top: 8px;
+        font-size: 12px;
+      }
+      .actions {
+        display: flex;
+        gap: 6px;
+        margin-top: 9px;
+        flex-wrap: wrap;
+      }
+      .owner-chip {
+        display: inline-flex;
+        align-items: center;
+        margin-top: 6px;
+        padding: 3px 8px;
+        border-radius: 999px;
+        background: #f3ecff;
+        color: #65459a;
+        font-size: 11px;
+        font-weight: 800;
+      }
+      .client-light {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        margin: 0 0 7px;
+        padding: 3px 8px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 850;
+      }
+      .client-light::before {
+        content: "";
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: currentColor;
+      }
+      .client-light.red {
+        background: #fee2e2;
+        color: #b91c1c;
+      }
+      .client-light.yellow {
+        background: #fef9c3;
+        color: #a16207;
+      }
+      .client-light.green {
+        background: #dcfce7;
+        color: #15803d;
+      }
+      .modal-back {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.55);
+        z-index: 50;
+        align-items: center;
+        justify-content: center;
+        padding: 16px;
+      }
+      .modal-back.open {
+        display: flex;
+      }
+      .modal {
+        background: #fff;
+        border-radius: 10px;
+        box-shadow: var(--shadow);
+        width: min(720px, 100%);
+        max-height: 92vh;
+        overflow: auto;
+        padding: 18px;
+      }
+      .modal-title {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+      }
+      .field {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        margin-bottom: 10px;
+      }
+      .field label {
+        font-size: 11px;
+        color: var(--muted);
+        font-weight: 850;
+        text-transform: uppercase;
+      }
+      .full {
+        grid-column: 1/-1;
+      }
+      .footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+        border-top: 1px solid var(--line);
+        padding-top: 12px;
+        margin-top: 8px;
+      }
+      .notice {
+        background: #fff7ed;
+        border: 1px solid #fed7aa;
+        color: #9a3412;
+        border-radius: 8px;
+        padding: 10px 12px;
+        font-size: 13px;
+        margin-bottom: 14px;
+      }
+      .empty {
+        color: var(--muted);
+        font-size: 13px;
+        padding: 14px;
+      }
+      .dash-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1.25fr) minmax(320px, 0.75fr);
+        gap: 14px;
+      }
+      .task-row {
+        display: grid;
+        grid-template-columns: 22px minmax(0, 1fr) auto;
+        gap: 8px;
+        align-items: center;
+        padding: 8px 0;
+        border-bottom: 1px solid #f2ede7;
+      }
+      .task-row:last-child {
+        border-bottom: 0;
+      }
+      .task-text {
+        font-size: 13px;
+      }
+      .task-text.done {
+        text-decoration: line-through;
+        color: #a3a3a3;
+      }
+      .task-form {
+        display: flex;
+        gap: 8px;
+        margin-top: 10px;
+      }
+      .task-form input {
+        flex: 1;
+      }
+      .team-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 14px;
+      }
+      .person-count {
+        font-size: 12px;
+        color: var(--muted);
+        margin-bottom: 10px;
+      }
+      .person-orders {
+        display: flex;
+        flex-direction: column;
+        gap: 7px;
+        margin-bottom: 12px;
+      }
+      .mini-order {
+        border: 1px solid #efe8df;
+        background: #fffaf5;
+        border-radius: 8px;
+        padding: 8px;
+      }
+      .card.designer-overdue {
+        border-left-color: #dc2626;
+        background: #fff7f7;
+        box-shadow:
+          0 0 0 2px rgba(220, 38, 38, 0.12),
+          0 8px 18px rgba(84, 63, 45, 0.08);
+      }
+      .overdue-badge {
+        display: inline-flex;
+        margin: 0 0 7px;
+        padding: 4px 8px;
+        border-radius: 999px;
+        background: #fee2e2;
+        color: #b91c1c;
+        font-size: 11px;
+        font-weight: 850;
+      }
+      .blogger-badge {
+        display: inline-flex;
+        margin: 0 0 7px;
+        padding: 4px 8px;
+        border-radius: 999px;
+        background: #ede9fe;
+        color: #6d28d9;
+        font-size: 11px;
+        font-weight: 850;
+      }
+      @media (max-width: 980px) {
+        .dash-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+      @media (max-width: 720px) {
+        .topbar {
+          flex-wrap: wrap;
+        }
+        .sync {
+          width: 100%;
+        }
+        .grid {
+          grid-template-columns: 1fr;
+        }
+        .value {
+          font-size: 20px;
+        }
+        main {
+          padding: 12px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="loginGate"
+      style="
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        background: #f7f2ec;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+      "
+    >
+      <form
+        id="loginForm"
+        style="
+          width: min(420px, 100%);
+          background: #fffdfa;
+          border: 1px solid #e6d9cf;
+          border-radius: 14px;
+          padding: 25px;
+          box-shadow: 0 18px 45px rgba(70, 48, 35, 0.13);
+        "
+      >
+        <h2 style="margin: 0 0 6px">Вход в POBOOK CRM</h2>
+        <p class="small" style="margin: 0 0 18px">
+          Рабочая CRM компании POBOOK.
+        </p>
+        <div class="field full">
+          <label>Email</label
+          ><input
+            id="loginEmail"
+            type="email"
+            autocomplete="username"
+            required
+          />
+        </div>
+        <div class="field full">
+          <label>Пароль</label
+          ><input
+            id="loginPassword"
+            type="password"
+            autocomplete="current-password"
+            required
+          />
+        </div>
+        <div
+          id="loginError"
+          class="small"
+          style="color: #b91c1c; min-height: 20px; margin: 8px 0"
+        ></div>
+        <button class="btn primary" style="width: 100%" type="submit">
+          Войти
+        </button>
+      </form>
+    </div>
+    <header class="topbar">
+      <div class="brand">POBOOK CRM</div>
+      <div class="sync" id="syncText">Ожидание входа</div>
+      <span class="pill" id="userRoleText" style="display: none"></span
+      ><button class="btn" id="logoutBtn" type="button" style="display: none">
+        Выйти</button
+      ><button class="btn" id="reloadBtn" type="button">Обновить</button
+      ><button class="btn primary" id="newOrderBtn" type="button">
+        Новый заказ
+      </button>
+    </header>
+    <nav class="tabs">
+      <button class="tab active" data-tab="dashboard" type="button">
+        Дашборд</button
+      ><button class="tab" data-tab="kanban" type="button">Этапы</button
+      ><button class="tab" data-tab="bloggers" type="button">Блогеры</button
+      ><button class="tab" data-tab="communication" type="button">
+        Коммуникации</button
+      ><button class="tab" data-tab="managerTasks" type="button">
+        Задачи менеджера</button
+      ><button class="tab" data-tab="orders" type="button">Заказы</button
+      ><button class="tab" data-tab="archive" type="button">Архив</button
+      ><button class="tab" data-tab="team" type="button">Команда</button
+      ><button class="tab" data-tab="expenses" type="button">Траты</button>
+    </nav>
+    <main>
+      <section id="dashboardTab">
+        <div class="notice" id="dateNotice" hidden=""></div>
+        <div class="metrics" id="metrics">
+          <div class="metric">
+            <div class="label">Клиенты в работе</div>
+            <div class="value blue">107</div>
+          </div>
+          <div class="metric">
+            <div class="label">Лиды без заказа</div>
+            <div class="value orange">4</div>
+          </div>
+          <div class="metric">
+            <div class="label">Сумма сделок</div>
+            <div class="value">895&nbsp;490₽</div>
+          </div>
+          <div class="metric">
+            <div class="label">Выручка оплачено</div>
+            <div class="value green">800&nbsp;485₽</div>
+          </div>
+          <div class="metric">
+            <div class="label">Прибыль</div>
+            <div class="value green">689&nbsp;537₽</div>
+          </div>
+          <div class="metric">
+            <div class="label">Долг клиентов</div>
+            <div class="value red">99&nbsp;005₽</div>
+          </div>
+          <div class="metric">
+            <div class="label">Траты</div>
+            <div class="value red">93&nbsp;769₽</div>
+          </div>
+          <div class="metric">
+            <div class="label">Чистая</div>
+            <div class="value green">595&nbsp;768₽</div>
+          </div>
+        </div>
+        <div class="dash-grid">
+          <div>
+            <div class="panel">
+              <div class="panel-head"><h2>KPI по месяцам</h2></div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Месяц</th>
+                      <th>Заказы</th>
+                      <th>Сумма сделок</th>
+                      <th>Выручка оплачено</th>
+                      <th>Прибыль</th>
+                      <th>Траты</th>
+                      <th>Чистая</th>
+                    </tr>
+                  </thead>
+                  <tbody id="kpiBody">
+                    <tr>
+                      <td><b>Февраль 2026</b></td>
+                      <td>6</td>
+                      <td>38&nbsp;900₽</td>
+                      <td class="green">39&nbsp;900₽</td>
+                      <td class="green">28&nbsp;283₽</td>
+                      <td class="red">2&nbsp;227₽</td>
+                      <td>26&nbsp;056₽</td>
+                    </tr>
+                    <tr>
+                      <td><b>Март 2026</b></td>
+                      <td>17</td>
+                      <td>136&nbsp;370₽</td>
+                      <td class="green">136&nbsp;370₽</td>
+                      <td class="green">96&nbsp;534₽</td>
+                      <td class="red">8&nbsp;330₽</td>
+                      <td>88&nbsp;204₽</td>
+                    </tr>
+                    <tr>
+                      <td><b>Апрель 2026</b></td>
+                      <td>26</td>
+                      <td>239&nbsp;820₽</td>
+                      <td class="green">241&nbsp;820₽</td>
+                      <td class="green">169&nbsp;142₽</td>
+                      <td class="red">16&nbsp;200₽</td>
+                      <td>152&nbsp;942₽</td>
+                    </tr>
+                    <tr>
+                      <td><b>Май 2026</b></td>
+                      <td>18</td>
+                      <td>150&nbsp;420₽</td>
+                      <td class="green">138&nbsp;170₽</td>
+                      <td class="green">112&nbsp;625₽</td>
+                      <td class="red">36&nbsp;400₽</td>
+                      <td>76&nbsp;225₽</td>
+                    </tr>
+                    <tr>
+                      <td><b>Июнь 2026</b></td>
+                      <td>26</td>
+                      <td>208&nbsp;980₽</td>
+                      <td class="green">173&nbsp;225₽</td>
+                      <td class="green">167&nbsp;450₽</td>
+                      <td class="red">18&nbsp;400₽</td>
+                      <td>149&nbsp;050₽</td>
+                    </tr>
+                    <tr>
+                      <td><b>Июль 2026</b></td>
+                      <td>14</td>
+                      <td>121&nbsp;000₽</td>
+                      <td class="green">71&nbsp;000₽</td>
+                      <td class="green">115&nbsp;503₽</td>
+                      <td class="red">12&nbsp;212₽</td>
+                      <td>103&nbsp;291₽</td>
+                    </tr>
+                    <tr>
+                      <td><b>Итого</b></td>
+                      <td><b>107</b></td>
+                      <td><b>895&nbsp;490₽</b></td>
+                      <td class="green"><b>800&nbsp;485₽</b></td>
+                      <td class="green"><b>689&nbsp;537₽</b></td>
+                      <td class="red"><b>93&nbsp;769₽</b></td>
+                      <td><b>595&nbsp;768₽</b></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div class="panel">
+              <div class="panel-head"><h2>Источники клиентов</h2></div>
+              <div id="sources">
+                <span class="pill" style="margin: 0 6px 6px 0"
+                  >Инстаграм: 100</span
+                ><span class="pill" style="margin: 0 6px 6px 0"
+                  >Telegram бот: 6</span
+                ><span class="pill" style="margin: 0 6px 6px 0"
+                  >Телеграм бот: 4</span
+                ><span class="pill" style="margin: 0 6px 6px 0"
+                  >Сарафан: 1</span
+                >
+              </div>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="section-title"><h2>Задачи на сегодня</h2></div>
+            <div id="dashboardTasks">
+              <div class="empty">Задач пока нет</div>
+            </div>
+            <div class="task-form">
+              <input
+                id="dashboardTaskInput"
+                placeholder="Добавить задачу"
+              /><button
+                class="btn primary"
+                id="addDashboardTaskBtn"
+                type="button"
+              >
+                Добавить
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section id="kanbanTab" hidden="">
+        <div class="kanban" id="kanban"></div>
+      </section>
+      <section id="bloggersTab" hidden="">
+        <div class="notice">
+          Блогеры находятся на отдельной доске и не учитываются как продажи,
+          выручка или долг. Печать и доставка автоматически учитываются как
+          расходы.
+        </div>
+        <div class="kanban" id="bloggersKanban"></div>
+      </section>
+      <section id="communicationTab" hidden="">
+        <div class="notice">
+          Одна карточка клиента отображается и в производстве, и в общении.
+          Дубликаты не создаются. Сообщения автоматически не отправляются.
+        </div>
+        <div class="kanban" id="communicationKanban"></div>
+      </section>
+      <section id="managerTasksTab" hidden="">
+        <div class="dash-grid">
+          <div class="panel">
+            <div class="section-title">
+              <h2>Сегодня и просрочено</h2>
+              <span class="pill" id="managerTaskCount">0</span>
+            </div>
+            <div id="managerTaskList"></div>
+          </div>
+          <div class="panel">
+            <h2>Безопасная автоматизация</h2>
+            <p class="small" style="line-height: 1.6">
+              CRM подбирает текст, открывает переписку и рассчитывает следующее
+              касание. После отправки менеджер нажимает «Сообщение отправлено» —
+              только тогда меняется этап.
+            </p>
+            <div class="notice" style="margin: 12px 0">
+              Автоотправка клиентам выключена
+            </div>
+            <div class="small" style="line-height: 1.7">
+              <b>Автопереходы:</b><br />Первое сообщение → Ждём ответа<br />Условия
+              оплаты → Ждём предоплату<br />Анкета отправлена → Анкета и фото<br />Макет
+              отправлен → Согласование<br />Трек отправлен → Ждём вручения<br />Отзыв
+              запрошен → Разрешение на публикацию
+            </div>
+          </div>
+        </div>
+      </section>
+      <section id="archiveTab" hidden="">
+        <div class="panel">
+          <div class="section-title">
+            <h2>Архив карточек</h2>
+            <span class="pill" id="archiveCount">0</span>
+          </div>
+          <div class="notice">
+            Карточки здесь не удаляются. Их можно восстановить одним нажатием.
+          </div>
+          <div id="archiveList" style="margin-top: 14px"></div>
+        </div>
+      </section>
+      <section id="ordersTab" hidden="">
+        <div class="filters">
+          <select id="monthFilter">
+            <option value="">Все месяцы</option></select
+          ><select id="statusFilter">
+            <option value="">Все статусы</option></select
+          ><select id="sourceFilter">
+            <option value="">Все источники</option></select
+          ><input
+            id="searchFilter"
+            placeholder="Поиск по имени, TG, телефону"
+          />
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Клиент</th>
+                <th>Цвет</th>
+                <th>Источник</th>
+                <th>Ответственный</th>
+                <th>Дата учета</th>
+                <th>Формат</th>
+                <th>Сумма</th>
+                <th>Оплачено</th>
+                <th>Долг</th>
+                <th>Статус</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="ordersBody"></tbody>
+          </table>
+        </div>
+      </section>
+      <section id="teamTab" hidden="">
+        <div class="panel-head">
+          <h2>Ответственные</h2>
+          <span class="pill" id="teamSyncText">Задачи хранятся локально</span>
+        </div>
+        <div class="notice" style="margin-bottom: 14px">
+          Доступ сотрудников защищён персональными аккаунтами.
+        </div>
+        <div class="team-grid" id="teamGrid"></div>
+      </section>
+      <section id="expensesTab" hidden="">
+        <div class="panel-head">
+          <h2>Траты</h2>
+          <button class="btn primary" id="newExpenseBtn" type="button">
+            Добавить трату
+          </button>
+        </div>
+        <div class="metrics" id="expenseMetrics"></div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Дата</th>
+                <th>Категория</th>
+                <th>Описание</th>
+                <th>Сумма</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="expensesBody"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+    <div class="modal-back" id="orderModal">
+      <div class="modal">
+        <div class="modal-title">
+          <h2 id="orderTitle">Новый заказ</h2>
+          <button class="iconbtn" id="closeOrderBtn" type="button">
+            Закрыть
+          </button>
+        </div>
+        <div class="grid">
+          <div class="field">
+            <label>Тип карточки</label
+            ><select id="oCardType">
+              <option value="client">Клиент</option>
+              <option value="blogger">Блогер</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Имя клиента / блогера</label><input id="oName" />
+          </div>
+          <div class="field"><label>TG / телефон</label><input id="oTg" /></div>
+          <div class="field full">
+            <label>Ссылка на переписку</label
+            ><input id="oLink" placeholder="https://t.me/username" />
+          </div>
+          <div class="field">
+            <label>Источник</label
+            ><select id="oSource">
+              <option value="Инстаграм">Инстаграм</option>
+              <option value="Телеграм бот">Телеграм бот</option>
+              <option value="Сарафан">Сарафан</option>
+              <option value="Реклама">Реклама</option>
+              <option value="Другое">Другое</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Дата учета оплаты</label><input id="oDate" type="date" />
+          </div>
+          <div class="field">
+            <label>Ответственный</label
+            ><select id="oOwner">
+              <option value="">—</option>
+              <option value="Вероника">Вероника</option>
+              <option value="Дизайнер Юля">Дизайнер Юля</option>
+              <option value="Дизайнер Сима">Дизайнер Сима</option>
+              <option value="Дизайнер Аня">Дизайнер Аня</option>
+              <option value="Менеджер Ирина">Менеджер Ирина</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Статус</label
+            ><select id="oStatus">
+              <option value="Лиды">Лиды</option>
+              <option value="Ждём фото">Ждём фото</option>
+              <option value="В работе у дизайнера">В работе у дизайнера</option>
+              <option value="В печати">В печати</option>
+              <option value="Книга готова">Книга готова</option>
+              <option value="Отправлено">Отправлено</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Цвет клиента</label
+            ><select id="oHealth">
+              <option value="red">🔴 Горит</option>
+              <option value="yellow">🟡 Нормально</option>
+              <option value="green">🟢 Всё хорошо</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Формат книги</label
+            ><select id="oFormat">
+              <option value="годовщина">годовщина</option>
+              <option value="парню/сыну на др">парню/сыну на др</option>
+              <option value="сестре/подруге на др">сестре/подруге на др</option>
+              <option value="другое">другое</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Формат печати</label
+            ><select id="oPrintType">
+              <option value="стандартный">стандартный</option>
+              <option value="премиальный">премиальный</option>
+              <option value="срочный">срочный</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Сумма сделки</label
+            ><input id="oPrice" type="number" min="0" />
+          </div>
+          <div class="field">
+            <label>Дополнительные страницы (+1 000 ₽)</label
+            ><select id="oExtraPages">
+              <option value="false">Нет</option>
+              <option value="true">Да</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Оплачено</label><input id="oPaid" type="number" min="0" />
+          </div>
+          <div class="field">
+            <label>Дата предоплаты</label
+            ><input id="oPrepaymentDate" type="date" />
+          </div>
+          <div class="field">
+            <label>Дата полной оплаты</label
+            ><input id="oFullPaymentDate" type="date" />
+          </div>
+          <div class="field">
+            <label>Стоимость печати</label
+            ><input id="oPrintCost" type="number" min="0" />
+          </div>
+          <div class="field">
+            <label>Дедлайн</label><input id="oDeadline" type="date" />
+          </div>
+          <div class="field"><label>Город</label><input id="oCity" /></div>
+          <div class="field full">
+            <label>Заметки</label><textarea id="oNotes" rows="3"></textarea>
+          </div>
+          <div class="field">
+            <label>Поступило в работу</label
+            ><input id="oWorkStarted" type="date" />
+          </div>
+          <div class="field">
+            <label>Передано дизайнеру</label
+            ><input id="oDesignerStarted" type="date" />
+          </div>
+          <div class="field blogger-only">
+            <label>Instagram</label
+            ><input id="oBloggerInstagram" placeholder="@username или ссылка" />
+          </div>
+          <div class="field blogger-only">
+            <label>Telegram</label
+            ><input id="oBloggerTelegram" placeholder="@username или ссылка" />
+          </div>
+          <div class="field full blogger-only">
+            <label>Другие социальные сети</label
+            ><input
+              id="oBloggerOtherSocials"
+              placeholder="VK, YouTube, TikTok — ссылки"
+            />
+          </div>
+          <div class="field blogger-only">
+            <label>Плановая дата публикации</label
+            ><input id="oBloggerPublishDate" type="date" />
+          </div>
+          <div class="field blogger-only">
+            <label>Напомнить о контенте</label
+            ><input id="oBloggerContentReminder" type="date" />
+          </div>
+          <div class="field full blogger-only">
+            <label>Что должен опубликовать блогер</label
+            ><input
+              id="oBloggerDeliverables"
+              placeholder="Сторис, Reels, публикация"
+            />
+          </div>
+          <div class="field blogger-only">
+            <label>Контент получен</label
+            ><select id="oBloggerContentReceived">
+              <option value="false">Нет</option>
+              <option value="true">Да</option>
+            </select>
+          </div>
+          <div class="field blogger-only">
+            <label>Дата получения контента</label
+            ><input id="oBloggerContentReceivedDate" type="date" />
+          </div>
+          <div class="field full blogger-only">
+            <label>Ссылка на публикацию / результат</label
+            ><input id="oBloggerResult" />
+          </div>
+          <div class="field">
+            <label>Этап общения</label
+            ><select id="oCommStatus"></select>
+          </div>
+          <div class="field">
+            <label>Следующее касание</label
+            ><input id="oNextContact" type="date" />
+          </div>
+          <div class="field">
+            <label>Передано в печать</label
+            ><input id="oPrintStarted" type="date" />
+          </div>
+          <div class="field">
+            <label>Плановая готовность (10 рабочих дней)</label
+            ><input id="oPrintReady" type="date" />
+          </div>
+          <div class="field">
+            <label>Трек-номер / СДЭК</label><input id="oSdek" />
+          </div>
+          <div class="field">
+            <label>Стоимость доставки отдельно</label
+            ><input id="oDeliveryCost" type="number" min="0" />
+          </div>
+          <div class="field">
+            <label>Ожидаемая доставка</label
+            ><input id="oDeliveryExpected" type="date" />
+          </div>
+          <div class="field">
+            <label>Фактически доставлено</label
+            ><input id="oDeliveredAt" type="date" />
+          </div>
+          <div class="field">
+            <label>Дата вручения подарка</label
+            ><input id="oGiftDate" type="date" />
+          </div>
+          <div class="field">
+            <label>Отзыв получен</label
+            ><select id="oReviewReceived">
+              <option value="false">Нет</option>
+              <option value="true">Да</option>
+            </select>
+          </div>
+          <div class="field full">
+            <label>Разрешение на публикацию</label
+            ><select id="oPublication"></select>
+          </div>
+          <div class="field full">
+            <label>История действий</label>
+            <div
+              id="oActivity"
+              class="small"
+              style="
+                max-height: 180px;
+                overflow: auto;
+                padding: 10px;
+                background: #f7f2ec;
+                border-radius: 8px;
+                line-height: 1.6;
+              "
+            >
+              История появится после сохранения
+            </div>
+          </div>
+        </div>
+        <div class="footer">
+          <a
+            class="btn"
+            id="productionOrderBtn"
+            href="#"
+            target="_blank"
+            rel="noopener"
+            hidden=""
+            >Открыть в производстве</a
+          ><button class="btn danger" id="deleteOrderBtn" type="button">
+            В архив</button
+          ><button class="btn" id="cancelOrderBtn" type="button">Отмена</button
+          ><button class="btn primary" id="saveOrderBtn" type="button">
+            Сохранить
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="modal-back" id="expenseModal">
+      <div class="modal" style="width: min(460px, 100%)">
+        <div class="modal-title">
+          <h2 id="expenseTitle">Новая трата</h2>
+          <button class="iconbtn" id="closeExpenseBtn" type="button">
+            Закрыть
+          </button>
+        </div>
+        <div class="field">
+          <label>Дата</label><input id="eDate" type="date" />
+        </div>
+        <div class="field">
+          <label>Категория</label
+          ><select id="eCat">
+            <option value="Упаковка">Упаковка</option>
+            <option value="Дизайнер">Дизайнер</option>
+            <option value="Реклама">Реклама</option>
+            <option value="Прочее">Прочее</option>
+          </select>
+        </div>
+        <div class="field"><label>Описание</label><input id="eDesc" /></div>
+        <div class="field">
+          <label>Сумма</label><input id="eSum" type="number" min="0" />
+        </div>
+        <div class="footer">
+          <button class="btn danger" id="deleteExpenseBtn" type="button">
+            Удалить</button
+          ><button class="btn" id="cancelExpenseBtn" type="button">
+            Отмена</button
+          ><button class="btn primary" id="saveExpenseBtn" type="button">
+            Сохранить
+          </button>
+        </div>
+      </div>
+    </div>
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+      import {
+        getFirestore,
+        collection,
+        doc,
+        getDoc,
+        getDocs,
+        setDoc,
+        deleteDoc,
+        onSnapshot,
+        serverTimestamp,
+      } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+      import {
+        getAuth,
+        signInWithEmailAndPassword,
+        signOut,
+        onAuthStateChanged,
+      } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+      const firebaseConfig = {
+        apiKey: "AIzaSyDRK8Ze7VUtfgaQWf4HKxyeQdgz8ky5HHw",
+        authDomain: "pobookcrm.firebaseapp.com",
+        projectId: "pobookcrm",
+        storageBucket: "pobookcrm.firebasestorage.app",
+        messagingSenderId: "191229001674",
+        appId: "1:191229001674:web:8226011df102e7d4c91933",
+      };
+      const STATUSES = [
+        "Лиды",
+        "Ждём фото",
+        "Поступило в работу",
+        "Находится у дизайнера",
+        "В печати",
+        "Книга готова",
+        "Отправлено",
+      ];
+      const BLOGGER_STATUSES = [
+        "Новый блогер",
+        "Договорились",
+        "Книга в работе",
+        "Книга отправлена",
+        "Ждём контент",
+        "Контент получен",
+      ];
+      const SOURCES = [
+        "Инстаграм",
+        "Telegram-бот",
+        "Сарафан",
+        "Реклама",
+        "Другое",
+      ];
+      const OWNERS = [
+        "Вероника",
+        "Дизайнер Юля",
+        "Дизайнер Сима",
+        "Дизайнер Аня",
+        "Дизайнер Ева",
+        "Дизайнер Даня",
+        "Менеджер Ирина",
+      ];
+      const BOOK_FORMATS = [
+        "годовщина",
+        "парню/сыну на др",
+        "сестре/подруге на др",
+        "другое",
+      ];
+      const PRINT_FORMATS = ["стандартный", "премиальный", "срочный"];
+      const CLIENT_HEALTH = ["red", "yellow", "green"];
+      const HEALTH_LABELS = {
+        red: "Горит",
+        yellow: "Нормально",
+        green: "Всё хорошо",
+      };
+      const HEALTH_VISIBLE_STATUSES = [
+        "Ждём фото",
+        "Поступило в работу",
+        "Находится у дизайнера",
+        "В печати",
+      ];
+      const EXPENSE_CATS = ["Упаковка", "Дизайнер", "Реклама", "Прочее"];
+      const MANAGER_UID = "6p7kIIPF8PScZK2kQGkC1fbg4193";
+      const COMM_STATUSES = [
+        "Новое обращение",
+        "Ждём ответа",
+        "Нужно напомнить",
+        "Формат выбран",
+        "Ждём предоплату",
+        "Предоплата получена",
+        "Анкета и фото",
+        "Макет отправлен",
+        "Согласование",
+        "Книга отправлена",
+        "Ждём вручения",
+        "Запросить отзыв",
+        "Разрешение на публикацию",
+        "Завершено",
+        "Игнор",
+      ];
+      const AUTOMATION_NEXT = {
+        "Новое обращение": "Ждём ответа",
+        "Нужно напомнить": "Ждём ответа",
+        "Формат выбран": "Ждём предоплату",
+        "Предоплата получена": "Анкета и фото",
+        "Макет отправлен": "Согласование",
+        "Книга отправлена": "Ждём вручения",
+        "Запросить отзыв": "Разрешение на публикацию",
+      };
+      const PUBLICATION_STATUSES = [
+        "Не спрашивали",
+        "Разрешение запрошено",
+        "Не ответил",
+        "Разрешено полностью",
+        "Разрешено без личных фото",
+        "Только сторис",
+        "Разрешено после вручения",
+        "Запрещено публиковать",
+      ];
+      function normalizeBloggerStatus(status) {
+        if (BLOGGER_STATUSES.includes(status)) return status;
+        const legacy = {
+          Лиды: "Новый блогер",
+          "Ждём фото": "Договорились",
+          "Поступило в работу": "Книга в работе",
+          "Находится у дизайнера": "Книга в работе",
+          "В печати": "Книга в работе",
+          "Книга готова": "Книга отправлена",
+          Отправлено: "Ждём контент",
+        };
+        return legacy[status] || "Новый блогер";
+      }
+      const MONTHS = [
+        "Январь",
+        "Февраль",
+        "Март",
+        "Апрель",
+        "Май",
+        "Июнь",
+        "Июль",
+        "Август",
+        "Сентябрь",
+        "Октябрь",
+        "Ноябрь",
+        "Декабрь",
+      ];
+      const app = initializeApp(firebaseConfig),
+        db = getFirestore(app),
+        auth = getAuth(app);
+      const PRODUCTION_URL = "https://pobook-design.web.app/";
+      let orders = [],
+        archivedOrders = [],
+        expenses = [],
+        editOrderDocId = null,
+        editExpenseDocId = null,
+        currentTab = "dashboard",
+        unsubOrders = null,
+        unsubExpenses = null,
+        dragDocId = null,
+        linkedOrderHandled = false;
+      let dashboardTasks = JSON.parse(
+        localStorage.getItem("pobook_dashboard_tasks") || "[]",
+      );
+      let teamTasks = JSON.parse(
+        localStorage.getItem("pobook_team_tasks") || "{}",
+      );
+      let currentProfile = { name: "", role: "Владелец · тест" },
+        tasksCloudReady = false,
+        unsubWorkspace = null;
+      const $ = (id) => document.getElementById(id);
+      const rub = (n) => Number(n || 0).toLocaleString("ru-RU") + "₽";
+      const num = (v) =>
+        typeof v === "number" && Number.isFinite(v)
+          ? v
+          : Number(
+              String(v ?? "")
+                .replace(/\s/g, "")
+                .replace(",", "."),
+            ) || 0;
+      const todayIso = () => {
+        const d = new Date();
+        return (
+          d.getFullYear() +
+          "-" +
+          String(d.getMonth() + 1).padStart(2, "0") +
+          "-" +
+          String(d.getDate()).padStart(2, "0")
+        );
+      };
+      const validDate = (v) =>
+        typeof v === "string" && /^\d{4}-\d{2}-\d{2}$/.test(v);
+      const monthKey = (d) => (validDate(d) ? d.slice(0, 7) : "");
+      const monthName = (k) =>
+        /^\d{4}-\d{2}$/.test(k)
+          ? MONTHS[Number(k.slice(5, 7)) - 1] + " " + k.slice(0, 4)
+          : "Без даты";
+      const esc = (s) =>
+        String(s ?? "").replace(
+          /[&<>"']/g,
+          (c) =>
+            ({
+              "&": "&amp;",
+              "<": "&lt;",
+              ">": "&gt;",
+              '"': "&quot;",
+              "'": "&#39;",
+            })[c],
+        );
+      function accountingDate(o) {
+        return o.orderDate || o.createdAt || o.created_at || o.date || "";
+      }
+      const normalizeSource = (value) =>
+        [
+          "ТГ Бот",
+          "Телеграм",
+          "Телеграм Бот",
+          "Телеграм бот",
+          "Telegram bot",
+          "Telegram бот",
+          "Telegram-бот",
+        ].includes(value)
+          ? "Telegram-бот"
+          : value || "Инстаграм";
+      function normalizeOrder(raw, docId) {
+        const displayId = raw.displayId || raw.number || raw.id || docId;
+        const tgRaw = raw.tg || raw.telegram || raw.username || raw.phone || "";
+        const tg =
+          tgRaw && raw.username && !String(tgRaw).startsWith("@")
+            ? "@" + tgRaw
+            : String(tgRaw || "");
+        const isBlogger = raw.cardType === "blogger";
+        const mappedStatus = isBlogger
+          ? normalizeBloggerStatus(raw.status)
+          : raw.status === "В работе у дизайнера"
+            ? "Находится у дизайнера"
+            : STATUSES.includes(raw.status)
+              ? raw.status
+              : "Лиды";
+        const inferredComm =
+          mappedStatus === "Отправлено"
+            ? "Книга отправлена"
+            : mappedStatus === "Книга готова"
+              ? "Согласование"
+              : mappedStatus === "В печати"
+                ? "Согласование"
+                : mappedStatus === "Находится у дизайнера"
+                  ? "Анкета и фото"
+                  : mappedStatus !== "Лиды"
+                    ? "Предоплата получена"
+                    : normalizeSource(
+                          raw.source ||
+                            (raw.username ? "Телеграм бот" : "Инстаграм"),
+                        ) === "Telegram-бот"
+                      ? "Новое обращение"
+                      : "Ждём ответа";
+        return {
+          _docId: docId,
+          id: displayId,
+          productionOrderId: raw.productionOrderId || docId,
+          name:
+            raw.name || raw.clientName || raw.username || raw.tg || "Без имени",
+          tg,
+          link:
+            raw.link ||
+            raw.chatLink ||
+            raw.telegramLink ||
+            (tg.startsWith("@") ? "https://t.me/" + tg.slice(1) : ""),
+          source: normalizeSource(
+            raw.source || (raw.username ? "Телеграм бот" : "Инстаграм"),
+          ),
+          owner: raw.owner || raw.responsible || raw.assignee || "",
+          orderDate:
+            raw.orderDate || raw.createdAt || raw.created_at || raw.date || "",
+          createdAt: raw.createdAt || raw.created_at || raw.orderDate || "",
+          format: raw.format || "",
+          printType: raw.printType || raw.print_type || "",
+          price: num(raw.price || raw.amount || raw.sum),
+          paid: num(raw.paid || raw.prepay || raw.prepayment),
+          printCost: num(raw.printCost || raw.print_cost),
+          deadline: raw.deadline || "",
+          city: raw.city || "",
+          status: mappedStatus,
+          health: CLIENT_HEALTH.includes(raw.health) ? raw.health : "yellow",
+          notes: raw.notes || "",
+          anketa: raw.anketa || "",
+          sdek: raw.sdek || "",
+          extraPages: Boolean(raw.extraPages),
+          prepaymentDate: raw.prepaymentDate || "",
+          fullPaymentDate: raw.fullPaymentDate || "",
+          commStatus: COMM_STATUSES.includes(raw.commStatus)
+            ? raw.commStatus
+            : inferredComm,
+          nextContact: raw.nextContact || "",
+          taskDone: Boolean(raw.taskDone),
+          taskCompletedAt: raw.taskCompletedAt || "",
+          lastMessageAt: raw.lastMessageAt || "",
+          lastMessageTemplate: raw.lastMessageTemplate || "",
+          printStarted: raw.printStarted || "",
+          printReady: raw.printReady || "",
+          deliveryCost: num(raw.deliveryCost),
+          deliveryExpected: raw.deliveryExpected || "",
+          deliveredAt: raw.deliveredAt || "",
+          giftDate: raw.giftDate || "",
+          reviewReceived: Boolean(raw.reviewReceived),
+          publication: PUBLICATION_STATUSES.includes(raw.publication)
+            ? raw.publication
+            : "Не спрашивали",
+          activity: Array.isArray(raw.activity) ? raw.activity : [],
+          archived: Boolean(raw.archived),
+          archivedAt: raw.archivedAt || "",
+          cardType: isBlogger ? "blogger" : "client",
+          workStarted: raw.workStarted || "",
+          designerStarted: raw.designerStarted || "",
+          followUpCount: num(raw.followUpCount),
+          bloggerAccount: raw.bloggerAccount || "",
+          bloggerInstagram: raw.bloggerInstagram || raw.bloggerAccount || "",
+          bloggerTelegram: raw.bloggerTelegram || "",
+          bloggerOtherSocials: raw.bloggerOtherSocials || "",
+          bloggerPublishDate: raw.bloggerPublishDate || "",
+          bloggerContentReminder: raw.bloggerContentReminder || "",
+          bloggerDeliverables: raw.bloggerDeliverables || "",
+          bloggerContentReceived: Boolean(raw.bloggerContentReceived),
+          bloggerContentReceivedDate: raw.bloggerContentReceivedDate || "",
+          bloggerResult: raw.bloggerResult || "",
+        };
+      }
+      function productionUrl(o) {
+        const p = new URLSearchParams({
+          order: o.productionOrderId || o._docId,
+          crmOrderId: o._docId,
+          orderNumber: String(o.id || o._docId),
+          create: "1",
+          recipient: o.name || "",
+          bookType: o.format || "",
+          deadline: o.deadline || "",
+          notes: o.notes || "",
+        });
+        return `${PRODUCTION_URL}?${p}`;
+      }
+      function openLinkedOrder() {
+        if (linkedOrderHandled) return;
+        const id = new URLSearchParams(location.search).get("order");
+        if (!id) return;
+        linkedOrderHandled = true;
+        const order = orders.find(
+          (o) =>
+            o._docId === id ||
+            o.productionOrderId === id ||
+            String(o.id) === id,
+        );
+        if (order) {
+          showTab("orders");
+          openOrder(order._docId);
+        }
+      }
+      function normalizeExpense(raw, docId) {
+        return {
+          _docId: docId,
+          id: raw.id || docId,
+          date: raw.date || "",
+          cat: raw.cat || raw.category || "Прочее",
+          desc: raw.desc || raw.description || "",
+          sum: num(raw.sum || raw.amount),
+        };
+      }
+      function cleanOrderForSave(o) {
+        const { _docId, ...data } = o;
+        return data;
+      }
+      function cleanExpenseForSave(e) {
+        const { _docId, ...data } = e;
+        return data;
+      }
+      const realOrders = () =>
+        orders.filter((o) => o.cardType !== "blogger" && o.status !== "Лиды");
+      const dealProfit = (o) => num(o.price) - num(o.printCost);
+      const debt = (o) => Math.max(0, num(o.price) - num(o.paid));
+      const bloggerExpenses = () =>
+        orders
+          .filter((o) => o.cardType === "blogger")
+          .reduce((s, o) => s + num(o.printCost) + num(o.deliveryCost), 0);
+      function render() {
+        renderMetrics();
+        if (currentTab === "dashboard") renderDashboard();
+        if (currentTab === "kanban") renderKanban();
+        if (currentTab === "bloggers") renderBloggers();
+        if (currentTab === "orders") renderOrders();
+        if (currentTab === "team") renderTeam();
+        if (currentTab === "expenses") renderExpenses();
+        if (currentTab === "communication") renderCommunication();
+        if (currentTab === "managerTasks") renderManagerTasks();
+        if (currentTab === "archive") renderArchive();
+        $("syncText").textContent =
+          "Рабочая база · " + orders.length + " карточек";
+      }
+      function renderMetrics() {
+        const active = realOrders(),
+          dealSum = active.reduce((s, o) => s + num(o.price), 0),
+          revenue = active.reduce((s, o) => s + num(o.paid), 0),
+          profit = active.reduce((s, o) => s + dealProfit(o), 0),
+          totalDebt = active.reduce((s, o) => s + debt(o), 0),
+          manualExpenses = expenses.reduce((s, e) => s + num(e.sum), 0),
+          blogExp = bloggerExpenses(),
+          exp = manualExpenses + blogExp,
+          leads = orders.filter(
+            (o) => o.cardType !== "blogger" && o.status === "Лиды",
+          ).length,
+          bloggers = orders.filter((o) => o.cardType === "blogger").length;
+        $("metrics").innerHTML = [
+          ["Клиенты в работе", active.length, "blue"],
+          ["Новые лиды", leads, "orange"],
+          ["Блогеры", bloggers, ""],
+          ["Сумма сделок", rub(dealSum), ""],
+          ["Выручка оплачено", rub(revenue), "green"],
+          ["Прибыль", rub(profit), "green"],
+          ["Долг клиентов", rub(totalDebt), "red"],
+          ["Расходы на блогеров", rub(blogExp), "red"],
+          ["Все траты", rub(exp), "red"],
+          ["Чистая", rub(profit - exp), profit - exp >= 0 ? "green" : "red"],
+        ]
+          .map(
+            ([l, v, c]) =>
+              `<div class="metric"><div class="label">${l}</div><div class="value ${c}">${v}</div></div>`,
+          )
+          .join("");
+      }
+      function renderDashboard() {
+        const undated = realOrders().filter(
+          (o) => !validDate(accountingDate(o)),
+        ).length;
+        $("dateNotice").hidden = undated === 0;
+        $("dateNotice").textContent = undated
+          ? `${undated} заказ(ов) без даты учета. Они не потеряны, но попали в строку "Без даты". Откройте заказ и поставьте дату оплаты.`
+          : "";
+        const byMonth = new Map();
+        for (const o of realOrders()) {
+          const key = monthKey(accountingDate(o)) || "undated";
+          if (!byMonth.has(key))
+            byMonth.set(key, {
+              count: 0,
+              deal: 0,
+              paid: 0,
+              profit: 0,
+              expenses: 0,
+            });
+          const r = byMonth.get(key);
+          r.count++;
+          r.deal += num(o.price);
+          r.paid += num(o.paid);
+          r.profit += dealProfit(o);
+        }
+        for (const e of expenses) {
+          const key = monthKey(e.date) || "undated";
+          if (!byMonth.has(key))
+            byMonth.set(key, {
+              count: 0,
+              deal: 0,
+              paid: 0,
+              profit: 0,
+              expenses: 0,
+            });
+          byMonth.get(key).expenses += num(e.sum);
+        }
+        const keys = [...byMonth.keys()].sort((a, b) =>
+          a === "undated" ? 1 : b === "undated" ? -1 : a.localeCompare(b),
+        );
+        let t = { count: 0, deal: 0, paid: 0, profit: 0, expenses: 0 };
+        $("kpiBody").innerHTML =
+          keys
+            .map((key) => {
+              const r = byMonth.get(key);
+              t.count += r.count;
+              t.deal += r.deal;
+              t.paid += r.paid;
+              t.profit += r.profit;
+              t.expenses += r.expenses;
+              return `<tr><td><b>${monthName(key)}</b></td><td>${r.count}</td><td>${rub(r.deal)}</td><td class="green">${rub(r.paid)}</td><td class="green">${rub(r.profit)}</td><td class="red">${rub(r.expenses)}</td><td>${rub(r.profit - r.expenses)}</td></tr>`;
+            })
+            .join("") +
+          `<tr><td><b>Итого</b></td><td><b>${t.count}</b></td><td><b>${rub(t.deal)}</b></td><td class="green"><b>${rub(t.paid)}</b></td><td class="green"><b>${rub(t.profit)}</b></td><td class="red"><b>${rub(t.expenses)}</b></td><td><b>${rub(t.profit - t.expenses)}</b></td></tr>`;
+        const sources = {};
+        for (const o of orders)
+          sources[o.source] = (sources[o.source] || 0) + 1;
+        $("sources").innerHTML =
+          Object.entries(sources)
+            .sort((a, b) => b[1] - a[1])
+            .map(
+              ([s, c]) =>
+                `<span class="pill" style="margin:0 6px 6px 0">${esc(s)}: ${c}</span>`,
+            )
+            .join("") || "<div class='empty'>Пока нет данных</div>";
+        renderDashboardTasks();
+      }
+      function renderKanban() {
+        $("kanban").innerHTML = STATUSES.map((st) => {
+          const list = orders
+            .filter((o) => o.cardType !== "blogger" && o.status === st)
+            .sort((a, b) =>
+              String(accountingDate(b)).localeCompare(
+                String(accountingDate(a)),
+              ),
+            );
+          return `<div class="col" data-status="${esc(st)}"><div class="col-head"><span>${esc(st)}</span><span>${list.length}</span></div>${list.map(orderCard).join("") || "<div class='empty'>Пусто</div>"}</div>`;
+        }).join("");
+        setupDrag();
+      }
+      function renderBloggers() {
+        $("bloggersKanban").innerHTML = BLOGGER_STATUSES.map((st) => {
+          const list = orders.filter(
+            (o) => o.cardType === "blogger" && o.status === st,
+          );
+          return `<div class="col" data-status="${esc(st)}"><div class="col-head"><span>${esc(st)}</span><span>${list.length}</span></div>${list.map(orderCard).join("") || "<div class='empty'>Пусто</div>"}</div>`;
+        }).join("");
+        setupDrag();
+      }
+      function daysSince(value) {
+        if (!validDate(value)) return 0;
+        return Math.max(
+          0,
+          Math.floor(
+            (new Date(todayIso() + "T12:00:00") -
+              new Date(value + "T12:00:00")) /
+              86400000,
+          ),
+        );
+      }
+      function orderCard(o) {
+        const designerDays =
+            o.status === "Находится у дизайнера"
+              ? daysSince(o.designerStarted)
+              : 0,
+          overdue = designerDays > 5,
+          showHealth = HEALTH_VISIBLE_STATUSES.includes(o.status),
+          flow = o.cardType === "blogger" ? BLOGGER_STATUSES : STATUSES,
+          socials = [
+            o.bloggerInstagram,
+            o.bloggerTelegram,
+            o.bloggerOtherSocials,
+          ]
+            .filter(Boolean)
+            .join(" · ");
+        return `<div class="card ${overdue ? "designer-overdue" : ""}" draggable="true" data-doc="${esc(o._docId)}" data-health="${overdue ? "red" : showHealth ? esc(o.health) : ""}">${o.cardType === "blogger" ? `<div class="blogger-badge">Блогер · расходы ${rub(num(o.printCost) + num(o.deliveryCost))}</div>` : ""}${overdue ? `<div class="overdue-badge">🔴 Горит · у дизайнера ${designerDays} дн.</div>` : showHealth ? `<div class="client-light ${esc(o.health)}">${esc(HEALTH_LABELS[o.health])}</div>` : ""}<div class="name">${esc(o.name)}</div><div class="small">${esc(o.tg || "без контакта")}</div>${socials ? `<div class="small">${esc(socials)}</div>` : ""}<div class="small">${esc(o.format || "формат не указан")}</div>${o.cardType === "blogger" && o.bloggerContentReminder ? `<div class="small"><b>Напомнить о контенте:</b> ${esc(o.bloggerContentReminder)}</div>` : ""}${o.owner ? `<div class="owner-chip">${esc(o.owner)}</div>` : ""}${o.printReady ? `<div class="small" style="margin-top:6px"><b>Печать до:</b> ${esc(o.printReady)}</div>` : ""}${o.link ? `<a class="small" href="${esc(o.link)}" target="_blank" rel="noopener">Открыть переписку</a>` : ""}${o.cardType !== "blogger" ? `<div class="money"><span class="green">${rub(dealProfit(o))}</span><span class="${debt(o) > 0 ? "red" : "green"}">${debt(o) > 0 ? "долг " + rub(debt(o)) : "оплачен"}</span></div>` : ""}<div class="actions"><button class="iconbtn" type="button" data-edit="${esc(o._docId)}">Изменить</button><a class="iconbtn production" href="${esc(productionUrl(o))}" target="_blank" rel="noopener">Производство</a>${flow.indexOf(o.status) < flow.length - 1 ? `<button class="iconbtn" type="button" data-next="${esc(o._docId)}">Далее</button>` : ""}</div></div>`;
+      }
+      function renderCommunication() {
+        $("communicationKanban").innerHTML = COMM_STATUSES.map((st) => {
+          const list = orders.filter(
+            (o) =>
+              o.cardType !== "blogger" &&
+              o.commStatus === st &&
+              (st !== "Новое обращение" ||
+                (o.status === "Лиды" &&
+                  o.source === "Telegram-бот" &&
+                  !o.sdek &&
+                  !o.deliveredAt)),
+          );
+          return `<div class="col" style="background:#f3efe9" data-comm="${esc(st)}"><div class="col-head"><span>${esc(st)}</span><span>${list.length}</span></div>${list.map((o) => `<div class="card" draggable="true" data-doc="${esc(o._docId)}" data-health="${esc(o.health)}"><div class="name">${esc(o.name)}</div><div class="small">${esc(o.tg || "без контакта")}</div><div class="small" style="margin-top:7px"><b>${esc(taskFor(o))}</b></div><div class="small">${esc(o.nextContact || "дата не назначена")}</div>${o.lastMessageAt ? `<div class="small">Последнее сообщение: ${esc(o.lastMessageAt.slice(0, 10))}</div>` : ""}${st === "Разрешение на публикацию" ? `<div class="small" style="margin-top:7px"><b>Статус:</b> ${esc(o.publication)}</div>` : ""}${messageFor(o) ? `<details style="margin-top:8px"><summary class="small" style="cursor:pointer;font-weight:800">Показать текст</summary><div class="small" style="white-space:pre-wrap;margin-top:7px;padding:8px;background:#fff;border-radius:7px">${esc(messageFor(o))}</div></details>` : ""}<div class="actions"><button class="iconbtn" type="button" data-edit="${esc(o._docId)}">Карточка</button>${messageFor(o) ? `<button class="iconbtn" type="button" data-copy-message="${esc(o._docId)}">Скопировать</button><button class="iconbtn" type="button" data-message-sent="${esc(o._docId)}">Сообщение отправлено ✓</button>` : ""}${telegramLinkFor(o) ? `<a class="iconbtn" href="${esc(telegramLinkFor(o))}" target="_blank" rel="noopener">Telegram</a>` : ""}</div></div>`).join("") || "<div class='empty'>Пусто</div>"}</div>`;
+        }).join("");
+        setupCommDrag();
+      }
+      function activityEntry(type, detail) {
+        return {
+          at: new Date().toISOString(),
+          type,
+          detail,
+          by: auth.currentUser?.email || "сотрудник",
+        };
+      }
+      function appendActivity(o, entry) {
+        return [...(o?.activity || []).slice(-49), entry];
+      }
+      function renderArchive() {
+        $("archiveCount").textContent = archivedOrders.length;
+        $("archiveList").innerHTML =
+          archivedOrders
+            .map(
+              (o) =>
+                `<div class="task-row"><div style="flex:1"><b>${esc(o.name)}</b><div class="small">${esc(o.tg || "без контакта")} · ${esc(o.archivedAt || "дата не указана")}</div></div><button class="iconbtn" type="button" data-restore-order="${esc(o._docId)}">Восстановить</button></div>`,
+            )
+            .join("") || "<div class='empty'>Архив пуст</div>";
+      }
+      function taskFor(o) {
+        const map = {
+          "Новое обращение": "Ответить новому лиду",
+          "Ждём ответа": "Клиент молчит 3 дня — отправить повторное сообщение",
+          "Нужно напомнить": "Отправить повторное сообщение",
+          "Формат выбран": "Отправить условия оплаты",
+          "Ждём предоплату": "Предоплата не получена 3 дня — напомнить",
+          "Предоплата получена": "Отправить анкету и инструкцию по фото",
+          "Анкета и фото": "Анкета или фото не получены 3 дня — напомнить",
+          "Макет отправлен": "Макет не просмотрен 2 дня — напомнить",
+          Согласование: "Проверить согласование",
+          "Книга отправлена": "Проверить доставку",
+          "Ждём вручения": "Уточнить, вручён ли подарок",
+          "Запросить отзыв": "Запросить отзыв",
+          "Разрешение на публикацию": "Уточнить разрешение на публикацию",
+          Завершено: "Завершено",
+          Игнор: "Без напоминаний",
+        };
+        return map[o.commStatus] || "Следующее действие";
+      }
+      function telegramLinkFor(o) {
+        if (/^https?:\/\//i.test(o.link || "")) return o.link;
+        const username = (o.tg || "").trim().replace(/^@/, "");
+        return /^[A-Za-z0-9_]{5,}$/.test(username)
+          ? "https://t.me/" + username
+          : "";
+      }
+      function messageFor(o) {
+        const price =
+          o.price ||
+          { премиальный: 11500, стандартный: 7490 }[o.printType] ||
+          7490;
+        const prepayment = Math.round(price / 2);
+        const payment =
+          "Стоимость книги — " +
+          rub(price) +
+          ".\nДля запуска в работу необходимо внести предоплату 50% — " +
+          rub(prepayment) +
+          ".\n\nОплату можно перевести по номеру телефона:\n8 (922) 768-00-62 · Т-Банк\nВероника Александровна К.\n\nПосле оплаты, пожалуйста, отправьте чек в этот чат 🤍";
+        const questionnaire =
+          o.format === "годовщина"
+            ? {
+                title: "ГОДОВЩИНА",
+                url: "https://docs.google.com/forms/d/e/1FAIpQLSdkKsDSXBdKTqlNeY25upB_kcqkms0OUxzA5yE930HIUAmzdQ/viewform?usp=header",
+                folders: "Начало отношений; Совместные поездки; Нынешнее время",
+              }
+            : o.format === "сестре/подруге на др"
+              ? {
+                  title: "ДЛЯ ПОДРУГИ/СЕСТРЫ",
+                  url: "https://docs.google.com/forms/d/1MB_kfKZr7BBF-LVM9sFkQsUGSynQ4WVL2cWPMdedghc/viewform",
+                  folders: "Семья; Друзья; Детство",
+                }
+              : {
+                  title: "ДЛЯ НЕГО",
+                  url: "https://forms.gle/jZtzE7264CuMiPw56",
+                  folders: "Семья; Друзья; Детство; Отношения",
+                };
+        const questionnaireText =
+          "Спасибо, предоплату получили 🤍\n\nОтправляю анкету — это самая важная часть будущей книги. Найдите удобное время и просто погрузитесь в воспоминания. Не нужно писать идеально: рассказывайте так, будто мы сидим за чашечкой кофе ☕️\n\n" +
+          questionnaire.title +
+          "\n" +
+          questionnaire.url +
+          "\n\nТакже создайте одну общую папку на Яндекс Диске и откройте к ней доступ. Внутри сделайте подпапки: " +
+          questionnaire.folders +
+          ". Добавьте 40–80 фотографий и распределите их по разделам 🙏🏼";
+        const map = {
+          "Новое обращение":
+            "Здравствуйте! 🤍\n\nУ нас есть два формата книг:\n• стандартный — 7 490 ₽;\n• премиальный — 11 500 ₽.\n\nНаполнение одинаковое. Премиальная книга плотнее и раскрывается на 180 градусов. Подскажите, для кого и к какой дате вы планируете подарок?",
+          "Ждём ответа":
+            o.followUpCount >= 2
+              ? "Здравствуйте! 🤍 Не буду больше отвлекать вас сообщениями. Если идея книги снова станет актуальна, просто напишите нам — мы сохраним информацию и с удовольствием продолжим."
+              : o.followUpCount === 1
+                ? "Здравствуйте! 🤍 Подскажите, пожалуйста, что сейчас больше всего останавливает: стоимость, сроки или заполнение анкеты? Я постараюсь предложить удобный вариант."
+                : "Здравствуйте! 🤍 Решила аккуратно напомнить о себе. Возможно, у вас остались вопросы по стоимости, срокам или наполнению книги. Могу показать разницу форматов и примеры разворотов. Подскажите, для кого и к какой дате нужен подарок?",
+          "Нужно напомнить":
+            "Здравствуйте! 🤍 Недавно вы интересовались книгой POBOOK. Если у вас остались вопросы по срокам, стоимости или оформлению, я с удовольствием помогу.",
+          "Формат выбран": payment,
+          "Ждём предоплату":
+            "Здравствуйте! 🤍 Подскажите, пожалуйста, получилось внести предоплату? Если появились вопросы по оплате или оформлению, я помогу.",
+          "Предоплата получена": questionnaireText,
+          "Анкета и фото":
+            "Здравствуйте! 🤍 Подскажите, пожалуйста, получилось заполнить анкету и подготовить фотографии? Если появились вопросы, я помогу.",
+          "Макет отправлен":
+            "Здравствуйте! 🤍 Получилось посмотреть макет книги? Пожалуйста, соберите все пожелания и правки в одном сообщении.",
+          Согласование:
+            "Здравствуйте! 🤍 Макет книги готов к согласованию. Пожалуйста, внимательно посмотрите его и отправьте все правки одним сообщением.",
+          "Книга отправлена":
+            "Здравствуйте! 🤍 Ваша книга отправлена." +
+            (o.sdek || "" ? "\n\nТрек-номер: " + o.sdek : "") +
+            "\n\nДоставка оплачивается отдельно. Будем следить за отправлением вместе с вами.",
+          "Ждём вручения":
+            "Здравствуйте 🤍 Подскажите, пожалуйста, получилось уже вручить книгу?",
+          "Запросить отзыв":
+            "Здравствуйте 🤍 Получилось уже подарить книгу? Очень интересно, как всё прошло и понравилась ли она получателю. Будем рады вашим впечатлениям, фото или видео и отметке нашего аккаунта в сторис.",
+          "Разрешение на публикацию":
+            "Спасибо, что поделились впечатлениями 🤍 Подскажите, пожалуйста, можем ли мы показать вашу книгу или полученные фото и видео в наших соцсетях? Без вашего разрешения ничего публиковать не будем.",
+        };
+        return map[o.commStatus] || "";
+      }
+      function renderManagerTasks() {
+        const today = todayIso(),
+          communication = orders
+            .filter(
+              (o) =>
+                o.cardType !== "blogger" &&
+                !["Завершено", "Игнор"].includes(o.commStatus) &&
+                !o.taskDone &&
+                o.nextContact &&
+                o.nextContact <= today,
+            )
+            .map((o) => ({ o, type: "communication" })),
+          designer = orders
+            .filter(
+              (o) =>
+                o.status === "Находится у дизайнера" &&
+                daysSince(o.designerStarted) > 5,
+            )
+            .map((o) => ({ o, type: "designer" })),
+          list = [...designer, ...communication];
+        $("managerTaskCount").textContent = list.length;
+        $("managerTaskList").innerHTML =
+          list
+            .map(
+              ({ o, type }) =>
+                `<div class="task-row" style="align-items:flex-start">${type === "communication" ? `<input type="checkbox" data-manager-task-toggle="${esc(o._docId)}" title="Отметить выполненной">` : `<span class="overdue-badge">!</span>`}<div style="min-width:180px;flex:1"><div class="task-text"><b>${esc(type === "designer" ? "Уточнить у дизайнера готовность макета" : taskFor(o))}</b></div><div class="small">${esc(o.name)} · ${type === "designer" ? `у дизайнера ${daysSince(o.designerStarted)} дней` : esc(o.commStatus) + " · " + esc(o.nextContact)}</div>${type === "communication" && messageFor(o) ? `<details style="margin-top:8px"><summary class="small" style="cursor:pointer;font-weight:800">Показать готовый текст</summary><div class="small" style="white-space:pre-wrap;margin-top:7px;padding:9px;background:#f7f2ec;border-radius:7px">${esc(messageFor(o))}</div></details>` : ""}</div>${type === "communication" && messageFor(o) ? `<button class="iconbtn" type="button" data-copy-message="${esc(o._docId)}">Скопировать</button><button class="iconbtn" type="button" data-message-sent="${esc(o._docId)}">Сообщение отправлено ✓</button>` : ""}${telegramLinkFor(o) ? `<a class="iconbtn" href="${esc(telegramLinkFor(o))}" target="_blank" rel="noopener">Перейти в Telegram</a>` : ""}<button class="iconbtn" type="button" data-edit="${esc(o._docId)}">Карточка</button></div>`,
+            )
+            .join("") || "<div class='empty'>На сегодня задач нет</div>";
+      }
+      function addBusinessDays(value, count = 10) {
+        if (!validDate(value)) return "";
+        const d = new Date(value + "T12:00:00");
+        let added = 0;
+        while (added < count) {
+          d.setDate(d.getDate() + 1);
+          const day = d.getDay();
+          if (day !== 0 && day !== 6) added++;
+        }
+        return (
+          d.getFullYear() +
+          "-" +
+          String(d.getMonth() + 1).padStart(2, "0") +
+          "-" +
+          String(d.getDate()).padStart(2, "0")
+        );
+      }
+      function addCalendarDays(value, count) {
+        if (!validDate(value)) return "";
+        const d = new Date(value + "T12:00:00");
+        d.setDate(d.getDate() + count);
+        return (
+          d.getFullYear() +
+          "-" +
+          String(d.getMonth() + 1).padStart(2, "0") +
+          "-" +
+          String(d.getDate()).padStart(2, "0")
+        );
+      }
+      function nextContactFor(status, o = {}) {
+        const today = todayIso();
+        if (
+          status === "Новое обращение" ||
+          status === "Нужно напомнить" ||
+          status === "Формат выбран" ||
+          status === "Предоплата получена" ||
+          status === "Разрешение на публикацию"
+        )
+          return today;
+        if (
+          status === "Ждём ответа" ||
+          status === "Ждём предоплату" ||
+          status === "Анкета и фото"
+        )
+          return addCalendarDays(today, 3);
+        if (status === "Согласование" || status === "Макет отправлен")
+          return addCalendarDays(today, 2);
+        if (status === "Книга отправлена")
+          return o.deliveryExpected || addCalendarDays(today, 3);
+        if (status === "Ждём вручения")
+          return (
+            o.giftDate ||
+            (o.deliveredAt
+              ? addCalendarDays(o.deliveredAt, 1)
+              : addCalendarDays(today, 1))
+          );
+        if (status === "Запросить отзыв")
+          return o.giftDate ? addCalendarDays(o.giftDate, 1) : today;
+        return "";
+      }
+      function suggestedNextContact(status) {
+        return nextContactFor(status, {
+          deliveryExpected: $("oDeliveryExpected").value,
+          deliveredAt: $("oDeliveredAt").value,
+          giftDate: $("oGiftDate").value,
+        });
+      }
+      async function confirmMessageSent(docId) {
+        const o = orders.find((x) => x._docId === docId);
+        if (!o) return;
+        if (
+          !confirm(
+            "Подтвердить, что сообщение клиенту уже отправлено? CRM сохранит дату и подготовит следующий этап.",
+          )
+        )
+          return;
+        let nextStatus = AUTOMATION_NEXT[o.commStatus] || o.commStatus;
+        if (
+          o.commStatus === "Разрешение на публикацию" &&
+          !["Не спрашивали", "Разрешение запрошено", "Не ответил"].includes(
+            o.publication,
+          )
+        )
+          nextStatus = "Завершено";
+        const nextContact = ["Завершено", "Игнор"].includes(nextStatus)
+          ? ""
+          : nextContactFor(nextStatus, o) || addCalendarDays(todayIso(), 1);
+        await setDoc(
+          doc(db, "orders", docId),
+          {
+            lastMessageAt: new Date().toISOString(),
+            lastMessageTemplate: o.commStatus,
+            commStatus: nextStatus,
+            nextContact,
+            followUpCount:
+              o.commStatus === "Ждём ответа"
+                ? num(o.followUpCount) + 1
+                : num(o.followUpCount),
+            taskDone: false,
+            taskCompletedAt: null,
+            activity: appendActivity(
+              o,
+              activityEntry(
+                "Сообщение клиенту",
+                "Подтверждена отправка · " +
+                  o.commStatus +
+                  (nextStatus !== o.commStatus ? " → " + nextStatus : ""),
+              ),
+            ),
+            updatedAt: serverTimestamp(),
+          },
+          { merge: true },
+        );
+      }
+      async function moveCommunication(docId, status) {
+        const o = orders.find((x) => x._docId === docId);
+        if (!o || o.commStatus === status) return;
+        await setDoc(
+          doc(db, "orders", docId),
+          {
+            commStatus: status,
+            nextContact: nextContactFor(status, o),
+            taskDone: false,
+            taskCompletedAt: null,
+            activity: appendActivity(
+              o,
+              activityEntry("Этап общения", o.commStatus + " → " + status),
+            ),
+            updatedAt: serverTimestamp(),
+          },
+          { merge: true },
+        );
+      }
+      function setupCommDrag() {
+        document
+          .querySelectorAll("#communicationKanban .card")
+          .forEach((card) => {
+            card.addEventListener("dragstart", (e) => {
+              if (e.target.closest("button,a,details"))
+                return e.preventDefault();
+              dragDocId = card.dataset.doc;
+              card.classList.add("dragging");
+              e.dataTransfer.setData("text/plain", dragDocId);
+            });
+            card.addEventListener("dragend", () => {
+              dragDocId = null;
+              card.classList.remove("dragging");
+              document
+                .querySelectorAll("#communicationKanban .col")
+                .forEach((c) => c.classList.remove("drop"));
+            });
+          });
+        document
+          .querySelectorAll("#communicationKanban .col")
+          .forEach((col) => {
+            col.addEventListener("dragover", (e) => {
+              e.preventDefault();
+              col.classList.add("drop");
+            });
+            col.addEventListener("dragleave", () =>
+              col.classList.remove("drop"),
+            );
+            col.addEventListener("drop", async (e) => {
+              e.preventDefault();
+              col.classList.remove("drop");
+              const id = e.dataTransfer.getData("text/plain") || dragDocId;
+              if (id) await moveCommunication(id, col.dataset.comm);
+            });
+          });
+      }
+      function renderOrders() {
+        fillFilterOptions();
+        const m = $("monthFilter").value,
+          st = $("statusFilter").value,
+          src = $("sourceFilter").value,
+          q = $("searchFilter").value.trim().toLowerCase();
+        const filtered = [...orders]
+          .sort((a, b) =>
+            String(accountingDate(b)).localeCompare(String(accountingDate(a))),
+          )
+          .filter((o) => {
+            const text = [o.name, o.tg, o.city, o.format, o.notes, o.owner]
+              .join(" ")
+              .toLowerCase();
+            return (
+              (!m || monthKey(accountingDate(o)) === m) &&
+              (!st || o.status === st) &&
+              (!src || o.source === src) &&
+              (!q || text.includes(q))
+            );
+          });
+        $("ordersBody").innerHTML =
+          filtered
+            .map(
+              (o) =>
+                `<tr><td>${esc(o.id)}</td><td><b>${esc(o.name)}</b><br><span class="small">${esc(o.tg)}</span>${o.link ? `<br><a class="small" href="${esc(o.link)}" target="_blank" rel="noopener">переписка</a>` : ""}</td><td>${HEALTH_VISIBLE_STATUSES.includes(o.status) ? `<span class="client-light ${esc(o.health)}">${esc(HEALTH_LABELS[o.health])}</span>` : "—"}</td><td>${esc(o.source)}</td><td>${o.owner ? `<span class="owner-chip" style="margin-top:0">${esc(o.owner)}</span>` : "—"}</td><td>${esc(accountingDate(o) || "без даты")}</td><td>${esc(o.format || "—")}</td><td>${rub(o.price)}</td><td class="green">${rub(o.paid)}</td><td class="${debt(o) > 0 ? "red" : "green"}">${debt(o) > 0 ? rub(debt(o)) : "нет"}</td><td><span class="pill ${o.status === "Лиды" ? "lead" : o.status === "Отправлено" ? "done" : ""}">${esc(o.status)}</span></td><td><button class="iconbtn" type="button" data-edit="${esc(o._docId)}">Изменить</button><br><a class="iconbtn production" style="margin-top:6px" href="${esc(productionUrl(o))}" target="_blank" rel="noopener">Производство</a></td></tr>`,
+            )
+            .join("") ||
+          "<tr><td colspan='12' class='empty'>Ничего не найдено</td></tr>";
+      }
+      async function saveWorkspaceTasks() {
+        localStorage.setItem(
+          "pobook_dashboard_tasks",
+          JSON.stringify(dashboardTasks),
+        );
+        localStorage.setItem("pobook_team_tasks", JSON.stringify(teamTasks));
+        if (!auth.currentUser) return;
+        try {
+          await setDoc(
+            doc(db, "workspace", "tasks"),
+            {
+              dashboardTasks,
+              teamTasks,
+              updatedAt: serverTimestamp(),
+              lastEditedBy: auth.currentUser.email || auth.currentUser.uid,
+            },
+            { merge: true },
+          );
+          tasksCloudReady = true;
+          if ($("teamSyncText"))
+            $("teamSyncText").textContent =
+              "Задачи сохранены в рабочей Firebase";
+        } catch (err) {
+          tasksCloudReady = false;
+          if ($("teamSyncText"))
+            $("teamSyncText").textContent =
+              "Локальный режим · нужны новые правила Firebase";
+        }
+      }
+      function saveDashboardTasks() {
+        saveWorkspaceTasks();
+      }
+      function saveTeamTasks() {
+        saveWorkspaceTasks();
+      }
+      async function connectEmployeeData(user) {
+        currentProfile = {
+          name: user.email || "Сотрудник",
+          role: user.uid === MANAGER_UID ? "Менеджер" : "Владелец",
+        };
+        try {
+          const profileSnap = await getDoc(doc(db, "profiles", user.uid));
+          if (profileSnap.exists()) {
+            const p = profileSnap.data();
+            currentProfile = {
+              name: p.name || user.email || "Сотрудник",
+              role: p.role === "manager" ? "Менеджер" : "Владелец",
+            };
+          }
+        } catch (err) {}
+        $("userRoleText").textContent =
+          (currentProfile.name ? currentProfile.name + " · " : "") +
+          currentProfile.role;
+        $("userRoleText").style.display = "";
+        document.body.dataset.userRole =
+          currentProfile.role === "Менеджер" ? "manager" : "owner";
+        if ($("deleteExpenseBtn"))
+          $("deleteExpenseBtn").style.display =
+            currentProfile.role === "Менеджер" ? "none" : "";
+        if (unsubWorkspace) unsubWorkspace();
+        unsubWorkspace = onSnapshot(
+          doc(db, "workspace", "tasks"),
+          (snap) => {
+            if (snap.exists()) {
+              const data = snap.data();
+              dashboardTasks = Array.isArray(data.dashboardTasks)
+                ? data.dashboardTasks
+                : [];
+              teamTasks =
+                data.teamTasks && typeof data.teamTasks === "object"
+                  ? data.teamTasks
+                  : {};
+              localStorage.setItem(
+                "pobook_dashboard_tasks",
+                JSON.stringify(dashboardTasks),
+              );
+              localStorage.setItem(
+                "pobook_team_tasks",
+                JSON.stringify(teamTasks),
+              );
+              tasksCloudReady = true;
+              if ($("teamSyncText"))
+                $("teamSyncText").textContent =
+                  "Задачи синхронизированы · рабочая Firebase";
+              renderDashboardTasks();
+              if (currentTab === "team") renderTeam();
+            } else saveWorkspaceTasks();
+          },
+          () => {
+            tasksCloudReady = false;
+            if ($("teamSyncText"))
+              $("teamSyncText").textContent =
+                "Локальный режим · нужны новые правила Firebase";
+          },
+        );
+      }
+      function taskRow(task, index, scope, owner = "") {
+        return `<div class="task-row"><input type="checkbox" ${task.done ? "checked" : ""} data-task-toggle="${scope}" data-owner="${esc(owner)}" data-index="${index}"><div class="task-text ${task.done ? "done" : ""}">${esc(task.text)}</div><button class="iconbtn" type="button" data-task-delete="${scope}" data-owner="${esc(owner)}" data-index="${index}">Удалить</button></div>`;
+      }
+      function renderDashboardTasks() {
+        $("dashboardTasks").innerHTML = dashboardTasks.length
+          ? dashboardTasks.map((t, i) => taskRow(t, i, "dashboard")).join("")
+          : "<div class='empty'>Задач пока нет</div>";
+      }
+      function addDashboardTask() {
+        const input = $("dashboardTaskInput"),
+          text = input.value.trim();
+        if (!text) return;
+        dashboardTasks.push({ text, done: false });
+        input.value = "";
+        saveDashboardTasks();
+        renderDashboardTasks();
+      }
+      function ownerTasks(owner) {
+        if (!Array.isArray(teamTasks[owner])) teamTasks[owner] = [];
+        return teamTasks[owner];
+      }
+      function renderTeam() {
+        $("teamGrid").innerHTML = OWNERS.map((owner) => {
+          const assigned = orders.filter(
+              (o) => o.owner === owner && o.status !== "Отправлено",
+            ),
+            tasks = ownerTasks(owner);
+          return `<div class="person"><h3>${esc(owner)}</h3><div class="person-count">${assigned.length} заказ(ов) сейчас у этого человека</div><div class="person-orders">${
+            assigned
+              .slice(0, 5)
+              .map(
+                (o) =>
+                  `<div class="mini-order"><b>${esc(o.name)}</b><br><span class="small">${esc(o.status)} · ${esc(o.format || "формат не указан")}</span></div>`,
+              )
+              .join("") || "<div class='empty'>Заказов нет</div>"
+          }</div><div class="section-title"><h2 style="font-size:13px">Задачи</h2></div><div>${tasks.length ? tasks.map((t, i) => taskRow(t, i, "team", owner)).join("") : "<div class='empty'>Задач пока нет</div>"}</div><div class="task-form"><input placeholder="Задача для сотрудника" data-team-task-input="${esc(owner)}"><button class="btn primary" type="button" data-team-task-add="${esc(owner)}">Добавить</button></div></div>`;
+        }).join("");
+      }
+      function renderExpenses() {
+        const bloggerRows = orders
+            .filter((o) => o.cardType === "blogger")
+            .flatMap((o) => [
+              {
+                _docId: "",
+                date: o.printStarted || o.orderDate || "",
+                cat: "Печать блогеров",
+                desc: "Печать книги для " + o.name,
+                sum: o.printCost,
+                virtual: true,
+              },
+              {
+                _docId: "",
+                date: o.deliveredAt || o.orderDate || "",
+                cat: "Доставка блогерам",
+                desc: "Доставка книги для " + o.name,
+                sum: o.deliveryCost,
+                virtual: true,
+              },
+            ])
+            .filter((e) => num(e.sum) > 0),
+          all = [...expenses, ...bloggerRows],
+          totals = {};
+        for (const c of [
+          ...EXPENSE_CATS,
+          "Печать блогеров",
+          "Доставка блогерам",
+        ])
+          totals[c] = 0;
+        for (const e of expenses)
+          totals[e.cat] = (totals[e.cat] || 0) + num(e.sum);
+        for (const e of bloggerRows)
+          totals[e.cat] = (totals[e.cat] || 0) + num(e.sum);
+        totals["Все расходы на блогеров"] = bloggerRows.reduce(
+          (s, e) => s + num(e.sum),
+          0,
+        );
+        $("expenseMetrics").innerHTML = Object.entries(totals)
+          .map(
+            ([c, s]) =>
+              `<div class="metric"><div class="label">${esc(c)}</div><div class="value red">${rub(s)}</div></div>`,
+          )
+          .join("");
+        $("expensesBody").innerHTML =
+          all
+            .sort((a, b) => String(b.date).localeCompare(String(a.date)))
+            .map(
+              (e) =>
+                `<tr><td>${esc(e.date || "без даты")}</td><td>${esc(e.cat)}</td><td>${esc(e.desc)}</td><td class="red"><b>${rub(e.sum)}</b></td><td>${e.virtual ? '<span class="pill">автоматически</span>' : `<button class="iconbtn" type="button" data-edit-expense="${esc(e._docId)}">Изменить</button>`}</td></tr>`,
+            )
+            .join("") ||
+          "<tr><td colspan='5' class='empty'>Трат пока нет</td></tr>";
+      }
+      function fillSelect(el, values) {
+        el.innerHTML = values
+          .map((v) => `<option value="${esc(v)}">${v ? esc(v) : "—"}</option>`)
+          .join("");
+      }
+      function fillFilterOptions() {
+        const oldM = $("monthFilter").value,
+          oldS = $("statusFilter").value,
+          oldSrc = $("sourceFilter").value;
+        const months = [
+          ...new Set(
+            orders.map((o) => monthKey(accountingDate(o))).filter(Boolean),
+          ),
+        ].sort();
+        $("monthFilter").innerHTML =
+          `<option value="">Все месяцы</option>` +
+          months
+            .map((m) => `<option value="${m}">${monthName(m)}</option>`)
+            .join("");
+        $("statusFilter").innerHTML =
+          `<option value="">Все статусы</option>` +
+          STATUSES.map(
+            (s) => `<option value="${esc(s)}">${esc(s)}</option>`,
+          ).join("");
+        const sources = [
+          ...new Set([
+            ...SOURCES,
+            ...orders.map((o) => o.source).filter(Boolean),
+          ]),
+        ];
+        $("sourceFilter").innerHTML =
+          `<option value="">Все источники</option>` +
+          sources
+            .map((s) => `<option value="${esc(s)}">${esc(s)}</option>`)
+            .join("");
+        $("monthFilter").value = oldM;
+        $("statusFilter").value = oldS;
+        $("sourceFilter").value = oldSrc;
+      }
+      function showTab(tab) {
+        currentTab = tab;
+        for (const id of [
+          "dashboard",
+          "kanban",
+          "bloggers",
+          "communication",
+          "managerTasks",
+          "orders",
+          "archive",
+          "team",
+          "expenses",
+        ])
+          $(id + "Tab").hidden = id !== tab;
+        document
+          .querySelectorAll(".tab")
+          .forEach((b) => b.classList.toggle("active", b.dataset.tab === tab));
+        render();
+      }
+      function ensureSelectValue(id, value, fallback) {
+        const el = $(id);
+        el.value = value || fallback || "";
+        if (value && el.value !== value) {
+          const op = document.createElement("option");
+          op.value = value;
+          op.textContent = value;
+          el.appendChild(op);
+          el.value = value;
+        }
+      }
+      function updateStatusOptions(selected) {
+        const isBlogger = $("oCardType").value === "blogger",
+          values = isBlogger ? BLOGGER_STATUSES : STATUSES;
+        fillSelect($("oStatus"), values);
+        ensureSelectValue(
+          "oStatus",
+          selected,
+          isBlogger ? "Новый блогер" : "Лиды",
+        );
+      }
+      function openOrder(docId) {
+        editOrderDocId = docId;
+        const o = docId ? orders.find((x) => x._docId === docId) : null;
+        $("orderTitle").textContent = o
+          ? "Редактировать карточку"
+          : "Новая карточка";
+        $("deleteOrderBtn").style.display = o ? "" : "none";
+        $("productionOrderBtn").hidden = !o;
+        if (o) $("productionOrderBtn").href = productionUrl(o);
+        $("oCardType").value = o?.cardType || "client";
+        $("oName").value = o?.name || "";
+        $("oTg").value = o?.tg || "";
+        $("oLink").value = o?.link || "";
+        ensureSelectValue("oSource", o?.source, "Инстаграм");
+        $("oDate").value = validDate(o?.orderDate) ? o.orderDate : todayIso();
+        ensureSelectValue("oOwner", o?.owner, "");
+        updateStatusOptions(o?.status);
+        ensureSelectValue("oHealth", o?.health, "yellow");
+        ensureSelectValue("oFormat", o?.format, "годовщина");
+        ensureSelectValue("oPrintType", o?.printType, "стандартный");
+        $("oPrice").value = o?.price || "";
+        $("oPaid").value = o?.paid || "";
+        $("oPrintCost").value = o?.printCost || "";
+        $("oDeadline").value = validDate(o?.deadline) ? o.deadline : "";
+        $("oCity").value = o?.city || "";
+        $("oNotes").value = o?.notes || "";
+        $("oExtraPages").value = String(Boolean(o?.extraPages));
+        $("oPrepaymentDate").value = validDate(o?.prepaymentDate)
+          ? o.prepaymentDate
+          : "";
+        $("oFullPaymentDate").value = validDate(o?.fullPaymentDate)
+          ? o.fullPaymentDate
+          : "";
+        ensureSelectValue("oCommStatus", o?.commStatus, "Новое обращение");
+        $("oNextContact").value = validDate(o?.nextContact)
+          ? o.nextContact
+          : "";
+        $("oWorkStarted").value = validDate(o?.workStarted)
+          ? o.workStarted
+          : "";
+        $("oDesignerStarted").value = validDate(o?.designerStarted)
+          ? o.designerStarted
+          : "";
+        $("oBloggerInstagram").value = o?.bloggerInstagram || "";
+        $("oBloggerTelegram").value = o?.bloggerTelegram || "";
+        $("oBloggerOtherSocials").value = o?.bloggerOtherSocials || "";
+        $("oBloggerPublishDate").value = validDate(o?.bloggerPublishDate)
+          ? o.bloggerPublishDate
+          : "";
+        $("oBloggerContentReminder").value = validDate(
+          o?.bloggerContentReminder,
+        )
+          ? o.bloggerContentReminder
+          : "";
+        $("oBloggerDeliverables").value = o?.bloggerDeliverables || "";
+        $("oBloggerContentReceived").value = String(
+          Boolean(o?.bloggerContentReceived),
+        );
+        $("oBloggerContentReceivedDate").value = validDate(
+          o?.bloggerContentReceivedDate,
+        )
+          ? o.bloggerContentReceivedDate
+          : "";
+        $("oBloggerResult").value = o?.bloggerResult || "";
+        $("oPrintStarted").value = validDate(o?.printStarted)
+          ? o.printStarted
+          : "";
+        $("oPrintReady").value = validDate(o?.printReady) ? o.printReady : "";
+        $("oSdek").value = o?.sdek || "";
+        $("oDeliveryCost").value = o?.deliveryCost || "";
+        $("oDeliveryExpected").value = validDate(o?.deliveryExpected)
+          ? o.deliveryExpected
+          : "";
+        $("oDeliveredAt").value = validDate(o?.deliveredAt)
+          ? o.deliveredAt
+          : "";
+        $("oGiftDate").value = validDate(o?.giftDate) ? o.giftDate : "";
+        $("oReviewReceived").value = String(Boolean(o?.reviewReceived));
+        ensureSelectValue("oPublication", o?.publication, "Не спрашивали");
+        toggleBloggerFields();
+        $("oActivity").innerHTML = o?.activity?.length
+          ? o.activity
+              .slice()
+              .reverse()
+              .map(
+                (a) =>
+                  `<div><b>${esc(a.type || "Изменение")}</b> · ${esc((a.at || "").slice(0, 16).replace("T", " "))}<br>${esc(a.detail || "")} <span style="opacity:.65">${esc(a.by || "")}</span></div>`,
+              )
+              .join("<hr style='border:0;border-top:1px solid #e6d9cf'>")
+          : "История появится после сохранения";
+        $("orderModal").classList.add("open");
+      }
+      async function saveOrder() {
+        const name = $("oName").value.trim();
+        if (!name) return alert("Введите имя");
+        $("saveOrderBtn").disabled = true;
+        try {
+          const base = editOrderDocId
+              ? orders.find((o) => o._docId === editOrderDocId)
+              : null,
+            ref = editOrderDocId
+              ? doc(db, "orders", editOrderDocId)
+              : doc(collection(db, "orders"));
+          const data = {
+            ...(base ? cleanOrderForSave(base) : {}),
+            id: base?.id || ref.id,
+            productionOrderId: base?.productionOrderId || ref.id,
+            cardType: $("oCardType").value,
+            name,
+            tg: $("oTg").value.trim(),
+            link: $("oLink").value.trim(),
+            source: $("oSource").value,
+            owner: $("oStatus").value === "В печати" ? "" : $("oOwner").value,
+            orderDate: $("oDate").value,
+            createdAt: base?.createdAt || $("oDate").value || todayIso(),
+            format: $("oFormat").value,
+            printType: $("oPrintType").value,
+            price:
+              $("oCardType").value === "blogger" ? 0 : num($("oPrice").value),
+            paid:
+              $("oCardType").value === "blogger" ? 0 : num($("oPaid").value),
+            printCost: num($("oPrintCost").value),
+            deadline: $("oDeadline").value,
+            city: $("oCity").value.trim(),
+            status: $("oStatus").value,
+            health: $("oHealth").value,
+            notes: $("oNotes").value.trim(),
+            workStarted: $("oWorkStarted").value,
+            designerStarted: $("oDesignerStarted").value,
+            bloggerAccount: $("oBloggerInstagram").value.trim(),
+            bloggerInstagram: $("oBloggerInstagram").value.trim(),
+            bloggerTelegram: $("oBloggerTelegram").value.trim(),
+            bloggerOtherSocials: $("oBloggerOtherSocials").value.trim(),
+            bloggerPublishDate: $("oBloggerPublishDate").value,
+            bloggerContentReminder: $("oBloggerContentReminder").value,
+            bloggerDeliverables: $("oBloggerDeliverables").value.trim(),
+            bloggerContentReceived:
+              $("oBloggerContentReceived").value === "true",
+            bloggerContentReceivedDate: $(
+              "oBloggerContentReceivedDate",
+            ).value,
+            bloggerResult: $("oBloggerResult").value.trim(),
+            followUpCount: base?.followUpCount || 0,
+            extraPages: $("oExtraPages").value === "true",
+            prepaymentDate: $("oPrepaymentDate").value,
+            fullPaymentDate: $("oFullPaymentDate").value,
+            commStatus: $("oCommStatus").value,
+            nextContact: $("oNextContact").value,
+            taskDone:
+              base &&
+              base.commStatus === $("oCommStatus").value &&
+              base.nextContact === $("oNextContact").value
+                ? Boolean(base.taskDone)
+                : false,
+            taskCompletedAt:
+              base &&
+              base.commStatus === $("oCommStatus").value &&
+              base.nextContact === $("oNextContact").value
+                ? base.taskCompletedAt || ""
+                : null,
+            printStarted: $("oPrintStarted").value,
+            printReady: $("oPrintReady").value,
+            sdek: $("oSdek").value.trim(),
+            deliveryCost: num($("oDeliveryCost").value),
+            deliveryExpected: $("oDeliveryExpected").value,
+            deliveredAt: $("oDeliveredAt").value,
+            giftDate: $("oGiftDate").value,
+            reviewReceived: $("oReviewReceived").value === "true",
+            publication: $("oPublication").value,
+            activity: appendActivity(
+              base,
+              activityEntry(
+                base ? "Карточка обновлена" : "Карточка создана",
+                base ? "Сохранены изменения" : "Создана новая карточка",
+              ),
+            ),
+            archived: false,
+            updatedAt: serverTimestamp(),
+          };
+          await setDoc(ref, data, { merge: true });
+          closeOrder();
+        } catch (err) {
+          alert("Ошибка сохранения: " + err.message);
+        } finally {
+          $("saveOrderBtn").disabled = false;
+        }
+      }
+      async function removeOrder() {
+        if (
+          !editOrderDocId ||
+          !confirm("Переместить карточку в архив? Её можно будет восстановить.")
+        )
+          return;
+        const o = orders.find((x) => x._docId === editOrderDocId);
+        await setDoc(
+          doc(db, "orders", editOrderDocId),
+          {
+            archived: true,
+            archivedAt: new Date().toISOString(),
+            activity: appendActivity(
+              o,
+              activityEntry("Архив", "Карточка перемещена в архив"),
+            ),
+            updatedAt: serverTimestamp(),
+          },
+          { merge: true },
+        );
+        closeOrder();
+      }
+      function closeOrder() {
+        $("orderModal").classList.remove("open");
+        editOrderDocId = null;
+      }
+      function openExpense(docId) {
+        editExpenseDocId = docId;
+        const e = docId ? expenses.find((x) => x._docId === docId) : null;
+        $("expenseTitle").textContent = e
+          ? "Редактировать трату"
+          : "Новая трата";
+        $("deleteExpenseBtn").style.display = e ? "" : "none";
+        $("eDate").value = validDate(e?.date) ? e.date : todayIso();
+        ensureSelectValue("eCat", e?.cat, "Упаковка");
+        $("eDesc").value = e?.desc || "";
+        $("eSum").value = e?.sum || "";
+        $("expenseModal").classList.add("open");
+      }
+      async function saveExpense() {
+        const sum = num($("eSum").value);
+        if (!sum) return alert("Введите сумму");
+        const base = editExpenseDocId
+            ? expenses.find((e) => e._docId === editExpenseDocId)
+            : null,
+          ref = editExpenseDocId
+            ? doc(db, "expenses", editExpenseDocId)
+            : doc(collection(db, "expenses"));
+        await setDoc(
+          ref,
+          {
+            ...(base ? cleanExpenseForSave(base) : {}),
+            id: base?.id || ref.id,
+            date: $("eDate").value,
+            cat: $("eCat").value,
+            desc: $("eDesc").value.trim(),
+            sum,
+            updatedAt: serverTimestamp(),
+          },
+          { merge: true },
+        );
+        closeExpense();
+      }
+      async function removeExpense() {
+        if (!editExpenseDocId || !confirm("Удалить трату?")) return;
+        await deleteDoc(doc(db, "expenses", editExpenseDocId));
+        closeExpense();
+      }
+      function closeExpense() {
+        $("expenseModal").classList.remove("open");
+        editExpenseDocId = null;
+      }
+      async function moveTo(docId, status) {
+        const o = orders.find((x) => x._docId === docId);
+        if (!o) return;
+        const previous = o.status,
+          updates = {
+            status,
+            activity: appendActivity(
+              o,
+              activityEntry(
+                "Этап производства",
+                previous +
+                  " → " +
+                  status +
+                  (status === "В печати"
+                    ? ". Ответственный дизайнер снят автоматически"
+                    : ""),
+              ),
+            ),
+            updatedAt: serverTimestamp(),
+          };
+        if (status === "Поступило в работу" && !o.workStarted)
+          updates.workStarted = todayIso();
+        if (status === "Находится у дизайнера" && !o.designerStarted)
+          updates.designerStarted = todayIso();
+        if (status === "В печати" && !o.printStarted) {
+          updates.printStarted = todayIso();
+          updates.printReady = addBusinessDays(updates.printStarted, 10);
+        }
+        if (status === "В печати") {
+          updates.owner = "";
+        }
+        if (status === "Отправлено") {
+          updates.commStatus = "Книга отправлена";
+          updates.nextContact = todayIso();
+          updates.taskDone = false;
+          updates.taskCompletedAt = null;
+        }
+        o.status = status;
+        await setDoc(doc(db, "orders", docId), updates, { merge: true });
+      }
+      async function moveNext(docId) {
+        const o = orders.find((x) => x._docId === docId);
+        if (!o) return;
+        const flow = o.cardType === "blogger" ? BLOGGER_STATUSES : STATUSES;
+        const i = flow.indexOf(o.status);
+        if (i >= 0 && i < flow.length - 1)
+          await moveTo(docId, flow[i + 1]);
+      }
+      function setupDrag() {
+        document.querySelectorAll(".card").forEach((card) => {
+          card.addEventListener("dragstart", (e) => {
+            if (e.target.closest("button,a")) return e.preventDefault();
+            dragDocId = card.dataset.doc;
+            card.classList.add("dragging");
+            e.dataTransfer.setData("text/plain", dragDocId);
+          });
+          card.addEventListener("dragend", () => {
+            dragDocId = null;
+            card.classList.remove("dragging");
+            document
+              .querySelectorAll(".col")
+              .forEach((c) => c.classList.remove("drop"));
+          });
+        });
+        document.querySelectorAll(".col").forEach((col) => {
+          col.addEventListener("dragover", (e) => {
+            e.preventDefault();
+            col.classList.add("drop");
+          });
+          col.addEventListener("dragleave", (e) => {
+            if (!col.contains(e.relatedTarget)) col.classList.remove("drop");
+          });
+          col.addEventListener("drop", async (e) => {
+            e.preventDefault();
+            col.classList.remove("drop");
+            const docId = e.dataTransfer.getData("text/plain") || dragDocId;
+            if (docId) await moveTo(docId, col.dataset.status);
+          });
+        });
+      }
+      async function loadData() {
+        $("syncText").textContent = "Загрузка рабочей базы...";
+        const [orderSnap, expenseSnap] = await Promise.all([
+          getDocs(collection(db, "orders")),
+          getDocs(collection(db, "expenses")),
+        ]);
+        {
+          const all = orderSnap.docs.map((d) => normalizeOrder(d.data(), d.id));
+          orders = all.filter((o) => !o.archived);
+          archivedOrders = all.filter((o) => o.archived);
+        }
+        expenses = expenseSnap.docs.map((d) =>
+          normalizeExpense(d.data(), d.id),
+        );
+        if (unsubOrders) unsubOrders();
+        if (unsubExpenses) unsubExpenses();
+        unsubOrders = onSnapshot(
+          collection(db, "orders"),
+          (snap) => {
+            const all = snap.docs.map((d) => normalizeOrder(d.data(), d.id));
+            orders = all.filter((o) => !o.archived);
+            archivedOrders = all.filter((o) => o.archived);
+            render();
+            openLinkedOrder();
+          },
+          (err) =>
+            ($("syncText").textContent = "Ошибка рабочей базы: " + err.message),
+        );
+        unsubExpenses = onSnapshot(collection(db, "expenses"), (snap) => {
+          expenses = snap.docs.map((d) => normalizeExpense(d.data(), d.id));
+          render();
+        });
+        render();
+        openLinkedOrder();
+      }
+      function toggleBloggerFields() {
+        const isBlogger = $("oCardType").value === "blogger",
+          current = $("oStatus").value;
+        document
+          .querySelectorAll(".blogger-only")
+          .forEach((el) => (el.hidden = !isBlogger));
+        if (isBlogger) {
+          $("oPrice").value = 0;
+          $("oPaid").value = 0;
+          updateStatusOptions(
+            BLOGGER_STATUSES.includes(current) ? current : "Новый блогер",
+          );
+        } else
+          updateStatusOptions(STATUSES.includes(current) ? current : "Лиды");
+      }
+      document
+        .querySelectorAll(".tab")
+        .forEach((b) =>
+          b.addEventListener("click", () => showTab(b.dataset.tab)),
+        );
+      $("reloadBtn").addEventListener("click", loadData);
+      $("newOrderBtn").addEventListener("click", () => openOrder(null));
+      $("newExpenseBtn").addEventListener("click", () => openExpense(null));
+      $("saveOrderBtn").addEventListener("click", saveOrder);
+      $("deleteOrderBtn").addEventListener("click", removeOrder);
+      $("closeOrderBtn").addEventListener("click", closeOrder);
+      $("cancelOrderBtn").addEventListener("click", closeOrder);
+      $("saveExpenseBtn").addEventListener("click", saveExpense);
+      $("deleteExpenseBtn").addEventListener("click", removeExpense);
+      $("closeExpenseBtn").addEventListener("click", closeExpense);
+      $("cancelExpenseBtn").addEventListener("click", closeExpense);
+      $("orderModal").addEventListener("click", (e) => {
+        if (e.target === $("orderModal")) closeOrder();
+      });
+      $("expenseModal").addEventListener("click", (e) => {
+        if (e.target === $("expenseModal")) closeExpense();
+      });
+      $("oExtraPages").addEventListener("change", (e) => {
+        $("oPrice").value = Math.max(
+          0,
+          num($("oPrice").value) + (e.target.value === "true" ? 1000 : -1000),
+        );
+      });
+      $("oCardType").addEventListener("change", toggleBloggerFields);
+      $("oBloggerContentReceived").addEventListener("change", (e) => {
+        if (e.target.value === "true") {
+          if (!$("oBloggerContentReceivedDate").value)
+            $("oBloggerContentReceivedDate").value = todayIso();
+          $("oStatus").value = "Контент получен";
+        } else if ($("oStatus").value === "Контент получен") {
+          $("oStatus").value = "Ждём контент";
+        }
+      });
+      $("oStatus").addEventListener("change", (e) => {
+        if (e.target.value === "Поступило в работу" && !$("oWorkStarted").value)
+          $("oWorkStarted").value = todayIso();
+        if (
+          e.target.value === "Находится у дизайнера" &&
+          !$("oDesignerStarted").value
+        )
+          $("oDesignerStarted").value = todayIso();
+        if (e.target.value === "В печати" && !$("oPrintStarted").value) {
+          $("oPrintStarted").value = todayIso();
+          $("oPrintReady").value = addBusinessDays(
+            $("oPrintStarted").value,
+            10,
+          );
+        }
+        if (e.target.value === "В печати") $("oOwner").value = "";
+        if (e.target.value === "Отправлено") {
+          $("oCommStatus").value = "Книга отправлена";
+          $("oNextContact").value = todayIso();
+        }
+      });
+      $("oCommStatus").addEventListener("change", (e) => {
+        $("oNextContact").value = suggestedNextContact(e.target.value);
+      });
+      $("oPrintStarted").addEventListener("change", (e) => {
+        $("oPrintReady").value = addBusinessDays(e.target.value, 10);
+        if ($("oStatus").value === "В печати")
+          $("oNextContact").value = $("oPrintReady").value;
+      });
+      $("oDeliveryExpected").addEventListener("change", (e) => {
+        if ($("oCommStatus").value === "Книга отправлена")
+          $("oNextContact").value = e.target.value;
+      });
+      $("oDeliveredAt").addEventListener("change", (e) => {
+        if ($("oCommStatus").value === "Ждём вручения" && !$("oGiftDate").value)
+          $("oNextContact").value = addCalendarDays(e.target.value, 1);
+      });
+      $("oGiftDate").addEventListener("change", (e) => {
+        if (
+          ["Ждём вручения", "Запросить отзыв"].includes($("oCommStatus").value)
+        )
+          $("oNextContact").value = addCalendarDays(e.target.value, 1);
+      });
+      for (const id of [
+        "monthFilter",
+        "statusFilter",
+        "sourceFilter",
+        "searchFilter",
+      ])
+        $(id).addEventListener("input", renderOrders);
+      $("addDashboardTaskBtn").addEventListener("click", addDashboardTask);
+      $("dashboardTaskInput").addEventListener("keydown", (e) => {
+        if (e.key === "Enter") addDashboardTask();
+      });
+      document.body.addEventListener("click", (e) => {
+        const edit = e.target.closest("[data-edit]"),
+          next = e.target.closest("[data-next]"),
+          editExpense = e.target.closest("[data-edit-expense]"),
+          taskDelete = e.target.closest("[data-task-delete]"),
+          teamAdd = e.target.closest("[data-team-task-add]");
+        if (edit) openOrder(edit.dataset.edit);
+        if (next) moveNext(next.dataset.next);
+        if (editExpense) openExpense(editExpense.dataset.editExpense);
+        if (taskDelete) {
+          const i = Number(taskDelete.dataset.index);
+          if (taskDelete.dataset.taskDelete === "dashboard") {
+            dashboardTasks.splice(i, 1);
+            saveDashboardTasks();
+            renderDashboardTasks();
+          } else {
+            ownerTasks(taskDelete.dataset.owner).splice(i, 1);
+            saveTeamTasks();
+            renderTeam();
+          }
+        }
+        if (teamAdd) {
+          const owner = teamAdd.dataset.teamTaskAdd,
+            input = [
+              ...document.querySelectorAll("[data-team-task-input]"),
+            ].find((el) => el.dataset.teamTaskInput === owner),
+            text = input?.value.trim();
+          if (!text) return;
+          ownerTasks(owner).push({ text, done: false });
+          input.value = "";
+          saveTeamTasks();
+          renderTeam();
+        }
+      });
+      document.body.addEventListener("change", (e) => {
+        const t = e.target.closest("[data-task-toggle]");
+        if (!t) return;
+        const i = Number(t.dataset.index);
+        if (t.dataset.taskToggle === "dashboard") {
+          if (dashboardTasks[i]) dashboardTasks[i].done = t.checked;
+          saveDashboardTasks();
+          renderDashboardTasks();
+        } else {
+          const tasks = ownerTasks(t.dataset.owner);
+          if (tasks[i]) tasks[i].done = t.checked;
+          saveTeamTasks();
+          renderTeam();
+        }
+      });
+      fillSelect($("oSource"), SOURCES);
+      fillSelect($("oCommStatus"), COMM_STATUSES);
+      fillSelect($("oPublication"), PUBLICATION_STATUSES);
+      fillSelect($("oOwner"), ["", ...OWNERS]);
+      fillSelect($("oStatus"), STATUSES);
+      fillSelect($("oFormat"), BOOK_FORMATS);
+      fillSelect($("oPrintType"), PRINT_FORMATS);
+      fillSelect($("eCat"), EXPENSE_CATS);
+      document.body.addEventListener("click", async (e) => {
+        const restore = e.target.closest("[data-restore-order]");
+        if (restore) {
+          const o = archivedOrders.find(
+            (x) => x._docId === restore.dataset.restoreOrder,
+          );
+          restore.disabled = true;
+          try {
+            await setDoc(
+              doc(db, "orders", restore.dataset.restoreOrder),
+              {
+                archived: false,
+                archivedAt: null,
+                activity: appendActivity(
+                  o,
+                  activityEntry(
+                    "Восстановление",
+                    "Карточка восстановлена из архива",
+                  ),
+                ),
+                updatedAt: serverTimestamp(),
+              },
+              { merge: true },
+            );
+          } catch (err) {
+            restore.disabled = false;
+            alert("Не удалось восстановить карточку: " + err.message);
+          }
+          return;
+        }
+        const sent = e.target.closest("[data-message-sent]");
+        if (sent) {
+          sent.disabled = true;
+          try {
+            await confirmMessageSent(sent.dataset.messageSent);
+          } catch (err) {
+            alert("Не удалось сохранить отправку: " + err.message);
+          } finally {
+            sent.disabled = false;
+          }
+          return;
+        }
+        const copy = e.target.closest("[data-copy-message]");
+        if (!copy) return;
+        const order = orders.find((o) => o._docId === copy.dataset.copyMessage),
+          text = order ? messageFor(order) : "";
+        if (!text) return;
+        try {
+          await navigator.clipboard.writeText(text);
+          const old = copy.textContent;
+          copy.textContent = "Скопировано ✓";
+          setTimeout(() => (copy.textContent = old), 1600);
+        } catch (err) {
+          alert(
+            "Не удалось скопировать сообщение. Откройте карточку и попробуйте ещё раз.",
+          );
+        }
+      });
+      document.body.addEventListener("change", async (e) => {
+        const toggle = e.target.closest("[data-manager-task-toggle]");
+        if (!toggle) return;
+        toggle.disabled = true;
+        try {
+          const o = orders.find(
+            (x) => x._docId === toggle.dataset.managerTaskToggle,
+          );
+          await setDoc(
+            doc(db, "orders", toggle.dataset.managerTaskToggle),
+            {
+              taskDone: toggle.checked,
+              taskCompletedAt: toggle.checked ? serverTimestamp() : null,
+              activity: appendActivity(
+                o,
+                activityEntry(
+                  "Задача менеджера",
+                  toggle.checked
+                    ? "Отмечена выполненной"
+                    : "Возвращена в работу",
+                ),
+              ),
+              updatedAt: serverTimestamp(),
+            },
+            { merge: true },
+          );
+        } catch (err) {
+          toggle.checked = !toggle.checked;
+          toggle.disabled = false;
+          alert("Не удалось сохранить выполнение задачи: " + err.message);
+        }
+      });
+      $("loginForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        $("loginError").textContent = "";
+        try {
+          await signInWithEmailAndPassword(
+            auth,
+            $("loginEmail").value.trim(),
+            $("loginPassword").value,
+          );
+        } catch (err) {
+          $("loginError").textContent =
+            "Не удалось войти. Проверьте email и пароль.";
+        }
+      });
+      $("logoutBtn").addEventListener("click", () => signOut(auth));
+      onAuthStateChanged(auth, async (user) => {
+        $("loginGate").style.display = user ? "none" : "flex";
+        $("logoutBtn").style.display = user ? "" : "none";
+        if (user) {
+          $("syncText").textContent = "Рабочая Firebase";
+          await connectEmployeeData(user);
+          try {
+            await loadData();
+          } catch (err) {
+            $("syncText").textContent = "Нет доступа к рабочей базе";
+            $("loginError").textContent = err.message;
+          }
+        } else {
+          if (unsubWorkspace) {
+            unsubWorkspace();
+            unsubWorkspace = null;
+          }
+          $("userRoleText").style.display = "none";
+          $("syncText").textContent = "Ожидание входа";
+          orders = [];
+          archivedOrders = [];
+          expenses = [];
+          render();
+        }
+      });
+    </script>
+  </body>
+</html>
