@@ -635,6 +635,7 @@
       ><button class="tab" data-tab="orders" type="button">Заказы</button
       ><button class="tab" data-tab="archive" type="button">Архив</button
       ><button class="tab" data-tab="team" type="button">Команда</button
+      ><button class="tab" data-tab="salaries" type="button">Зарплаты</button
       ><button class="tab" data-tab="expenses" type="button">Траты</button>
     </nav>
     <main>
@@ -918,6 +919,73 @@
             </thead>
             <tbody id="expensesBody"></tbody>
           </table>
+        </div>
+      </section>
+      <section id="salariesTab" hidden="">
+        <div class="panel-head">
+          <h2>Зарплаты и доход владельца</h2>
+          <input id="salaryMonth" type="month" />
+        </div>
+        <div class="notice">
+          Учитываются только клиентские книги, переданные в печать. Блогерские
+          книги не начисляют зарплату и доход.
+        </div>
+        <div class="metrics" id="salaryMetrics"></div>
+        <div class="panel">
+          <div class="panel-head"><h2>Расчёт по дизайнерам</h2></div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Дизайнер</th>
+                  <th>Ставка</th>
+                  <th>Книг</th>
+                  <th>За книги</th>
+                  <th>Помощь</th>
+                  <th>К выплате</th>
+                </tr>
+              </thead>
+              <tbody id="salaryBody"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><h2>Добавить оплату за помощь</h2></div>
+          <div class="filters">
+            <select id="salaryHelpDesigner"></select
+            ><input id="salaryHelpDate" type="date" /><input
+              id="salaryHelpSum"
+              type="number"
+              min="0"
+              placeholder="Сумма, ₽"
+            /><input id="salaryHelpComment" placeholder="Комментарий" /><button
+              class="btn primary"
+              id="addSalaryHelpBtn"
+              type="button"
+            >
+              Добавить
+            </button>
+          </div>
+          <div id="salaryHelpList"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><h2>Книги в расчёте</h2></div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Дата</th>
+                  <th>Клиент</th>
+                  <th>Дизайнер</th>
+                  <th>Цена книги</th>
+                  <th>Дизайнер</th>
+                  <th>Печать</th>
+                  <th>Ваш доход</th>
+                </tr>
+              </thead>
+              <tbody id="salaryOrdersBody"></tbody>
+            </table>
+          </div>
         </div>
       </section>
     </main>
@@ -1268,6 +1336,12 @@
         "Дизайнер Даня",
         "Менеджер Ирина",
       ];
+      const DESIGNER_RATES = {
+        "Дизайнер Ева": 1200,
+        "Дизайнер Даня": 1200,
+        "Дизайнер Аня": 1400,
+        "Дизайнер Сима": 1400,
+      };
       const BOOK_FORMATS = [
         "годовщина",
         "парню/сыну на др",
@@ -1519,6 +1593,8 @@
           cardType: isBlogger ? "blogger" : "client",
           workStarted: raw.workStarted || "",
           designerStarted: raw.designerStarted || "",
+          completedDesigner: raw.completedDesigner || "",
+          designerRate: num(raw.designerRate),
           followUpCount: num(raw.followUpCount),
           bloggerAccount: raw.bloggerAccount || "",
           bloggerInstagram: raw.bloggerInstagram || raw.bloggerAccount || "",
@@ -1569,6 +1645,7 @@
           cat: raw.cat || raw.category || "Прочее",
           desc: raw.desc || raw.description || "",
           sum: num(raw.sum || raw.amount),
+          designer: raw.designer || "",
         };
       }
       function cleanOrderForSave(o) {
@@ -1594,6 +1671,7 @@
         if (currentTab === "bloggers") renderBloggers();
         if (currentTab === "orders") renderOrders();
         if (currentTab === "team") renderTeam();
+        if (currentTab === "salaries") renderSalaries();
         if (currentTab === "expenses") renderExpenses();
         if (currentTab === "communication") renderCommunication();
         if (currentTab === "managerTasks") renderManagerTasks();
@@ -2302,6 +2380,99 @@
             .join("") ||
           "<tr><td colspan='5' class='empty'>Трат пока нет</td></tr>";
       }
+      function renderSalaries() {
+        const month = $("salaryMonth").value || todayIso().slice(0, 7),
+          designers = Object.keys(DESIGNER_RATES),
+          books = orders.filter(
+            (o) =>
+              o.cardType !== "blogger" &&
+              o.completedDesigner &&
+              String(o.printStarted || "").slice(0, 7) === month,
+          ),
+          helps = expenses.filter(
+            (e) =>
+              e.cat === "Помощь дизайнеру" &&
+              String(e.date || "").slice(0, 7) === month,
+          );
+        const rows = designers.map((designer) => {
+          const own = books.filter((o) => o.completedDesigner === designer),
+            rate = DESIGNER_RATES[designer],
+            bookPay = own.reduce((s, o) => s + num(o.designerRate || rate), 0),
+            help = helps
+              .filter((e) => e.designer === designer)
+              .reduce((s, e) => s + num(e.sum), 0);
+          return {
+            designer,
+            rate,
+            count: own.length,
+            bookPay,
+            help,
+            total: bookPay + help,
+          };
+        });
+        const totalSalary = rows.reduce((s, r) => s + r.total, 0),
+          ownerIncome = books.reduce(
+            (s, o) =>
+              s +
+              num(o.price) -
+              num(o.designerRate || DESIGNER_RATES[o.completedDesigner]) -
+              num(o.printCost),
+            0,
+          );
+        $("salaryMetrics").innerHTML = [
+          ["Клиентских книг", books.length, "blue"],
+          ["Зарплаты дизайнеров", rub(totalSalary), "red"],
+          ["Ваш доход", rub(ownerIncome), ownerIncome >= 0 ? "green" : "red"],
+        ]
+          .map(
+            ([l, v, c]) =>
+              `<div class="metric"><div class="label">${l}</div><div class="value ${c}">${v}</div></div>`,
+          )
+          .join("");
+        $("salaryBody").innerHTML = rows
+          .map(
+            (r) =>
+              `<tr><td><b>${esc(r.designer.replace("Дизайнер ", ""))}</b></td><td>${rub(r.rate)}</td><td>${r.count}</td><td>${rub(r.bookPay)}</td><td>${rub(r.help)}</td><td><b>${rub(r.total)}</b></td></tr>`,
+          )
+          .join("");
+        $("salaryOrdersBody").innerHTML =
+          books
+            .map((o) => {
+              const pay = num(
+                  o.designerRate || DESIGNER_RATES[o.completedDesigner],
+                ),
+                income = num(o.price) - pay - num(o.printCost);
+              return `<tr><td>${esc(o.printStarted)}</td><td>${esc(o.name)}</td><td>${esc(o.completedDesigner.replace("Дизайнер ", ""))}</td><td>${rub(o.price)}</td><td>${rub(pay)}</td><td>${rub(o.printCost)}</td><td class="${income >= 0 ? "green" : "red"}"><b>${rub(income)}</b></td></tr>`;
+            })
+            .join("") ||
+          "<tr><td colspan='7' class='empty'>В этом месяце книг пока нет</td></tr>";
+        $("salaryHelpList").innerHTML =
+          helps
+            .map(
+              (e) =>
+                `<div class="task-row"><span></span><div class="task-text"><b>${esc(e.designer.replace("Дизайнер ", ""))}</b> · ${esc(e.date)} · ${esc(e.desc)} — ${rub(e.sum)}</div><button class="iconbtn" data-delete-salary-help="${esc(e._docId)}">Удалить</button></div>`,
+            )
+            .join("") || "<div class='empty'>Доплат за помощь нет</div>";
+      }
+      async function addSalaryHelp() {
+        const designer = $("salaryHelpDesigner").value,
+          sum = num($("salaryHelpSum").value),
+          date = $("salaryHelpDate").value;
+        if (!designer || !sum || !date)
+          return alert("Выберите дизайнера, дату и сумму");
+        const ref = doc(collection(db, "expenses"));
+        await setDoc(ref, {
+          id: ref.id,
+          date,
+          cat: "Помощь дизайнеру",
+          designer,
+          desc: $("salaryHelpComment").value.trim() || "Дополнительная помощь",
+          sum,
+          updatedAt: serverTimestamp(),
+        });
+        $("salaryHelpSum").value = "";
+        $("salaryHelpComment").value = "";
+      }
       function fillSelect(el, values) {
         el.innerHTML = values
           .map((v) => `<option value="${esc(v)}">${v ? esc(v) : "—"}</option>`)
@@ -2352,6 +2523,7 @@
           "orders",
           "archive",
           "team",
+          "salaries",
           "expenses",
         ])
           $(id + "Tab").hidden = id !== tab;
@@ -2494,6 +2666,18 @@
             link: $("oLink").value.trim(),
             source: $("oSource").value,
             owner: $("oStatus").value === "В печати" ? "" : $("oOwner").value,
+            completedDesigner:
+              $("oStatus").value === "В печати"
+                ? base?.completedDesigner || $("oOwner").value
+                : base?.completedDesigner || "",
+            designerRate:
+              $("oStatus").value === "В печати"
+                ? base?.designerRate ||
+                  DESIGNER_RATES[
+                    base?.completedDesigner || $("oOwner").value
+                  ] ||
+                  0
+                : base?.designerRate || 0,
             orderDate: $("oDate").value,
             createdAt: base?.createdAt || $("oDate").value || todayIso(),
             format: $("oFormat").value,
@@ -2519,9 +2703,7 @@
             bloggerDeliverables: $("oBloggerDeliverables").value.trim(),
             bloggerContentReceived:
               $("oBloggerContentReceived").value === "true",
-            bloggerContentReceivedDate: $(
-              "oBloggerContentReceivedDate",
-            ).value,
+            bloggerContentReceivedDate: $("oBloggerContentReceivedDate").value,
             bloggerResult: $("oBloggerResult").value.trim(),
             followUpCount: base?.followUpCount || 0,
             extraPages: $("oExtraPages").value === "true",
@@ -2669,6 +2851,8 @@
           updates.printReady = addBusinessDays(updates.printStarted, 10);
         }
         if (status === "В печати") {
+          updates.completedDesigner = o.completedDesigner || o.owner || "";
+          updates.designerRate = o.designerRate || DESIGNER_RATES[o.owner] || 0;
           updates.owner = "";
         }
         if (status === "Отправлено") {
@@ -2685,8 +2869,7 @@
         if (!o) return;
         const flow = o.cardType === "blogger" ? BLOGGER_STATUSES : STATUSES;
         const i = flow.indexOf(o.status);
-        if (i >= 0 && i < flow.length - 1)
-          await moveTo(docId, flow[i + 1]);
+        if (i >= 0 && i < flow.length - 1) await moveTo(docId, flow[i + 1]);
       }
       function setupDrag() {
         document.querySelectorAll(".card").forEach((card) => {
@@ -2778,6 +2961,10 @@
       $("reloadBtn").addEventListener("click", loadData);
       $("newOrderBtn").addEventListener("click", () => openOrder(null));
       $("newExpenseBtn").addEventListener("click", () => openExpense(null));
+      $("salaryMonth").value = todayIso().slice(0, 7);
+      $("salaryHelpDate").value = todayIso();
+      $("salaryMonth").addEventListener("change", renderSalaries);
+      $("addSalaryHelpBtn").addEventListener("click", addSalaryHelp);
       $("saveOrderBtn").addEventListener("click", saveOrder);
       $("deleteOrderBtn").addEventListener("click", removeOrder);
       $("closeOrderBtn").addEventListener("click", closeOrder);
@@ -2823,7 +3010,6 @@
             10,
           );
         }
-        if (e.target.value === "В печати") $("oOwner").value = "";
         if (e.target.value === "Отправлено") {
           $("oCommStatus").value = "Книга отправлена";
           $("oNextContact").value = todayIso();
@@ -2919,7 +3105,16 @@
       fillSelect($("oFormat"), BOOK_FORMATS);
       fillSelect($("oPrintType"), PRINT_FORMATS);
       fillSelect($("eCat"), EXPENSE_CATS);
+      fillSelect($("salaryHelpDesigner"), Object.keys(DESIGNER_RATES));
       document.body.addEventListener("click", async (e) => {
+        const salaryHelp = e.target.closest("[data-delete-salary-help]");
+        if (salaryHelp) {
+          if (confirm("Удалить эту доплату?"))
+            await deleteDoc(
+              doc(db, "expenses", salaryHelp.dataset.deleteSalaryHelp),
+            );
+          return;
+        }
         const restore = e.target.closest("[data-restore-order]");
         if (restore) {
           const o = archivedOrders.find(
