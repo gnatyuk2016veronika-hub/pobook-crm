@@ -2930,7 +2930,7 @@ window.PobookTemplates = [
           const workflowPatch={};
           for(const [key,value] of Object.entries(workflowV2)) {
             if(key==='tasks') continue;
-            if(!base || JSON.stringify(value)!==JSON.stringify(before.workflowV2?.[key])) workflowPatch[key]=value;
+            if(!base || !sameFieldValue(value,before.workflowV2?.[key])) workflowPatch[key]=value;
           }
           if(Object.keys(workflowPatch).length) patch.workflowV2=workflowPatch;
           if(workflowV2.enabled && data.cardType!=='blogger' && num(data.paid)>0 && num(before.paid)===0 && ['Лиды','Ждём фото'].includes(data.status) && $('oCommStatus').value===initialControls.oCommStatus) {
@@ -2946,7 +2946,7 @@ window.PobookTemplates = [
               if(['workflowV2','updatedAt','activity'].includes(key)) continue;
               if(JSON.stringify(normalized[key])!==JSON.stringify(before[key])) throw Error('Карточка изменена другим сотрудником. Закройте и откройте её заново');
             }
-            if(base) for(const key of Object.keys(workflowPatch)) if(JSON.stringify(normalized.workflowV2?.[key])!==JSON.stringify(before.workflowV2?.[key])) throw Error('Данные задач изменены другим сотрудником. Откройте карточку заново');
+            if(base) for(const key of Object.keys(workflowPatch)) if(!sameFieldValue(normalized.workflowV2?.[key],before.workflowV2?.[key]) && !sameFieldValue(normalized.workflowV2?.[key],workflowPatch[key])) throw Error('Данные задач изменены другим сотрудником. Откройте карточку заново');
             patch.activity=appendActivity(normalized,activityEntry(base?'Карточка обновлена':'Карточка создана','Сохранены изменения'));
             transaction.set(ref,patch,{merge:true});
           });
@@ -3143,6 +3143,13 @@ window.PobookTemplates = [
         });
         render();
         openLinkedOrder();
+      }
+      function sameFieldValue(a,b) {
+        if(a===b) return true;
+        if(!a || !b || typeof a!=='object' || typeof b!=='object') return false;
+        if(Array.isArray(a)!==Array.isArray(b)) return false;
+        const ak=Object.keys(a), bk=Object.keys(b);
+        return ak.length===bk.length && ak.every(k=>Object.prototype.hasOwnProperty.call(b,k) && sameFieldValue(a[k],b[k]));
       }
       const WF = window.PobookWorkflow;
       let orderEditSnapshot = null;
