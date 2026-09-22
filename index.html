@@ -553,6 +553,16 @@
           padding: 12px;
         }
       }
+      [hidden] { display: none !important; }
+      .type-buttons { display:flex; gap:8px; margin-top:8px; }
+      .type-buttons [aria-pressed="true"] { background:#795543; color:white; }
+      .publication-row { display:grid; grid-template-columns:1fr 2fr 1fr auto; gap:8px; margin-bottom:8px; }
+      .workflow-task { padding:16px 0; border-bottom:1px solid #e6d9cf; }
+      .message-preview { white-space:pre-wrap; padding:12px; background:#f7f2ec; margin:8px 0; }
+      .workflow-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:16px; }
+      .check-label { display:flex; gap:10px; align-items:center; }
+      .check-label input { width:auto; }
+      @media(max-width:600px){.publication-row{grid-template-columns:1fr;} }
     </style>
   </head>
   <body>
@@ -814,10 +824,10 @@
         <div class="kanban" id="communicationKanban"></div>
       </section>
       <section id="managerTasksTab" hidden="">
-        <div class="dash-grid">
+        <div class="notice">Новые задачи включаются отдельно в проверенных карточках. Telegram-бот пока не подключён; задачи доступны здесь.</div><h2>Задачи по событиям · <span id="workflowTaskCount">0</span></h2><div id="workflowTaskGroups" class="workflow-grid"></div><div class="dash-grid">
           <div class="panel">
             <div class="section-title">
-              <h2>Сегодня и просрочено</h2>
+              <h2>Прежние задачи (неподключённые карточки)</h2>
               <span class="pill" id="managerTaskCount">0</span>
             </div>
             <div id="managerTaskList"></div>
@@ -833,10 +843,7 @@
               Автоотправка клиентам выключена
             </div>
             <div class="small" style="line-height: 1.7">
-              <b>Автопереходы:</b><br />Первое сообщение → Ждём ответа<br />Условия
-              оплаты → Ждём предоплату<br />Анкета отправлена → Анкета и фото<br />Макет
-              отправлен → Согласование<br />Трек отправлен → Ждём вручения<br />Отзыв
-              запрошен → Разрешение на публикацию
+              <b>Новые задачи:</b><br />Материалы проверены → сообщение о начале работы<br />Макет — 7 рабочих дней; печать — 10 рабочих дней<br />Подтверждение отправки сохраняет текст, дату и сотрудника<br />Отзыв запрошен → ждём отзыв<br />Разрешение на публикацию запрашивается после получения отзыва<br />Прежние задачи доступны ниже для неподключённых карточек
             </div>
           </div>
         </div>
@@ -1004,6 +1011,7 @@
               <option value="client">Клиент</option>
               <option value="blogger">Блогер</option>
             </select>
+            <div class="type-buttons"><button class="btn" type="button" data-card-type="client">Клиент</button><button class="btn" type="button" data-card-type="blogger">Блогер</button></div>
           </div>
           <div class="field">
             <label>Имя клиента / блогера</label><input id="oName" />
@@ -1023,11 +1031,11 @@
               <option value="Другое">Другое</option>
             </select>
           </div>
-          <div class="field">
+          <div class="field client-only">
             <label>Дата учета оплаты</label><input id="oDate" type="date" />
           </div>
           <div class="field">
-            <label>Ответственный</label
+            <label>Исполнитель производства</label
             ><select id="oOwner">
               <option value="">—</option>
               <option value="Вероника">Вероника</option>
@@ -1073,25 +1081,25 @@
               <option value="срочный">срочный</option>
             </select>
           </div>
-          <div class="field">
+          <div class="field client-only">
             <label>Сумма сделки</label
             ><input id="oPrice" type="number" min="0" />
           </div>
-          <div class="field">
+          <div class="field client-only">
             <label>Дополнительные страницы (+1 000 ₽)</label
             ><select id="oExtraPages">
               <option value="false">Нет</option>
               <option value="true">Да</option>
             </select>
           </div>
-          <div class="field">
+          <div class="field client-only">
             <label>Оплачено</label><input id="oPaid" type="number" min="0" />
           </div>
-          <div class="field">
+          <div class="field client-only">
             <label>Дата предоплаты</label
             ><input id="oPrepaymentDate" type="date" />
           </div>
-          <div class="field">
+          <div class="field client-only">
             <label>Дата полной оплаты</label
             ><input id="oFullPaymentDate" type="date" />
           </div>
@@ -1159,6 +1167,27 @@
             <label>Ссылка на публикацию / результат</label
             ><input id="oBloggerResult" />
           </div>
+          <div class="field full blogger-only">
+            <label>Публикации блогера</label><div id="oPublications"></div>
+            <button class="btn" type="button" id="addPublicationBtn">Добавить публикацию</button>
+          </div>
+          <div class="field full"><details><summary>Библиотека сообщений — подготовить дополнительную задачу</summary><p class="small">28 шаблонов. Проверьте факты и замените все значения в фигурных скобках. Дополнительная задача появится после сохранения при включённых задачах.</p><label for="oTemplateChoice">Сообщение</label><select id="oTemplateChoice"></select><button type="button" class="btn" id="prepareMessageBtn">Подготовить новую задачу</button><input type="hidden" id="oManualId"><label for="oManualTitle">Название задачи</label><input id="oManualTitle"><label for="oManualDue">Срок задачи</label><input id="oManualDue" type="date"><label for="oManualText">Текст клиенту</label><textarea id="oManualText" rows="8"></textarea></details></div>
+          <div class="field full"><h3>Задачи и сроки</h3>
+            <label class="check-label"><input type="checkbox" id="oWorkflowEnabled">Включить новые задачи для этой карточки</label>
+            <p class="small">Включайте после проверки текущих этапов. Старые заказы автоматически не подключаются. Изменения вступят в силу после сохранения.</p>
+          </div>
+          <div class="field"><label for="oManager">Менеджер заказа</label><input id="oManager" list="managerNames" placeholder="Выберите или введите имя"><datalist id="managerNames"><option value="Менеджер Ирина"><option value="Вероника"></datalist></div>
+          <div class="field"><label class="check-label"><input type="checkbox" id="oQuestionnaireReceived">Анкета получена</label><label class="check-label"><input type="checkbox" id="oPhotosReceived">Фото получены</label><label class="check-label"><input type="checkbox" id="oMaterialsChecked">Комплект проверен, всё необходимое есть</label></div>
+          <div class="field"><label for="oQuestionnaireSentAt">Анкета отправлена клиенту</label><input id="oQuestionnaireSentAt" type="date"></div>
+          <div class="field"><button class="btn" type="button" id="acceptMaterialsBtn">Материалы проверены — принять в работу</button></div>
+          <div class="field"><label for="oMaterialsAcceptedAt">Полный комплект принят в работу</label><input id="oMaterialsAcceptedAt" type="date"></div>
+          <div class="field"><label for="oLayoutDue">Макет до (7 рабочих дней)</label><input id="oLayoutDue" type="date"></div>
+          <div class="field"><label for="oLayoutURL">Ссылка на готовый макет</label><input id="oLayoutURL" type="url" placeholder="https://…"></div>
+          <div class="field"><label for="oLayoutRevision">Версия макета</label><input id="oLayoutRevision" type="number" min="1" value="1"><span class="small">Увеличьте после правок, чтобы создать задачу отправки новой версии.</span></div>
+          <div class="field"><label for="oLayoutApprovedAt">Клиент согласовал макет</label><input id="oLayoutApprovedAt" type="date"></div>
+          <div class="field"><label class="check-label"><input type="checkbox" id="oQualityChecked">Готовая книга проверена</label></div>
+          <div class="field full client-only"><label for="oPaymentDetails">Реквизиты / ссылка для доплаты</label><textarea id="oPaymentDetails" rows="2"></textarea></div>
+          <div class="field full"><details><summary>Рабочий календарь и пересчёт сроков</summary><p class="small">Отсчёт со следующего дня. Встроен календарь России на 2026 год: понедельник–пятница, праздники и переносы. Дополнительные выходные команды добавьте ниже. Для другого года заполните исключения и подтвердите год календаря, затем пересчитайте даты. Проверьте срок до отправки клиенту.</p><label for="oHolidays">Нерабочие даты (ГГГГ-ММ-ДД, через пробел)</label><textarea id="oHolidays" rows="2"></textarea><label for="oWorkingDays">Дополнительные рабочие даты</label><textarea id="oWorkingDays" rows="2"></textarea><label for="oCalendarYears">Проверенные дополнительные годы календаря (например, 2027)</label><input id="oCalendarYears" placeholder="Заполнять после проверки праздников и переносов"><button class="btn" type="button" id="recalculateDatesBtn">Пересчитать 7 и 10 рабочих дней</button></details></div>
           <div class="field">
             <label>Этап общения</label
             ><select id="oCommStatus"></select>
@@ -1178,7 +1207,7 @@
           <div class="field">
             <label>Трек-номер / СДЭК</label><input id="oSdek" />
           </div>
-          <div class="field">
+          <div class="field client-only">
             <label>Стоимость доставки отдельно</label
             ><input id="oDeliveryCost" type="number" min="0" />
           </div>
@@ -1276,10 +1305,136 @@
         </div>
       </div>
     </div>
+    <script>
+window.PobookTemplates = [
+ ['Знакомство','Новое обращение','Здравствуйте, {имя}! 🤍 У нас есть два формата книг: стандартный — 7 490 ₽ и премиальный — 11 500 ₽. Наполнение одинаковое, а премиальная книга плотнее и раскрывается на 180 градусов. Подскажите, для кого вы готовите подарок и к какой дате он нужен?'],
+ ['Сроки','До оплаты','Подготовка макета занимает 7 рабочих дней после получения и проверки анкеты и фотографий. Затем вы посмотрите и согласуете книгу. Печать — ещё 10 рабочих дней после передачи макета в типографию, доставка — отдельно 🤍 Подскажите город доставки, чтобы проверить, успеваем ли к вашей дате.'],
+ ['Условия оплаты','Формат выбран','{имя}, зафиксирую заказ 🤍 Книга: {формат}, печать — {печать}. Итоговая стоимость — {сумма} ₽. Доставка оплачивается отдельно. Предоплата 50% — {предоплата} ₽. Остаток — после согласования макета, перед печатью. Оплатить можно здесь: {реквизиты}. После подтверждения оплаты отправим анкету и инструкцию.'],
+ ['Нет ответа','Через 2 рабочих дня без ответа','Здравствуйте, {имя}! 🤍 Подскажите, актуальна ли ещё идея с книгой? Если остались вопросы по форматам, наполнению или срокам, я помогу разобраться.'],
+ ['Напомнить об оплате','Оплата не подтверждена','Здравствуйте, {имя}! 🤍 Подскажите, планируете ли вы оформлять книгу? Пока предоплата не поступила. Перед началом ещё раз проверим сроки, чтобы сориентировать вас точно.'],
+ ['Анкета и фото','Предоплата подтверждена','Спасибо, {имя}, предоплату получили 🤍 Анкета: {анкета}. Не нужно писать идеально: рассказывайте так, будто мы сидим за чашечкой кофе ☕️ Создайте общую папку на Яндекс Диске, откройте доступ по ссылке и добавьте 40–80 фотографий по разделам: {разделы}. Пришлите ссылку и напишите, что анкета заполнена. После проверки сообщим дату макета.'],
+ ['Напомнить о материалах','Через 3 дня после анкеты','Здравствуйте, {имя}! 🤍 Получилось заполнить анкету и подготовить фотографии? Если появились вопросы, я помогу. Подготовку макета начнём после получения и проверки полного комплекта.'],
+ ['Материалы неполные','После проверки','{имя}, спасибо за материалы 🤍 Для начала работы осталось: {недостающее}. Пришлите, пожалуйста, дополнения. После проверки полного комплекта примем книгу в работу и сообщим дату макета.'],
+ ['Приняли в работу','Полный комплект проверен','Здравствуйте, {имя}! 🤍 Анкету и фотографии получили и проверили — всё необходимое есть, вашу книгу приняли в работу.\n\nСледующий этап — подготовка макета. Отправим его вам на согласование до {дата макета}. Перед печатью вы сможете посмотреть книгу и сообщить, если нужно что-то поправить.\n\nПока от вас ничего не требуется. Если в процессе появятся вопросы, мы напишем ✨'],
+ ['Уточнение','Возник вопрос при работе','Здравствуйте, {имя}! 🤍 Готовим вашу книгу и хотим уточнить: {вопрос}. Это поможет нам точнее передать вашу историю.'],
+ ['Макет готов','Макет проверен командой','{имя}, макет готов 🤍 Ссылка: {макет}. Проверьте имена, даты, текст и фотографии. Правки пришлите одним списком с номерами страниц. Если всё нравится, напишите: «Макет согласован». В печать передадим после вашего подтверждения и полной оплаты.'],
+ ['Напомнить о согласовании','Через 2 рабочих дня','Здравствуйте, {имя}! 🤍 Получилось посмотреть макет? Если есть замечания, присылайте — разберём вместе. Для передачи в печать нужно ваше подтверждение; срок печати ещё не начинается.'],
+ ['Правки приняты','Правки получены и оценены','{имя}, спасибо, правки получили 🤍 Внесём согласованные изменения и отправим обновлённый макет до {срок правок}. Если понадобится уточнение, напишем.'],
+ ['Правки готовы','Обновлённый макет проверен','{имя}, внесли согласованные изменения 🤍 Обновлённый макет: {макет}. Посмотрите, пожалуйста, всё ли теперь верно. Если замечаний нет, напишите: «Макет согласован».'],
+ ['Остаток оплаты','Макет согласован, есть долг','{имя}, согласование зафиксировали 🤍 До полной оплаты осталось {остаток} ₽. Оплатить можно здесь: {реквизиты}. После подтверждения передадим книгу в печать и сообщим дату готовности. Печать занимает 10 рабочих дней с момента передачи в типографию.'],
+ ['Полная оплата','Макет согласован и оплата подтверждена','{имя}, макет согласован, полную оплату получили — спасибо 🤍 Всё готово для передачи в печать. Как только передадим книгу в типографию, сообщим дату готовности.'],
+ ['Передали в печать','Фактическая передача','{имя}, вашу книгу передали в печать 🤍 Этот этап занимает 10 рабочих дней. Ожидаем готовность до {дата печати}. После получения из типографии проверим книгу и напишем перед отправкой.'],
+ ['Готово — нужны данные','Книга проверена','{имя}, книга готова и прошла проверку 🤍 Для отправки пришлите, пожалуйста: {данные доставки}. Доставка оплачивается отдельно; условия и стоимость уточним перед отправкой.'],
+ ['Готово — данные есть','Книга проверена, отправка запланирована','{имя}, книга готова и прошла проверку 🤍 Планируем отправить её {дата отправки}. Данные доставки: {данные доставки}. Если что-то изменилось, сообщите. После отправки пришлём трек.'],
+ ['Книга отправлена','Передана перевозчику','{имя}, ваша книга отправлена 🤍 Перевозчик: {перевозчик}. Трек: {трек}. Ориентировочная доставка: {доставка}. Доставка оплачивается отдельно. Если возникнут вопросы с получением, напишите нам.'],
+ ['В пункте выдачи','Прибытие подтверждено перевозчиком','{имя}, книга ждёт в пункте выдачи 🤍 Забрать можно до {срок хранения}. Адрес: {пункт выдачи}. Если возникнут сложности, напишите — поможем разобраться.'],
+ ['Проверить получение','Доставка подтверждена','Здравствуйте, {имя}! 🤍 По данным доставки книга уже у вас. Всё ли дошло в порядке, нет ли повреждений? Если что-то не так, напишите нам и приложите фотографии — разберёмся.'],
+ ['Запрос отзыва','На следующий день после вручения','Здравствуйте, {имя}! 🤍 Как прошло вручение книги? Очень хочется узнать, понравился ли подарок и какие эмоции он вызвал. Если будет желание, поделитесь впечатлениями — для нашей команды это очень ценно ✨'],
+ ['Спасибо за отзыв','Получен положительный отзыв','{имя}, спасибо, что поделились впечатлениями 🤍 Нам очень ценно узнать, какой получилась ваша встреча с книгой. Спасибо, что доверили нам вашу историю!'],
+ ['Разрешение на публикацию','Отзыв получен, разрешение не запрашивали','Спасибо, что поделились впечатлениями 🤍 Можем ли мы показать вашу книгу или полученные фото и видео в наших соцсетях? Можно указать ограничения — например, без личных фотографий. Без вашего разрешения ничего публиковать не будем.'],
+ ['Ответ о публикации','Клиент явно ответил','Спасибо, {имя}, зафиксировали ваше решение: {решение и ограничения} 🤍 Будем его учитывать.'],
+ ['Изменение срока','Предупредить до обещанной даты','{имя}, здравствуйте. Хотим заранее предупредить: {этап} будет готов позже, чем обещали. Причина — {причина}. Новый срок — до {новый срок}. Простите, что меняем ваши планы. Предлагаем: {решение}.'],
+ ['Проблема с заказом','Клиент сообщил о проблеме','{имя}, нам очень жаль, что так получилось. Спасибо, что написали. {уточнение}. Разберёмся и вернёмся к вам с решением до {срок ответа}.']
+];
+
+/* Pure workflow rules. No Firebase access or writes on page load. */
+(() => {
+  const iso = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  const valid = s => /^\d{4}-\d{2}-\d{2}$/.test(s || '') && iso(new Date(s+'T12:00:00')) === s;
+  const dates = s => String(s || '').split(/[\s,;]+/).filter(Boolean);
+  // Russian five-day calendar, 2026. Government decree 1466 of 24 Sep 2025:
+  // https://government.ru/docs/all/161028/ (Jan 9 and Dec 31 transfers).
+  const holidays2026='2026-01-01 2026-01-02 2026-01-03 2026-01-04 2026-01-05 2026-01-06 2026-01-07 2026-01-08 2026-01-09 2026-02-23 2026-03-08 2026-03-09 2026-05-01 2026-05-09 2026-05-11 2026-06-12 2026-11-04 2026-12-31';
+  function businessDays(start, count, calendar = {}) {
+    if (!valid(start)) return '';
+    const d = new Date(start+'T12:00:00');
+    const holidays = new Set([...dates(holidays2026),...dates(calendar.holidays)]), working = new Set(dates(calendar.workingDays));
+    const years=new Set(['2026',...dates(calendar.confirmedYears)]);
+    let n = 0;
+    while (n < count) {
+      d.setDate(d.getDate()+1);
+      const day = iso(d);
+      if(!years.has(day.slice(0,4))) return '';
+      if (working.has(day) || (!holidays.has(day) && d.getDay() !== 0 && d.getDay() !== 6)) n++;
+    }
+    return iso(d);
+  }
+  const after = (s,n) => { if (!valid(s)) return ''; const d=new Date(s+'T12:00:00'); d.setDate(d.getDate()+n); return iso(d); };
+  const showDate = s => valid(s) ? s.split('-').reverse().join('.') : '{дата}';
+  const safeURL = s => { try { const u=new URL(s); return ['http:','https:'].includes(u.protocol) ? u.href : ''; } catch { return ''; } };
+  const greeting = o => `Здравствуйте${o.name && !o.name.startsWith('@') ? ', '+o.name : ''}! 🤍`;
+  function tasks(o, today) {
+    const w=o.workflowV2 || {};
+    if (!w.enabled || o.archived || ['Завершено','Игнор'].includes(o.commStatus)) return [];
+    const records=w.tasks || {}, result=[];
+    const advanced=['В печати','Книга готова','Отправлено'].includes(o.status);
+    const add=(key,title,text,due= today,missing=[],waiting=false)=> {
+      const saved=records[key] || {};
+      if (saved.doneAt) return;
+      const issues=[...missing];
+      if (!w.manager) issues.push('Назначьте менеджера заказа');
+      const effectiveDue=saved.snoozeUntil || due;
+      if(!valid(effectiveDue)) issues.push('Уточните дату задачи и рабочий календарь');
+      result.push({key,title,text,due:effectiveDue,problem:saved.problem || '',issues,
+        group: issues.length || saved.problem ? 'Нужно разобраться' : effectiveDue && effectiveDue < today ? 'Просрочено' : effectiveDue && effectiveDue > today ? 'Ждём клиента / запланировано' : waiting ? 'Ждём клиента / запланировано' : 'Сегодня'});
+    };
+    if(w.manual?.id && w.manual.text) add('manual-'+w.manual.id,w.manual.title || 'Подготовленное сообщение',w.manual.text,w.manual.due || today, /\{[^}]+\}/.test(w.manual.text)?['Заполните все значения в фигурных скобках']:[]);
+    if(o.cardType==='blogger') {
+      if(!o.bloggerContentReceived && o.bloggerContentReminder) add('blogger-content','Напомнить блогеру о публикации',`${greeting(o)} Подскажите, пожалуйста, как продвигается подготовка публикации? Будем ждать ссылку, когда она выйдет.`,o.bloggerContentReminder);
+      return result;
+    }
+    const hello=greeting(o), sent=k=>records[k]?.doneAt;
+    if(w.materialsAcceptedAt && !advanced && !w.layoutApprovedAt && !w.layoutURL) {
+      add('accepted','Сообщить: книга принята в работу',`${hello} Анкету и фотографии получили и проверили — всё необходимое есть, вашу книгу приняли в работу.\n\nСледующий этап — подготовка макета. Отправим его вам на согласование до ${showDate(w.layoutDue)}. Перед печатью вы сможете посмотреть книгу и сообщить, если нужно что-то поправить.\n\nПока от вас ничего не требуется. Если в процессе появятся вопросы, мы напишем ✨`,w.materialsAcceptedAt,[...(!w.layoutDue?['Назначьте срок макета']:[])]);
+      if(w.layoutDue && today >= w.layoutDue) add('layout-control','Проверить готовность макета','',w.layoutDue,['Срок макета наступил: проверьте готовность или сообщите клиенту новый срок']);
+    }
+    if(!w.materialsAcceptedAt && !advanced && !['Поступило в работу','Находится у дизайнера'].includes(o.status)) {
+      if(o.commStatus==='Предоплата получена') add('questionnaire','Отправить анкету и инструкцию','',today,['Откройте текст анкеты в карточке коммуникаций']);
+      if(w.questionnaireSentAt) add('materials-reminder','Напомнить об анкете и фотографиях',`${hello} Подскажите, пожалуйста, получилось заполнить анкету и подготовить фотографии? Если появились вопросы, я помогу.`,after(w.questionnaireSentAt,3));
+    }
+    if(w.layoutURL && !w.layoutApprovedAt && !advanced) {
+      const key='layout-'+(w.layoutRevision || 1), url=safeURL(w.layoutURL);
+      add(key,'Отправить макет на согласование',`${hello} Макет вашей книги готов. Посмотреть его можно здесь: ${url}\n\nПожалуйста, внимательно проверьте имена, даты, текст и фотографии. Правки пришлите одним списком с номерами страниц. Если всё нравится, напишите: «Макет согласован». В печать передадим после вашего подтверждения и полной оплаты.`,today,url?[]:['Укажите корректную ссылку на макет']);
+      if(sent(key)) add('approval-reminder-'+(w.layoutRevision || 1),'Напомнить о согласовании',`${hello} Получилось посмотреть макет? Если есть замечания, присылайте одним списком. Для передачи книги в печать нужно ваше подтверждение.`,businessDays(sent(key).slice(0,10),2,w.calendar));
+    }
+    if(w.layoutApprovedAt && !advanced) {
+      const remaining=Math.max(0,Number(o.price||0)-Number(o.paid||0));
+      if(remaining>0) add('balance','Запросить остаток оплаты',`${hello} Согласование макета зафиксировали. До полной оплаты осталось ${remaining.toLocaleString('ru-RU')} ₽. ${w.paymentDetails || '{ссылка или реквизиты}'}\n\nПосле подтверждения оплаты передадим книгу в печать и сообщим дату готовности. Печать занимает 10 рабочих дней с момента передачи в типографию.`,today,w.paymentDetails?[]:['Заполните реквизиты / ссылку на оплату']);
+      else add('ready-to-print','Подтвердить согласование и полную оплату',`${hello} Макет согласован, полную оплату получили — спасибо. Всё готово для передачи книги в печать. Как только передадим её в типографию, сообщим дату готовности.`);
+    }
+    if(o.status==='В печати') {
+      add('printing','Сообщить о передаче в печать',`${hello} Вашу книгу передали в печать. Этот этап занимает 10 рабочих дней. Ожидаем готовность до ${showDate(o.printReady)}. После получения из типографии проверим книгу и напишем перед отправкой.`,o.printStarted || today,[...(!o.printStarted?['Укажите дату передачи в печать']:[]),...(!o.printReady?['Укажите срок печати']:[])]);
+      if(o.printReady && today>=o.printReady) add('print-control','Проверить готовность книги','',o.printReady,['Наступил срок печати: уточните готовность']);
+    }
+    if(o.status==='Книга готова') add('book-ready','Сообщить о готовности книги',`${hello} Ваша книга готова${w.qualityChecked?' и прошла проверку':''}. Для отправки уточним данные получателя и доставки. Доставка оплачивается отдельно; условия и стоимость согласуем перед отправкой.`,today,w.qualityChecked?[]:['Подтвердите проверку качества книги']);
+    if(o.status==='Отправлено' && !o.deliveredAt) {
+      add('shipping','Отправить трек-номер',`${hello} Ваша книга отправлена.\n\nТрек-номер: ${o.sdek || '{трек}'}${o.deliveryExpected?'\nОриентировочная доставка: '+showDate(o.deliveryExpected):''}\n\nДоставка оплачивается отдельно. Если возникнут вопросы с получением, напишите нам.`,today,o.sdek?[]:['Добавьте трек-номер']);
+      if(o.deliveryExpected) add('delivery-check','Проверить доставку',`${hello} Подскажите, пожалуйста, удалось ли получить книгу? Всё ли дошло в порядке?`,o.deliveryExpected);
+    }
+    if(o.deliveredAt) add('received','Уточнить, всё ли дошло в порядке',`${hello} По данным доставки книга уже у вас. Подскажите, всё ли дошло в порядке, нет ли повреждений? Если что-то не так, напишите нам и приложите фотографии — разберёмся.`,o.deliveredAt);
+    if(o.deliveredAt && !o.giftDate && !o.reviewReceived) add('gift-date','Уточнить дату вручения подарка',`${hello} Подскажите, пожалуйста, когда планируете вручить книгу? Хотим узнать ваши впечатления после вручения.`,after(o.deliveredAt,1));
+    if(o.giftDate && !o.reviewReceived) add('review','Запросить отзыв',`${hello} Как прошло вручение книги? Очень хочется узнать, понравился ли подарок и какие эмоции он вызвал. Если будет желание, поделитесь впечатлениями — для нашей команды это очень ценно ✨`,after(o.giftDate,1));
+    if(o.reviewReceived && (!o.publication || o.publication==='Не спрашивали')) add('publication','Запросить разрешение на публикацию','Спасибо, что поделились впечатлениями 🤍 Подскажите, пожалуйста, можем ли мы показать вашу книгу или полученные фото и видео в наших соцсетях? Можно указать ограничения, например без личных фотографий. Без вашего разрешения ничего публиковать не будем.');
+    return result;
+  }
+  function recordTask(task, action, value, by, now) {
+    if(action==='sent') {
+      if(task.issues.length || task.problem || !task.text) throw Error('Сначала устраните причину в разделе «Нужно разобраться»');
+      return {doneAt:now,by,text:task.text,problem:'',snoozeUntil:''};
+    }
+    if(action==='snooze') { if(!valid(value) || value <= now.slice(0,10)) throw Error('Выберите будущую дату'); return {snoozeUntil:value}; }
+    if(action==='problem') return {problem:value || ''};
+    throw Error('Неизвестное действие');
+  }
+  window.PobookWorkflow={businessDays,tasks,recordTask,valid,dates,safeURL,showDate};
+})();
+
+    </script>
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
       import {
         getFirestore,
+        runTransaction,
         collection,
         doc,
         getDoc,
@@ -1371,6 +1526,10 @@
         "Ждём предоплату",
         "Предоплата получена",
         "Анкета и фото",
+        "Книга в работе",
+        "В печати",
+        "Книга готова",
+        "Ждём отзыв",
         "Макет отправлен",
         "Согласование",
         "Книга отправлена",
@@ -1537,6 +1696,8 @@
                       : "Ждём ответа";
         return {
           _docId: docId,
+          workflowV2: raw.workflowV2 || {},
+          bloggerPublications: Array.isArray(raw.bloggerPublications) ? raw.bloggerPublications : [],
           id: displayId,
           productionOrderId: raw.productionOrderId || docId,
           name:
@@ -1865,6 +2026,8 @@
             .join("") || "<div class='empty'>Архив пуст</div>";
       }
       function taskFor(o) {
+        if(o.workflowV2?.enabled) return 'Задачи этого заказа — в разделе «Задачи менеджера»';
+        if(['Анкета и фото','Предоплата получена'].includes(o.commStatus) && ['Поступило в работу','Находится у дизайнера','В печати','Книга готова','Отправлено'].includes(o.status)) return 'Проверьте этап общения: производство уже продвинулось дальше';
         const map = {
           "Новое обращение": "Ответить новому лиду",
           "Ждём ответа": "Клиент молчит 3 дня — отправить повторное сообщение",
@@ -1887,11 +2050,13 @@
       function telegramLinkFor(o) {
         if (/^https?:\/\//i.test(o.link || "")) return o.link;
         const username = (o.tg || "").trim().replace(/^@/, "");
-        return /^[A-Za-z0-9_]{5,}$/.test(username)
+        return /^[A-Za-z][A-Za-z0-9_]{4,31}$/.test(username)
           ? "https://t.me/" + username
           : "";
       }
       function messageFor(o) {
+        if(o.workflowV2?.enabled && !['Лиды','Ждём фото'].includes(o.status)) return '';
+        if(['Анкета и фото','Предоплата получена'].includes(o.commStatus) && ['Поступило в работу','Находится у дизайнера','В печати','Книга готова','Отправлено'].includes(o.status)) return '';
         const price =
           o.price ||
           { премиальный: 11500, стандартный: 7490 }[o.printType] ||
@@ -1964,11 +2129,13 @@
         return map[o.commStatus] || "";
       }
       function renderManagerTasks() {
+        renderWorkflowTasks();
         const today = todayIso(),
           communication = orders
             .filter(
               (o) =>
                 o.cardType !== "blogger" &&
+                !o.workflowV2?.enabled &&
                 !["Завершено", "Игнор"].includes(o.commStatus) &&
                 !o.taskDone &&
                 o.nextContact &&
@@ -1978,7 +2145,7 @@
           designer = orders
             .filter(
               (o) =>
-                o.status === "Находится у дизайнера" &&
+                !o.workflowV2?.enabled && o.status === "Находится у дизайнера" &&
                 daysSince(o.designerStarted) > 5,
             )
             .map((o) => ({ o, type: "designer" })),
@@ -2062,6 +2229,8 @@
       async function confirmMessageSent(docId) {
         const o = orders.find((x) => x._docId === docId);
         if (!o) return;
+        if(o.workflowV2?.enabled) { showTab('managerTasks'); return; }
+        if(!messageFor(o)) return;
         if (
           !confirm(
             "Подтвердить, что сообщение клиенту уже отправлено? CRM сохранит дату и подготовит следующий этап.",
@@ -2562,6 +2731,7 @@
         $("deleteOrderBtn").style.display = o ? "" : "none";
         $("productionOrderBtn").hidden = !o;
         if (o) $("productionOrderBtn").href = productionUrl(o);
+        openWorkflow(o);
         $("oCardType").value = o?.cardType || "client";
         $("oName").value = o?.name || "";
         $("oTg").value = o?.tg || "";
@@ -2643,6 +2813,7 @@
               )
               .join("<hr style='border:0;border-top:1px solid #e6d9cf'>")
           : "История появится после сохранения";
+        initialControls=Object.fromEntries([...$('orderModal').querySelectorAll('input,select,textarea')].filter(el=>el.id).map(el=>[el.id,el.type==='checkbox'?el.checked:el.value]));
         $("orderModal").classList.add("open");
       }
       async function saveOrder() {
@@ -2656,8 +2827,11 @@
             ref = editOrderDocId
               ? doc(db, "orders", editOrderDocId)
               : doc(collection(db, "orders"));
+          const workflowV2 = readWorkflow(base);
           const data = {
             ...(base ? cleanOrderForSave(base) : {}),
+            workflowV2,
+            bloggerPublications: readPublications(),
             id: base?.id || ref.id,
             productionOrderId: base?.productionOrderId || ref.id,
             cardType: $("oCardType").value,
@@ -2683,9 +2857,9 @@
             format: $("oFormat").value,
             printType: $("oPrintType").value,
             price:
-              $("oCardType").value === "blogger" ? 0 : num($("oPrice").value),
+              $("oCardType").value === "blogger" ? (base?.price || 0) : num($("oPrice").value),
             paid:
-              $("oCardType").value === "blogger" ? 0 : num($("oPaid").value),
+              $("oCardType").value === "blogger" ? (base?.paid || 0) : num($("oPaid").value),
             printCost: num($("oPrintCost").value),
             deadline: $("oDeadline").value,
             city: $("oCity").value.trim(),
@@ -2742,7 +2916,40 @@
             archived: false,
             updatedAt: serverTimestamp(),
           };
-          await setDoc(ref, data, { merge: true });
+          // Write only fields actually edited; preserve concurrent changes and unknown fields.
+          const before=orderEditSnapshot ? cleanOrderForSave(orderEditSnapshot) : {};
+          const patch={};
+          const controlMap={"name": "oName", "tg": "oTg", "link": "oLink", "source": "oSource", "orderDate": "oDate", "format": "oFormat", "printType": "oPrintType", "price": "oPrice", "paid": "oPaid", "printCost": "oPrintCost", "deadline": "oDeadline", "city": "oCity", "status": "oStatus", "health": "oHealth", "notes": "oNotes", "workStarted": "oWorkStarted", "designerStarted": "oDesignerStarted", "bloggerAccount": "oBloggerInstagram", "bloggerInstagram": "oBloggerInstagram", "bloggerTelegram": "oBloggerTelegram", "bloggerOtherSocials": "oBloggerOtherSocials", "bloggerPublishDate": "oBloggerPublishDate", "bloggerContentReminder": "oBloggerContentReminder", "bloggerDeliverables": "oBloggerDeliverables", "bloggerContentReceived": "oBloggerContentReceived", "bloggerContentReceivedDate": "oBloggerContentReceivedDate", "bloggerResult": "oBloggerResult", "extraPages": "oExtraPages", "prepaymentDate": "oPrepaymentDate", "fullPaymentDate": "oFullPaymentDate", "commStatus": "oCommStatus", "nextContact": "oNextContact", "printStarted": "oPrintStarted", "printReady": "oPrintReady", "sdek": "oSdek", "deliveryCost": "oDeliveryCost", "deliveryExpected": "oDeliveryExpected", "deliveredAt": "oDeliveredAt", "giftDate": "oGiftDate", "reviewReceived": "oReviewReceived", "publication": "oPublication", "cardType": "oCardType"};
+          for(const [key,value] of Object.entries(data)) {
+            if(key==='workflowV2' || key==='activity' || key==='updatedAt') continue;
+            if(base && controlMap[key] && $(controlMap[key]).value===initialControls[controlMap[key]]) continue;
+            if(base && ['id','productionOrderId','createdAt','archived'].includes(key)) continue;
+            if(base && ['owner','completedDesigner','designerRate'].includes(key) && $('oStatus').value===initialControls.oStatus && $('oOwner').value===initialControls.oOwner) continue;
+            if(!base || JSON.stringify(value)!==JSON.stringify(before[key])) patch[key]=value;
+          }
+          const workflowPatch={};
+          for(const [key,value] of Object.entries(workflowV2)) {
+            if(key==='tasks') continue;
+            if(!base || JSON.stringify(value)!==JSON.stringify(before.workflowV2?.[key])) workflowPatch[key]=value;
+          }
+          if(Object.keys(workflowPatch).length) patch.workflowV2=workflowPatch;
+          if(workflowV2.enabled && data.cardType!=='blogger' && num(data.paid)>0 && num(before.paid)===0 && ['Лиды','Ждём фото'].includes(data.status) && $('oCommStatus').value===initialControls.oCommStatus) {
+            patch.commStatus='Предоплата получена'; patch.nextContact=todayIso();
+          }
+          patch.updatedAt=serverTimestamp();
+          await runTransaction(db,async transaction=>{
+            const snap=await transaction.get(ref);
+            if(base && !snap.exists()) throw Error('Карточка больше не существует');
+            const latest=snap.exists()?snap.data():{};
+            const normalized=snap.exists()?normalizeOrder(latest,ref.id):{};
+            if(base) for(const key of Object.keys(patch)) {
+              if(['workflowV2','updatedAt','activity'].includes(key)) continue;
+              if(JSON.stringify(normalized[key])!==JSON.stringify(before[key])) throw Error('Карточка изменена другим сотрудником. Закройте и откройте её заново');
+            }
+            if(base) for(const key of Object.keys(workflowPatch)) if(JSON.stringify(normalized.workflowV2?.[key])!==JSON.stringify(before.workflowV2?.[key])) throw Error('Данные задач изменены другим сотрудником. Откройте карточку заново');
+            patch.activity=appendActivity(normalized,activityEntry(base?'Карточка обновлена':'Карточка создана','Сохранены изменения'));
+            transaction.set(ref,patch,{merge:true});
+          });
           closeOrder();
         } catch (err) {
           alert("Ошибка сохранения: " + err.message);
@@ -2848,7 +3055,7 @@
           updates.designerStarted = todayIso();
         if (status === "В печати" && !o.printStarted) {
           updates.printStarted = todayIso();
-          updates.printReady = addBusinessDays(updates.printStarted, 10);
+          updates.printReady = WF.businessDays(updates.printStarted, 10, o.workflowV2?.calendar);
         }
         if (status === "В печати") {
           updates.completedDesigner = o.completedDesigner || o.owner || "";
@@ -2861,7 +3068,6 @@
           updates.taskDone = false;
           updates.taskCompletedAt = null;
         }
-        o.status = status;
         await setDoc(doc(db, "orders", docId), updates, { merge: true });
       }
       async function moveNext(docId) {
@@ -2938,20 +3144,182 @@
         render();
         openLinkedOrder();
       }
+      const WF = window.PobookWorkflow;
+      let orderEditSnapshot = null;
+      let initialControls = {}, typeStatuses = {}, previousType = null;
+      const wfFields = {
+        manager:'oManager', questionnaireReceived:'oQuestionnaireReceived', photosReceived:'oPhotosReceived',
+        materialsChecked:'oMaterialsChecked', materialsAcceptedAt:'oMaterialsAcceptedAt', layoutDue:'oLayoutDue',
+        layoutURL:'oLayoutURL', layoutRevision:'oLayoutRevision', layoutApprovedAt:'oLayoutApprovedAt',
+        qualityChecked:'oQualityChecked', paymentDetails:'oPaymentDetails', enabled:'oWorkflowEnabled',
+        questionnaireSentAt:'oQuestionnaireSentAt'
+      };
+      const checks = new Set(['questionnaireReceived','photosReceived','materialsChecked','qualityChecked','enabled']);
+      function openWorkflow(o) {
+        orderEditSnapshot = o ? structuredClone(o) : null;
+        typeStatuses = {}; previousType = null;
+        const w = o?.workflowV2 || {};
+        for(const [key,id] of Object.entries(wfFields)) {
+          if(checks.has(key)) $(id).checked=Boolean(w[key]);
+          else $(id).value=w[key] || (key==='layoutRevision'?1:'');
+        }
+        $('oHolidays').value=w.calendar?.holidays || '';
+        $('oWorkingDays').value=w.calendar?.workingDays || '';
+        $('oCalendarYears').value=w.calendar?.confirmedYears || '';
+        $('oManualId').value=w.manual?.id || '';
+        $('oManualTitle').value=w.manual?.title || '';
+        $('oManualDue').value=w.manual?.due || '';
+        $('oManualText').value=w.manual?.text || '';
+        renderPublications(o?.bloggerPublications || []);
+      }
+      function readWorkflow(base) {
+        const w={...(base?.workflowV2 || {})};
+        for(const [key,id] of Object.entries(wfFields)) w[key]=checks.has(key)?$(id).checked:$(id).value.trim();
+        w.calendar={holidays:$('oHolidays').value.trim(),workingDays:$('oWorkingDays').value.trim(),confirmedYears:$('oCalendarYears').value.trim()};
+        w.manual={id:$('oManualId').value,title:$('oManualTitle').value.trim(),due:$('oManualDue').value,text:$('oManualText').value.trim()};
+        if([...WF.dates(w.calendar.holidays),...WF.dates(w.calendar.workingDays)].some(d=>!WF.valid(d))) throw Error('Даты календаря укажите в формате ГГГГ-ММ-ДД');
+        if(w.materialsAcceptedAt && !(w.questionnaireReceived && w.photosReceived && w.materialsChecked)) throw Error('Для принятия в работу подтвердите получение анкеты, фото и проверку комплекта');
+        if(w.enabled && !w.manager) throw Error('Назначьте менеджера заказа');
+        if(w.layoutURL && !WF.safeURL(w.layoutURL)) throw Error('Проверьте ссылку на макет');
+        if(w.materialsAcceptedAt && !w.layoutDue) w.layoutDue=WF.businessDays(w.materialsAcceptedAt,7,w.calendar);
+        if(w.materialsAcceptedAt && !w.layoutDue) throw Error('Нужен проверенный календарь на следующий год. Заполните календарь или укажите согласованную дату макета вручную');
+        if(w.materialsAcceptedAt && w.layoutDue < w.materialsAcceptedAt) throw Error('Срок макета не может быть раньше принятия в работу');
+        return w;
+      }
+      function renderPublications(items) {
+        $('oPublications').innerHTML='';
+        for(const item of items) addPublication(item);
+      }
+      function addPublication(item={}) {
+        const row=document.createElement('div'); row.className='publication-row';
+        row.innerHTML=`<input aria-label="Площадка публикации" placeholder="Instagram / Telegram" value="${esc(item.platform || '')}"><input aria-label="Ссылка на публикацию" placeholder="https://…" value="${esc(item.url || '')}"><input aria-label="Дата публикации" type="date" value="${esc(item.date || '')}"><button type="button" class="iconbtn">Убрать</button>`;
+        row.querySelector('button').onclick=()=>row.remove();
+        $('oPublications').append(row);
+      }
+      function readPublications() {
+        return [...$('oPublications').children].map(row=>{
+          const [platform,url,date]=[...row.querySelectorAll('input')].map(el=>el.value.trim());
+          if(!url || !WF.safeURL(url)) throw Error('Укажите корректную ссылку для каждой публикации или уберите пустую строку');
+          return {platform,url,date};
+        });
+      }
+      function recalculateLayout() {
+        $('oLayoutDue').value=WF.businessDays($('oMaterialsAcceptedAt').value,7,{holidays:$('oHolidays').value,workingDays:$('oWorkingDays').value,confirmedYears:$('oCalendarYears').value});
+      }
+      function workflowTasks(o) {
+        const tasks=WF.tasks(o,todayIso());
+        if(o.workflowV2?.enabled && o.cardType!=='blogger' && !o.workflowV2.materialsAcceptedAt && o.status==='Лиды' && ['Новое обращение','Ждём ответа','Нужно напомнить','Формат выбран','Ждём предоплату'].includes(o.commStatus)) {
+          const key='intake-'+o.commStatus+'-'+(o.followUpCount || 0);
+          if(!o.workflowV2.tasks?.[key]?.doneAt) {
+            const saved=o.workflowV2.tasks?.[key] || {}, due=saved.snoozeUntil || o.nextContact || todayIso();
+            tasks.push({key,title:taskFor({...o,workflowV2:{}}),text:messageFor(o),due,issues:o.workflowV2.manager?[]:['Назначьте менеджера'],problem:saved.problem || '',group:saved.problem || !o.workflowV2.manager?'Нужно разобраться':due<todayIso()?'Просрочено':due>todayIso()?'Ждём клиента / запланировано':'Сегодня'});
+          }
+        }
+        for(const t of tasks) if(t.key==='questionnaire') {
+          t.text=messageFor({...o,commStatus:'Предоплата получена'});
+          t.issues=t.issues.filter(x=>x!=='Откройте текст анкеты в карточке коммуникаций');
+          t.group=t.issues.length || t.problem?'Нужно разобраться':t.due<todayIso()?'Просрочено':'Сегодня';
+        }
+        return tasks;
+      }
+      function renderWorkflowTasks() {
+        const rows=orders.flatMap(o=>workflowTasks(o).map(t=>({o,t})));
+        $('workflowTaskCount').textContent=rows.length;
+        $('workflowTaskGroups').innerHTML=['Просрочено','Сегодня','Ждём клиента / запланировано','Нужно разобраться'].map(group=>{
+          const list=rows.filter(({t})=>t.group===group).sort((a,b)=>a.t.due.localeCompare(b.t.due));
+          return `<section class="panel"><h3>${esc(group)} · ${list.length}</h3>${list.map(({o,t})=>`<article class="workflow-task"><b>${esc(t.title)}</b><div>${esc(o.name)} · №${esc(o.id)} · ${esc(o.workflowV2.manager || 'Менеджер не назначен')}</div><div class="small">Срок: ${esc(WF.showDate(t.due))}</div>${t.issues.length?`<p class="red">${esc(t.issues.join('. '))}</p>`:''}${t.problem?`<p class="red">Проблема: ${esc(t.problem)}</p>`:''}${t.text?`<details><summary>Готовый текст клиенту</summary><div class="message-preview">${esc(t.text)}</div></details>`:''}<div class="actions"><button class="iconbtn" data-edit="${esc(o._docId)}">Карточка</button>${telegramLinkFor(o)?`<a class="iconbtn" href="${esc(telegramLinkFor(o))}" target="_blank" rel="noopener">Открыть чат</a>`:''}${t.text && !t.issues.length && !t.problem?`<button class="iconbtn" data-wf-action="copy" data-wf-doc="${esc(o._docId)}" data-wf-key="${esc(t.key)}">Скопировать</button><button class="iconbtn" data-wf-action="sent" data-wf-doc="${esc(o._docId)}" data-wf-key="${esc(t.key)}">✅ Отправлено</button>`:''}<button class="iconbtn" data-wf-action="snooze" data-wf-doc="${esc(o._docId)}" data-wf-key="${esc(t.key)}">Отложить</button><button class="iconbtn" data-wf-action="problem" data-wf-doc="${esc(o._docId)}" data-wf-key="${esc(t.key)}">${t.problem?'Изменить / снять проблему':'Проблема'}</button></div></article>`).join('') || '<p class="small">Задач нет</p>'}</section>`;
+        }).join('');
+      }
+      async function workflowAction(button) {
+        const o=orders.find(x=>x._docId===button.dataset.wfDoc), action=button.dataset.wfAction;
+        const task=o && workflowTasks(o).find(t=>t.key===button.dataset.wfKey);
+        if(!task) return;
+        button.disabled=true;
+        try {
+          if(action==='copy') { await navigator.clipboard.writeText(task.text); return; }
+          if(action==='sent' && button.dataset.confirmed!=='yes') {button.dataset.confirmed='yes';button.textContent='Подтвердить: сообщение отправлено';return;}
+          const value=action==='snooze'?prompt('Отложить до даты (ГГГГ-ММ-ДД)'):action==='problem'?prompt('Опишите проблему. Чтобы снять её, оставьте поле пустым.',task.problem):'';
+          if(value===null) return;
+          const record=WF.recordTask(task,action,value,currentProfile.name,new Date().toISOString());
+          // Transaction protects task history against duplicate confirmations from another tab.
+          await runTransaction(db,async transaction=>{
+            const ref=doc(db,'orders',o._docId), snap=await transaction.get(ref);
+            if(!snap.exists()) throw Error('Карточка больше не существует');
+            const raw=snap.data(), fresh=normalizeOrder(raw,o._docId), freshTask=workflowTasks(fresh).find(t=>t.key===task.key);
+            if(!freshTask || freshTask.text!==task.text || freshTask.issues.length || freshTask.problem!==task.problem) {
+              if(action==='sent') throw Error('Задача изменилась. Обновите список перед подтверждением');
+              if(!freshTask) throw Error('Задача больше не актуальна');
+            }
+            const patch={workflowV2:{...raw.workflowV2,tasks:{...raw.workflowV2?.tasks,[task.key]:{...raw.workflowV2?.tasks?.[task.key],...record}}},updatedAt:serverTimestamp()};
+            if(action==='sent') {
+              patch.lastMessageAt=record.doneAt; patch.lastMessageTemplate=task.key;
+              patch.activity=appendActivity(fresh,activityEntry('Сообщение клиенту',task.title));
+              if(task.key==='publication') patch.publication='Разрешение запрошено';
+              if(task.key==='accepted') patch.commStatus='Книга в работе';
+              if(task.key==='printing') patch.commStatus='В печати';
+              if(task.key==='book-ready') patch.commStatus='Книга готова';
+              if(task.key.startsWith('layout-')) patch.commStatus='Согласование';
+              if(task.key==='shipping') patch.commStatus='Ждём вручения';
+              if(task.key==='review') patch.commStatus='Ждём отзыв';
+              if(task.key==='questionnaire') {patch.workflowV2.questionnaireSentAt=todayIso(); patch.commStatus='Анкета и фото';}
+              if(task.key.startsWith('intake-')) {
+                patch.commStatus=AUTOMATION_NEXT[fresh.commStatus] || fresh.commStatus;
+                patch.nextContact=nextContactFor(patch.commStatus,fresh);
+                if(['Ждём ответа','Нужно напомнить','Ждём предоплату'].includes(fresh.commStatus)) patch.followUpCount=num(fresh.followUpCount)+1;
+                if(fresh.commStatus==='Ждём ответа' && num(fresh.followUpCount)>=2) {patch.commStatus='Игнор';patch.nextContact='';}
+              }
+            }
+            transaction.set(ref,patch,{merge:true});
+          });
+        } catch(err) {alert('Не удалось выполнить действие: '+err.message);}
+        finally {button.disabled=false;}
+      }
+      document.body.addEventListener('click',e=>{
+        const b=e.target.closest('[data-wf-action]'); if(b) workflowAction(b);
+        const type=e.target.closest('[data-card-type]');
+        if(type) { $('oCardType').value=type.dataset.cardType; toggleBloggerFields(); }
+      });
+      $('addPublicationBtn').addEventListener('click',()=>addPublication());
+      $('oTemplateChoice').innerHTML=window.PobookTemplates.map(([title,event],i)=>`<option value="${i}">${i+1}. ${esc(title)} — ${esc(event)}</option>`).join('');
+      $('prepareMessageBtn').addEventListener('click',()=>{
+        const existing=$('oManualId').value;
+        if(existing && $('oManualText').value && !orderEditSnapshot?.workflowV2?.tasks?.['manual-'+existing]?.doneAt) {
+          alert('Уже подготовлена дополнительная задача. Завершите её или отредактируйте текущий текст, чтобы не потерять поручение.');
+          return;
+        }
+        const [title,event,text]=window.PobookTemplates[Number($('oTemplateChoice').value)];
+        const values={'имя':$('oName').value,'формат':$('oFormat').value,'печать':$('oPrintType').value,'сумма':$('oPrice').value,'предоплата':num($('oPrice').value)?String(Math.round(num($('oPrice').value)/2)):'','остаток':String(Math.max(0,num($('oPrice').value)-num($('oPaid').value))),'реквизиты':$('oPaymentDetails').value,'макет':$('oLayoutURL').value,'дата макета':$('oLayoutDue').value?WF.showDate($('oLayoutDue').value):'','дата печати':$('oPrintReady').value?WF.showDate($('oPrintReady').value):'','трек':$('oSdek').value,'доставка':$('oDeliveryExpected').value?WF.showDate($('oDeliveryExpected').value):''};
+        $('oManualId').value=crypto.randomUUID(); $('oManualTitle').value=title;
+        $('oManualDue').value=todayIso(); $('oManualText').value=text.replace(/\{([^}]+)\}/g,(m,key)=>values[key] || m);
+      });
+      $('acceptMaterialsBtn').addEventListener('click',()=>{
+        if(!['oQuestionnaireReceived','oPhotosReceived','oMaterialsChecked'].every(id=>$(id).checked)) return alert('Сначала подтвердите получение анкеты, фото и проверку комплекта');
+        $('oMaterialsAcceptedAt').value ||= todayIso();
+        $('oWorkStarted').value ||= $('oMaterialsAcceptedAt').value;
+        if($('oCardType').value!=='blogger') {$('oStatus').value='Поступило в работу';$('oCommStatus').value='Книга в работе';}
+        recalculateLayout();
+      });
+      $('oMaterialsAcceptedAt').addEventListener('change',recalculateLayout);
+      $('recalculateDatesBtn').addEventListener('click',()=>{
+        recalculateLayout();
+        if($('oPrintStarted').value) $('oPrintReady').value=WF.businessDays($('oPrintStarted').value,10,{holidays:$('oHolidays').value,workingDays:$('oWorkingDays').value,confirmedYears:$('oCalendarYears').value});
+      });
+
       function toggleBloggerFields() {
         const isBlogger = $("oCardType").value === "blogger",
           current = $("oStatus").value;
+        const type = isBlogger ? 'blogger' : 'client';
+        if(previousType && previousType!==type) typeStatuses[previousType]=current;
+        previousType=type;
         document
           .querySelectorAll(".blogger-only")
           .forEach((el) => (el.hidden = !isBlogger));
+        document.querySelectorAll('.client-only').forEach(el=>el.hidden=isBlogger);
+        document.querySelectorAll('[data-card-type]').forEach(el=>el.setAttribute('aria-pressed',String((el.dataset.cardType==='blogger')===isBlogger)));
         if (isBlogger) {
-          $("oPrice").value = 0;
-          $("oPaid").value = 0;
-          updateStatusOptions(
-            BLOGGER_STATUSES.includes(current) ? current : "Новый блогер",
-          );
+          updateStatusOptions(typeStatuses.blogger || (BLOGGER_STATUSES.includes(current) ? current : "Новый блогер"));
         } else
-          updateStatusOptions(STATUSES.includes(current) ? current : "Лиды");
+          updateStatusOptions(typeStatuses.client || (STATUSES.includes(current) ? current : "Лиды"));
       }
       document
         .querySelectorAll(".tab")
@@ -3005,10 +3373,7 @@
           $("oDesignerStarted").value = todayIso();
         if (e.target.value === "В печати" && !$("oPrintStarted").value) {
           $("oPrintStarted").value = todayIso();
-          $("oPrintReady").value = addBusinessDays(
-            $("oPrintStarted").value,
-            10,
-          );
+          $("oPrintReady").value = WF.businessDays($("oPrintStarted").value,10,{holidays:$('oHolidays').value,workingDays:$('oWorkingDays').value,confirmedYears:$('oCalendarYears').value});
         }
         if (e.target.value === "Отправлено") {
           $("oCommStatus").value = "Книга отправлена";
@@ -3019,7 +3384,7 @@
         $("oNextContact").value = suggestedNextContact(e.target.value);
       });
       $("oPrintStarted").addEventListener("change", (e) => {
-        $("oPrintReady").value = addBusinessDays(e.target.value, 10);
+        $("oPrintReady").value = WF.businessDays(e.target.value,10,{holidays:$('oHolidays').value,workingDays:$('oWorkingDays').value,confirmedYears:$('oCalendarYears').value});
         if ($("oStatus").value === "В печати")
           $("oNextContact").value = $("oPrintReady").value;
       });
